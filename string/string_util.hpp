@@ -1,6 +1,13 @@
 #ifndef string_util_h__
 #define string_util_h__
 
+/*
+*   string_util.hpp 
+*
+*   v0.1  _2018-04 By GuoJH
+*   v0.2  _2020-08 By GuoJH
+*/
+
 #include <string>
 #include <utility.hpp>
 

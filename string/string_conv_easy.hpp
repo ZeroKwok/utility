@@ -4,8 +4,8 @@
 /*
 *   string_conv_easy.hpp 
 *   
-*   v0.1  _2018-04 By GuoJH
-*   v0.2  _2020-08 By GuoJH
+*   v0.1  2018-04 By GuoJH
+*   v0.2  2020-08 By GuoJH
 */
 
 #ifdef UTILITY_SUPPORT_QT

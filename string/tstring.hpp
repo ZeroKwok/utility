@@ -1,6 +1,13 @@
 #ifndef tstring_h__
 #define tstring_h__
 
+/*
+*   tstring.hpp 
+*
+*   v0.1  2018-04 By GuoJH
+*   v0.2  2020-08 By GuoJH
+*/
+
 #include <string>
 #include <sstream>
 #include <utility.hpp>
@@ -26,6 +33,7 @@ namespace util {
 */
 class UTILITY_CLASS_DECL tstring : public std::wstring
 {
+    UTILITY_DECL_PRIVATE(tstring);
 public:
     typedef std::wstring supper_type;
     typedef wchar_t      element_type;
@@ -41,11 +49,14 @@ public:
     UTILITY_MEMBER_DECL tstring(const wchar_t* right);
     UTILITY_MEMBER_DECL tstring(const std::string& right, coded_format format = format_ansi);
     UTILITY_MEMBER_DECL tstring(const std::wstring& right);
+    UTILITY_MEMBER_DECL tstring(const tstring& right);
+    UTILITY_MEMBER_DECL ~tstring();
 
 #ifdef UTILITY_SUPPORT_QT
     UTILITY_MEMBER_DECL tstring(const QString& right);
 #endif
 
+    UTILITY_MEMBER_DECL tstring& operator=(const tstring& right);
     UTILITY_MEMBER_DECL operator std::string() const;
     UTILITY_MEMBER_DECL operator std::wstring() const;
 

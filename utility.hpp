@@ -46,6 +46,30 @@
 #   endif
 #endif
 
+// Defined Private encapsulation implement.
+#define UTILITY_DECL_PRIVATE(class) \
+    intptr_t __##class##_private
+
+#define UTILITY_INIT_PRIVATE(class, ...) \
+    __##class##_private = reinterpret_cast<intptr_t>( \
+        new privately::##class##_private(__VA_ARGS__)); 
+
+#define UTILITY_FREE_PRIVATE(class) \
+    do { \
+        if(__##class##_private != 0) { \
+            delete reinterpret_cast< \
+                privately::##class##_private *>(__##class##_private); \
+            __##class##_private = 0; \
+        } \
+    } while(0)
+
+#define UTILITY_PRIVATE(class) \
+    (*reinterpret_cast<privately::##class##_private *>(__##class##_private))
+
+#define UTILITY_BOTH_PRIVATE_COPY(class, left, right) \
+    (*reinterpret_cast<privately::##class##_private *>(left.__##class##_private)) \
+        = (*reinterpret_cast<privately::##class##_private *>(right.__##class##_private))
+
 // Defined WINNT version.
 #if defined(WIN32) || defined(_WIN32)
 #   ifndef _WIN32_WINNT
