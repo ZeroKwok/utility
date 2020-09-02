@@ -8,7 +8,7 @@ namespace util {
 namespace detail {
 
 template<class _TChar>
-inline std::basic_string<_TChar> __tolower(const std::basic_string<_TChar>& str)
+inline std::basic_string<_TChar> __to_lower(const std::basic_string<_TChar>& str)
 {
     std::basic_string<_TChar> result(str.length(), 0);
     std::transform(str.begin(), str.end(), result.begin(), ::tolower); 
@@ -16,7 +16,7 @@ inline std::basic_string<_TChar> __tolower(const std::basic_string<_TChar>& str)
 }
 
 template<class _TChar>
-inline std::basic_string<_TChar> __toupper(const std::basic_string<_TChar>& str)
+inline std::basic_string<_TChar> __to_upper(const std::basic_string<_TChar>& str)
 {
     std::basic_string<_TChar> result(str.length(), 0);
     std::transform(str.begin(), str.end(), result.begin(), ::toupper); 
@@ -97,24 +97,24 @@ std::wstring sformat(const wchar_t * format, ...)
     return text.data();
 }
 
-std::string  tolower(const std::string& str)
+std::string  to_lower(const std::string& str)
 {
-    return detail::__tolower(str);
+    return detail::__to_lower(str);
 }
 
-std::wstring tolower(const std::wstring& str)
+std::wstring to_lower(const std::wstring& str)
 {
-    return detail::__tolower(str);
+    return detail::__to_lower(str);
 }
 
-std::string  toupper(const std::string& str)
+std::string  to_upper(const std::string& str)
 {
-    return detail::__toupper(str);
+    return detail::__to_upper(str);
 }
 
-std::wstring toupper(const std::wstring& str)
+std::wstring to_upper(const std::wstring& str)
 {
-    return detail::__toupper(str);
+    return detail::__to_upper(str);
 }
 
 std::string&  replace(std::string& target,

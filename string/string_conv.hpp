@@ -9,7 +9,7 @@
 */
 
 #include <string>
-#include <utility.hpp>
+#include <string/string_cfg.hpp>
 
 namespace util {
 namespace conv {

@@ -8,9 +8,17 @@
 */
 
 #if defined(UTILITY_BUILD_SHARED_LIB) || defined(UTILITY_BUILD_STATIC_LIB) ||\
-    defined(UTILITY_USING_SHARED_LIB) || defined(UTILITY_USING_STATIC_LIB)
-#   ifndef UTILITY_DISABLE_HEADONLY
+    defined(UTILITY_USING_SHARED_LIB) || defined(UTILITY_USING_STATIC_LIB)      
+#   if !defined(UTILITY_DISABLE_HEADONLY)
 #       define UTILITY_DISABLE_HEADONLY 1
+#   endif
+#   ifdef UTILITY_ENDABLE_HEADONLY
+#       undef UTILITY_ENDABLE_HEADONLY
+#   endif
+#else
+#   if !defined(UTILITY_ENDABLE_HEADONLY) && !defined(UTILITY_DISABLE_HEADONLY)
+#       define UTILITY_DISABLE_HEADONLY 1
+#       define UTILITY_USING_STATIC_LIB 1
 #   endif
 #endif
 
@@ -38,10 +46,10 @@
 
 // Auto link
 #if defined(UTILITY_USING_SHARED_LIB) || defined(UTILITY_USING_STATIC_LIB)
-#   ifdef OS_WIN
-#   ifdef UTILITY_USING_SHARED_LIB
-#       define AUTO_LINK_DYN_LINK  1
-#   endif
+#   if !defined(UTILITY_DISABLE_AUTO_LINK) && defined(OS_WIN)
+#       ifdef UTILITY_USING_SHARED_LIB
+#           define AUTO_LINK_DYN_LINK  1
+#       endif
 #       define UTILITY_ENABLE_AUTO_LINK 1
 #   endif
 #endif

@@ -75,7 +75,8 @@ tstring::~tstring()
 tstring& tstring::operator=(const tstring& right)
 {
     UTILITY_BOTH_PRIVATE_COPY(tstring, (*this), right);
-    return *this = right.wstring();
+    supper_type::operator=(right.wstring());
+    return *this;
 }
 
 std::string tstring::utf8() const

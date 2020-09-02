@@ -9,7 +9,7 @@
 */
 
 #include <string>
-#include <utility.hpp>
+#include <string/string_cfg.hpp>
 
 namespace util {
 
@@ -42,10 +42,10 @@ UTILITY_FUNCT_DECL std::wstring replace_copy(
 /*
 *	大小写转换(弃用)
 */
-UTILITY_FUNCT_DECL std::string  tolower(const std::string& str);
-UTILITY_FUNCT_DECL std::wstring tolower(const std::wstring& str);
-UTILITY_FUNCT_DECL std::string  toupper(const std::string& str);
-UTILITY_FUNCT_DECL std::wstring toupper(const std::wstring& str);
+UTILITY_FUNCT_DECL std::string  to_lower(const std::string& str);
+UTILITY_FUNCT_DECL std::wstring to_lower(const std::wstring& str);
+UTILITY_FUNCT_DECL std::string  to_upper(const std::string& str);
+UTILITY_FUNCT_DECL std::wstring to_upper(const std::wstring& str);
 
 /*
 *   字符串二分割(弃用)

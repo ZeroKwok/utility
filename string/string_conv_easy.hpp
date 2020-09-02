@@ -17,6 +17,7 @@
 #   pragma comment(lib, "comsupp.lib")
 #endif
 
+#include <string/string_cfg.hpp>
 #include <string/string_conv.hpp>
 
 namespace util {

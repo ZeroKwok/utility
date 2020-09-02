@@ -180,13 +180,13 @@ AUTO_LINK_LIB_VERSION:    The Boost version, in the form x_y, for version x.y.
 #if defined(_MSC_VER) || defined(__MWERKS__)
 #  ifdef _DLL
 #    if defined(_DEBUG)
-#      define AUTO_LINK_LIB_RT_OPT "-d"
+#      define AUTO_LINK_LIB_RT_OPT "-gd"
 #    else
 #      define AUTO_LINK_LIB_RT_OPT
 #    endif
 #  else
 #    if defined(_DEBUG)
-#      define AUTO_LINK_LIB_RT_OPT "-sd"
+#      define AUTO_LINK_LIB_RT_OPT "-sgd"
 #    else
 #      define AUTO_LINK_LIB_RT_OPT "-s"
 #    endif

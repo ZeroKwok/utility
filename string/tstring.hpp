@@ -10,7 +10,7 @@
 
 #include <string>
 #include <sstream>
-#include <utility.hpp>
+#include <string/string_cfg.hpp>
 #include <string/string_conv.hpp>
 
 #ifdef UTILITY_SUPPORT_QT
