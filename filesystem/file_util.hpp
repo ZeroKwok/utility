@@ -9,6 +9,7 @@
 */
 
 #include <fcntl.h>
+#include <stdio.h>
 #include <string/tstring.hpp>
 #include <filesystem/filesystem_cfg.hpp>
 
@@ -216,12 +217,10 @@ UTILITY_FUNCT_DECL bool file_lock(ffile& file, fsize offset, fsize length, ferro
 UTILITY_FUNCT_DECL bool file_unlock(ffile& file, fsize offset, fsize length);
 UTILITY_FUNCT_DECL bool file_unlock(ffile& file, fsize offset, fsize length, ferror& ferr);
 
-/*
-*	设置文件指针
-*   SEEK_SET = 0, (FILE_BEGIN  )
-*   SEEK_CUR = 1, (FILE_CURRENT)
-*   SEEK_END = 2, (FILE_END    )
-*/
+
+//!< SEEK_SET    0, (FILE_BEGIN  )
+//!< SEEK_CUR    1, (FILE_CURRENT)
+//!< SEEK_END    2, (FILE_END    )
 UTILITY_FUNCT_DECL void file_seek(ffile& file, fsize pos, int flag = SEEK_SET);
 UTILITY_FUNCT_DECL void file_seek(ffile& file, fsize pos, int flag, ferror& ferr);
 

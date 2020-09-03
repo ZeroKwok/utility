@@ -70,6 +70,8 @@ public:
 
     template<class _Type>
     UTILITY_MEMBER_DECL tstring& operator%(const _Type& arg);
+    UTILITY_MEMBER_DECL tstring& operator%(const char* arg);
+    UTILITY_MEMBER_DECL tstring& operator%(const wchar_t* arg);
     UTILITY_MEMBER_DECL tstring& operator%(const std::string& arg);
     UTILITY_MEMBER_DECL tstring& operator%(const std::wstring& arg);
 };

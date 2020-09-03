@@ -21,16 +21,18 @@ struct tstring_private
 } // privately
 
 tstring::tstring()
-{}
+{
+    UTILITY_INIT_PRIVATE(tstring);
+}
 
 tstring::tstring(const char* right, coded_format format/* = ansi*/)
-    : supper_type(conv::easy::_2wstr(right, conv::easy::coded_format(format)))
+    : supper_type(conv::easy::_2wstr(right ? right : "", conv::easy::coded_format(format)))
 {
     UTILITY_INIT_PRIVATE(tstring);
 }
 
 tstring::tstring(const wchar_t* right)
-    : supper_type(right)
+    : supper_type(right ? right : L"")
 {
     UTILITY_INIT_PRIVATE(tstring);
 }
@@ -92,6 +94,16 @@ std::string tstring::string() const
 std::wstring tstring::wstring() const
 {
     return conv::easy::_2wstr(*this);
+}
+
+util::tstring& tstring::operator%(const char* arg)
+{
+    return (*this) % conv::easy::_2wstr(arg);
+}
+
+util::tstring& tstring::operator%(const wchar_t* arg)
+{
+    return (*this) % conv::easy::_2wstr(arg);
 }
 
 util::tstring& tstring::operator%(const std::string& arg)

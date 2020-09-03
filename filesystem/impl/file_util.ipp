@@ -265,12 +265,22 @@ ffile file_open(const fpath& name, int flags, ferror& ferr)
         append = 1;
 
     if (flags & _O_CREAT)
-        creation_flag = OPEN_ALWAYS;
+    {
+        if (flags & _O_TRUNC)   // creat and trunc 
+            creation_flag = CREATE_ALWAYS;
+        else
+            creation_flag = OPEN_ALWAYS;
+    }
     else
-        creation_flag = OPEN_EXISTING;
+    {
+        if (flags & _O_TRUNC && util::file_exist(name, ferr)) // file exists and trunc
+            creation_flag = CREATE_ALWAYS;
+        else
+            creation_flag = OPEN_EXISTING;
 
-    if (flags & _O_TRUNC)
-        creation_flag = CREATE_ALWAYS;
+        if (ferr)
+            return ffile();
+    }
 
     if (flags & _O_EXCL)
     {
@@ -297,6 +307,11 @@ ffile file_open(const fpath& name, int flags, ferror& ferr)
     {
         ferr = ferror(::GetLastError(), "Can't open file");
         return ffile();
+    }
+
+    if (append != 0)
+    {
+        file_seek(file, 0, FILE_END, ferr);
     }
 
     return file;

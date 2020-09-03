@@ -60,7 +60,7 @@ inline std::wstring _2wstr(const std::wstring& string)
 
 inline std::string _2utf8(const std::wstring& string)
 {
-    return util::conv::utf162ansi(string, std::string());
+    return util::conv::utf162utf8(string, std::string());
 }
 
 inline std::string _2utf8(
