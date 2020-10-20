@@ -19,6 +19,7 @@ endif()
 # 测试项目
 add_executable(${PROJECT_NAME} 
 	string.cpp
+	string_util.cpp
 	filesystem.cpp)
 
 # 连接测试库

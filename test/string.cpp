@@ -120,7 +120,6 @@ TEST(tstring, wstring_constructor)
     }
 }
 
-
 TEST(tstring, copy_constructor)
 {
     {
@@ -165,7 +164,6 @@ TEST(tstring, copy_constructor)
         EXPECT_EQ(L"我们的征程是星辰大海~~~", string.wstring());
     }
 }
-
 
 TEST(tstring, operator_constructor)
 {

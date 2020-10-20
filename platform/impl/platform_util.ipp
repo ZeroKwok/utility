@@ -241,7 +241,7 @@ std::wstring wsystem_name()
         name += util::sformat(L" Service Pack %d", version.wServicePackMajor);
 
     if (!name.empty())
-        name += is_64bitsys() ? L"x64" : L"x86";
+        name += is_64bitsys() ? L" x64" : L" x86";
 
     return name;
 }
