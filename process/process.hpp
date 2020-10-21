@@ -78,8 +78,6 @@ protected:
     native_handle_t _handle;
 };
 
-
-
 } // util
 
 #ifndef UTILITY_DISABLE_HEADONLY
@@ -87,3 +85,4 @@ protected:
 #endif
 
 #endif // process_h__
+
