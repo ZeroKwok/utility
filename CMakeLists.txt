@@ -53,6 +53,7 @@ include(library_regular_naming)
 
 # всд©б╪
 add_subdirectory(string)
+add_subdirectory(process)
 add_subdirectory(platform)
 add_subdirectory(filesystem)
 

@@ -15,7 +15,7 @@
 
 namespace util {
 
-typedef util::tstring      fpath, fpath;
+typedef util::tstring      fpath;
 typedef unsigned long long fsize;
 
 /*
