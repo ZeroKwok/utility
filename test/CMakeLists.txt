@@ -20,14 +20,15 @@ endif()
 add_executable(${PROJECT_NAME} 
 	string.cpp
 	string_util.cpp
-	filesystem.cpp)
+	filesystem.cpp 
+	process.cpp)
 
 # 连接测试库
 target_link_libraries(${PROJECT_NAME} gtest_main)
 
 # 若没有启动自动连接支持
 if(NOT UTILITY_ENABLE_AUTO_LINK)
-	target_link_libraries(${PROJECT_NAME} string filesystem platform)
+	target_link_libraries(${PROJECT_NAME} string filesystem platform process)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE UTILITY_DISABLE_AUTO_LINK)
 endif()
 

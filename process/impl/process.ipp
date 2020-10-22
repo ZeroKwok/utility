@@ -11,13 +11,15 @@ namespace util {
 namespace detail {
   
 // 直接运行
+// app  不会检索系统搜索目录, 会使用当前驱动器和当前目录, 必须包含扩展名, 可以为空, 
+// cmd  会检索系统搜索目录, 会假定.exe, 可以为空
 inline HANDLE runapp_with_redirection(
     const util::tstring& app,
     const util::tstring& cmd,
     HANDLE input,
     HANDLE output,
     HANDLE error,
-    process::launch_policy policy,
+    process::launch_policys policy,
     platform_error& perror)
 {
     STARTUPINFOW si = {0};
@@ -31,7 +33,22 @@ inline HANDLE runapp_with_redirection(
     si.hStdOutput	= output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError	= error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
 
+    if (policy & process::hide_window)
+    {
+        si.dwFlags     = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+
+        // See:
+        // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/ns-processthreadsapi-startupinfow
+    }
+
     std::wstring cmd_dup(cmd);
+
+    // CREATE_NO_WINDOW
+    // 如果进程是控制台程序, 则以不显示控制台的方式运行. 如果应用程序不是控制台程序或者
+    // 使用CREATE_NEW_CONSOLE, DETACHED_PROCESS该标志将被忽略;
+    // See:
+    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
 
     if (::CreateProcessW(
         /* lpApplicationName,   */ app.empty()     ? nullptr : app.c_str(),
@@ -39,7 +56,7 @@ inline HANDLE runapp_with_redirection(
         /* lpProcessAttributes, */ nullptr,
         /* lpThreadAttributes,  */ nullptr,
         /* bInheritHandles,     */ (si.dwFlags & STARTF_USESTDHANDLES) ? TRUE : FALSE,
-        /* dwCreationFlags,     */ (policy & process::hide_window ? CREATE_NO_WINDOW : 0),
+        /* dwCreationFlags,     */ (policy & process::hide_window ? CREATE_NO_WINDOW : 0), 
         /* lpEnvironment,       */ nullptr,
         /* lpCurrentDirectory,  */ nullptr,
         /* lpStartupInfo,       */ &si,
@@ -59,10 +76,12 @@ inline HANDLE runapp_with_redirection(
 }
 
 // 通过shell运行, 主要用于提权
+// app 没有包含路径, 则使用当前目录, 不能为空;
+// cmd 命令行参数, 可以为空;
 inline HANDLE runapp_shell_and_elevate_privileges(
     util::tstring app,
     util::tstring cmd,
-    process::launch_policy policy,
+    process::launch_policys policy,
     platform_error& error)
 {
     /*
@@ -72,12 +91,16 @@ inline HANDLE runapp_shell_and_elevate_privileges(
     *   模块名
     *   2018-4-12 By GuoJH
     */
+    
+    // 删除开头空格
+    while (!cmd.empty() && cmd[0] == L' ')
+        cmd.erase(cmd.begin());
 
     if (app.empty() && !cmd.empty())
     {
-        /* 开始包含双引号, 说明可执行模块由引号分割, 否则是以空格分割 */
-
+        // 开始包含双引号, 说明可执行模块由引号分割, 否则是以空格分割
         util::tstring::size_type index = 0;
+
         if (cmd[0] == L'\"')
         {
             if ((index = cmd.find(L'\"', 1)) != util::tstring::npos)
@@ -92,6 +115,10 @@ inline HANDLE runapp_shell_and_elevate_privileges(
             {
                 app = cmd.substr(0, index + 1);
                 cmd = cmd.substr(app.length());
+            }
+            else
+            {
+                app.swap(cmd);  // cmd 中不包含空格, 说明仅有可执行文件
             }
         }
 
@@ -129,13 +156,15 @@ inline HANDLE runapp_shell_and_elevate_privileges(
 }
 
 // 以非特权的方式运行, 主要用于降低权限
+// app  不会检索系统搜索目录, 会使用当前驱动器和当前目录, 必须包含扩展名, 可以为空, 
+// cmd  会检索系统搜索目录, 会假定.exe, 可以为空
 inline HANDLE runapp_with_non_elevate_privileges(
     const util::tstring& app,
     const util::tstring& cmd,
     HANDLE input,
     HANDLE output,
     HANDLE error,
-    process::launch_policy policy,
+    process::launch_policys policy,
     platform_error& perror)
 { 
     // vista 及以下, 或者 非提升的管理员
@@ -186,6 +215,12 @@ inline HANDLE runapp_with_non_elevate_privileges(
     si.hStdInput	= input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
     si.hStdOutput	= output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError	= error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
+
+    if (policy & process::hide_window)
+    {
+        si.dwFlags      = STARTF_USESHOWWINDOW;
+        si.wShowWindow  = SW_HIDE;
+    }
 
     std::wstring cmd_dup(cmd);
 
@@ -271,16 +306,16 @@ process::process(pid_t pid, platform_error& error)
 process::process(
     const util::tstring& app,
     const util::tstring& cmd,
-    platform_error& error,
-    launch_policy policy/* = defaulted*/)
+    launch_policys policy,
+    platform_error& error)
 {
     error.clear();
 
     if (policy & elevate_privileges && win::is_user_admin())
-        policy = launch_policy(policy & (~elevate_privileges));
+        policy = (policy & (~elevate_privileges));
 
     if (policy & depress_privileges && win::is_user_non_elevated_admin())
-        policy = launch_policy(policy & (~depress_privileges));
+        policy = (policy & (~depress_privileges));
 
     if (policy & with_shell || policy & elevate_privileges)
     {
@@ -304,7 +339,13 @@ process::process(
 process::~process()
 {
     if (valid() && joinable())
+    {
+#ifdef OS_WIN
+        ::OutputDebugStringA("*** Warnings ***\r\n");
+        ::OutputDebugStringA("The process instance will be destroyed, but the process is still vaild.\r\n");
+#endif
         std::terminate();
+    }
 }
 
 bool process::valid() const
@@ -321,7 +362,10 @@ process::pid_t process::id() const
 
 util::process::native_handle_t process::native_handle() const
 {
-    return _handle;
+    if (valid())
+        return _handle;
+
+    return -1;
 }
 
 int process::exit_code() const
@@ -330,7 +374,10 @@ int process::exit_code() const
     {
         DWORD code = 0;
         if (GetExitCodeProcess((HANDLE)_handle, &code))
-            return code;
+        {
+            if (code != STILL_ACTIVE) // 进程没有终止, 返回 STILL_ACTIVE
+                return code;
+        }
     }
 
     return -1;
@@ -349,7 +396,11 @@ void process::join()
 {
     if (joinable())
     {
-        wait_until(-1);
+        if (id() != ::GetCurrentProcessId())
+        {
+            platform_error error;
+            wait_until(-1, error);
+        }
     }
 
     detach();
@@ -363,18 +414,47 @@ bool process::joinable()
 bool process::running()
 {
     if (joinable())
-        return !wait_until(0);
+    {
+        if (id() == ::GetCurrentProcessId())
+            return true;
+
+        platform_error error;
+        return !wait_until(0, error);
+    }
 
     return false;
 }
 
-bool process::wait_until(int millisec/* = -1*/)
+bool process::wait_until(int millisec, platform_error& error)
 {
+    error.clear();
+
     if (valid())
     {
-        return ::WaitForSingleObject(
-            (HANDLE)_handle,
-            millisec == -1 ? INFINITE : millisec) == WAIT_OBJECT_0;
+        if (id() == ::GetCurrentProcessId())
+        {
+            error = platform_error(-1, "Can't wait for itself");
+            return false;
+        }
+
+        // 该函数对于handle指向的对象必须具有 SYNCHRONIZE 权限;
+        DWORD result = ::WaitForSingleObject(
+            (HANDLE)_handle, 
+            millisec == -1 ? INFINITE : millisec);
+
+        switch (result)
+        {
+        case WAIT_OBJECT_0: // 对象被触发
+            return true;
+        
+        case WAIT_FAILED:
+            error = platform_error(::GetLastError(), "Can't wait the process");
+            return false;
+
+        case WAIT_TIMEOUT:  // 超时及其他
+        default:
+            return false;
+        }
     }
 
     return true;
@@ -384,9 +464,10 @@ void process::terminate(platform_error& error)
 {
     error.clear();
 
-    if (valid())
+    if (valid() && running())
     {
-        if (!::TerminateProcess((HANDLE)_handle, 0))
+        // 该函数要求, handle 指向的句柄必须具有 PROCESS_TERMINATE 权限
+        if (!::TerminateProcess((HANDLE)_handle, -1))
         {
             error = platform_error(::GetLastError(), "Can't terminate the process");
         }
