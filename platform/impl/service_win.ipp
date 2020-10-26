@@ -171,10 +171,17 @@ inline bool StartServiceWithHandle(SC_HANDLE hService, platform_error& error)
     return status.dwCurrentState == SERVICE_RUNNING;
 }
 
+// 用于规避__try的错误: error C2712:  __try
+struct error_struct
+{
+    int     code;
+    char*   message;
+};
+
 /*
 *	停止所有此服务的依赖
 */
-inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, platform_error& error)
+inline bool _StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, error_struct& error)
 {
     DWORD i;
     DWORD dwBytesNeeded;
@@ -200,7 +207,8 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
     {
         if (GetLastError() != ERROR_MORE_DATA)
         {
-            error = platform_error(GetLastError(), "Can't stop all dependencies on the service");
+            error.code = GetLastError();
+            error.message = "Can't stop all dependencies on the service";
             return FALSE; 
         }
 
@@ -210,7 +218,8 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
 
         if ( !lpDependencies )
         {
-            error = platform_error(GetLastError(), "Can't Allocate a buffer for the dependencies");
+            error.code = GetLastError();
+            error.message = "Can't Allocate a buffer for the dependencies";
             return FALSE;
         }
 
@@ -221,7 +230,8 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
                 lpDependencies, dwBytesNeeded, &dwBytesNeeded,
                 &dwCount))
             {
-                error = platform_error(GetLastError(), "Can't enumerate all the dependencies of a service");
+                error.code = GetLastError();
+                error.message = "Can't enumerate all the dependencies of a service";
                 return FALSE;
             }
 
@@ -230,11 +240,17 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
                 ess = *(lpDependencies + i);
 
                 // Open the service.
-                hDepService = OpenServiceWithName(
-                    hSCManager, ess.lpServiceName, SERVICE_STOP | SERVICE_QUERY_STATUS, error);
+                hDepService = ::OpenServiceW(
+                    hSCManager,                             // SCM database 
+                    ess.lpServiceName,                      // name of service 
+                    SERVICE_STOP | SERVICE_QUERY_STATUS);   // full access 
 
-                if (!hDepService)
+                if (hDepService == nullptr)
+                {
+                    error.code = GetLastError();
+                    error.message = "Can't open service with service name";
                     return FALSE;
+                }
 
                 __try 
                 {
@@ -243,7 +259,8 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
                         SERVICE_CONTROL_STOP,
                         (LPSERVICE_STATUS)&ssp))
                     {
-                        error = platform_error(::GetLastError(), "Send a stop code to service failed");
+                        error.code = GetLastError();
+                        error.message = "Send a stop code to service failed";
                         return FALSE;
                     }
 
@@ -259,7 +276,8 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
                             sizeof(SERVICE_STATUS_PROCESS),
                             &dwBytesNeeded ) )
                         {
-                            error = platform_error(::GetLastError(), "Can't query service status with service handle");
+                            error.code = GetLastError();
+                            error.message = "Can't query service status with service handle";
                             return FALSE;
                         }
 
@@ -268,7 +286,8 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
 
                         if ( ::GetTickCount() - dwStartTime > dwTimeout )
                         {
-                            error = platform_error(-1, "Waiting for a service state change to time out");
+                            error.code = GetLastError();
+                            error.message = "Waiting for a service state change to time out";
                             return FALSE;
                         }
                     }
@@ -288,6 +307,18 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
     } 
 
     return TRUE;
+}
+
+inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, platform_error& error)
+{
+    error_struct _error = {0};
+    if (!_StopServiceAllDependent(hSCManager, hService, _error))
+    {
+        error = platform_error(_error.code, _error.message);
+        return false;
+    }
+
+    return true;
 }
 
 /*

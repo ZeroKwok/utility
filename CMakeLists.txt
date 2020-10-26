@@ -56,6 +56,7 @@ add_subdirectory(string)
 add_subdirectory(process)
 add_subdirectory(platform)
 add_subdirectory(filesystem)
+add_subdirectory(common)
 
 # µ¥Ôª²âÊÔ
 if(UTILITY_BUILD_TEST)
