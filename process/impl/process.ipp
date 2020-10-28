@@ -175,7 +175,7 @@ inline HANDLE runapp_with_non_elevate_privileges(
 
     // 通过动态加载的方式使用该函数, 目的在于避免vista以下没有该函数的机器上
     // 能正确的启动程序;
-    typedef BOOL (*func_CreateProcessWithTokenW)(
+    typedef BOOL (WINAPI *func_CreateProcessWithTokenW)(
         __in        HANDLE hToken,
         __in        DWORD dwLogonFlags,
         __in_opt    LPCWSTR lpApplicationName,

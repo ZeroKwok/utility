@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../cpu_util.hpp"
+#   include "../cpu.hpp"
 #endif
 
 #include <string/string_util.hpp>

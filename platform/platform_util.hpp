@@ -36,6 +36,9 @@ UTILITY_FUNCT_DECL bool is_user_admin();
 // Vista. In case of XP always returns false.
 UTILITY_FUNCT_DECL bool is_user_non_elevated_admin();
 
+// Sets the name of the given thread.
+UTILITY_FUNCT_DECL bool set_thread_name(const std::string& name, int thread_id = -1);
+
 // Returns the name of the current system
 // Note: https://docs.microsoft.com/zh-cn/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
 UTILITY_FUNCT_DECL std::string system_name();

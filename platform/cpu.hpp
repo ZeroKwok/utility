@@ -1,8 +1,8 @@
-#ifndef cpu_util_h__
-#define cpu_util_h__
+#ifndef cpul_h__
+#define cpul_h__
 
 /*
-*	cpu util
+*	cpu.hpp
 *   
 *   2019-12 by GuoJH
 */
@@ -101,7 +101,7 @@ private:
 } // util
 
 #ifndef UTILITY_DISABLE_HEADONLY
-#   include "impl/cpu_util.ipp"
+#   include "impl/cpu.ipp"
 #endif
 
-#endif // cpu_util_h__
+#endif // cpul_h__

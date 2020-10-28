@@ -2,11 +2,10 @@
 #define common_cfg_h__
 
 #include <utility.hpp>
-#include <platform/platform_cfg.hpp>
 
 #ifdef UTILITY_ENABLE_AUTO_LINK
-#   ifndef LINK_FILESYSTEM
-#      define LINK_FILESYSTEM
+#   ifndef LINK_COMMON
+#      define LINK_COMMON
 #      define AUTO_LINK_LIB_NAME common
 #      include <link.hpp>
 #   endif

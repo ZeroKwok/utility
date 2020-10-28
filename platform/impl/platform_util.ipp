@@ -151,6 +151,45 @@ bool is_user_non_elevated_admin()
     return non_elevated_admin;
 }
 
+bool set_thread_name(const std::string& name, int thread_id/* = -1*/)
+{
+    // SEE:
+    // http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
+    
+    // Related to Thread Name 
+#pragma pack(push,8)
+    typedef struct tagTHREADNAME_INFO
+    {
+        DWORD  dwType;       // Must be 0x1000.
+        LPCSTR szName;       // Pointer to name (in user addr space).
+        DWORD  dwThreadID;   // Thread ID (-1=caller thread).
+        DWORD  dwFlags;      // Reserved for future use, must be zero.
+    } THREADNAME_INFO;
+#pragma pack(pop)
+
+	THREADNAME_INFO info;
+	info.dwType     = 0x1000;
+	info.szName     = name.c_str();
+	info.dwThreadID = thread_id;
+	info.dwFlags    = 0;
+
+    __try
+    {
+        ::RaiseException(
+            0x406D1388,                     // Set a Thread Name in Native Code
+            0,
+            sizeof(info) / sizeof(ULONG_PTR),
+            (ULONG_PTR*)&info);
+
+        return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+    }
+
+    return false;
+}
+
 // Returns the name of the current system
 // Note: https://docs.microsoft.com/zh-cn/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
 std::string system_name()
