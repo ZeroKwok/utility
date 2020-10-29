@@ -70,7 +70,7 @@ inline bytedata bytes_from<QByteArray>(const QByteArray& value)
  *   Returns byte data for the specified range through the specified address offset.
  */
 inline bytedata bytes_range(
-    const bytedata& bytes, int offset, int length)
+    const bytedata& bytes, size_t offset, size_t length)
 {
     if (bytes.empty())
         throw std::runtime_error("Original data is empty.");
@@ -100,7 +100,7 @@ inline _Type bytes_cast(const bytedata& bytes)
  *   Converts byte data to any POD(Plain Old Data) type by specified offset.
  */
 template<class _Type>
-inline _Type bytes_cast(const bytedata& bytes, int offset)
+inline _Type bytes_cast(const bytedata& bytes, size_t offset)
 {
     return bytes_cast<_Type>(bytes_range_ref(bytes, offset, sizeof _Type));
 }

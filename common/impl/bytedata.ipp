@@ -3,6 +3,7 @@
 #endif
 
 #include <vector>
+#include <iterator>
 
 namespace util {
 namespace detail {

@@ -2,8 +2,8 @@
 #   include "../time_util.hpp"
 #endif
 
-#include "timeapi.h"
-#include <ctime>
+#include <time.h>
+#include <windows.h>
 #include <common/simple_lock.hpp>
 #include <string/string_util.hpp>
 #include <string/string_conv_easy.hpp>

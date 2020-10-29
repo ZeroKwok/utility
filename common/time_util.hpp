@@ -7,6 +7,10 @@
 *   v0.1 2018-06 by GuoJH
 */
 
+#ifdef OS_WIN
+#   include <windows.h>
+#endif
+
 #include <string>
 #include <common/common_cfg.hpp>
 

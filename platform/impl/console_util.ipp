@@ -3,6 +3,7 @@
 #endif
 
 #include <windows.h>
+#include <algorithm>
 
 namespace util {
 namespace win  {
