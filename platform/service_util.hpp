@@ -1,8 +1,8 @@
-#ifndef service_win_h__
-#define service_win_h__
+#ifndef service_util_h__
+#define service_util_h__
 
 /*
-*   service_win.hpp 
+*   service_util.hpp 
 *
 *   v0.1 2018-04 By GuoJH
 *   v0.2 2020-10 By GuoJH
@@ -16,7 +16,6 @@ namespace win {
 
 /*!
  *  /brief  安装windows服务
- * 
  */
 bool service_install(
     const util::tstring& name, 
@@ -59,7 +58,7 @@ bool service_running(
 } // util
 
 #ifndef UTILITY_DISABLE_HEADONLY
-#   include "impl/service_win.ipp "
+#   include "impl/service_util.ipp "
 #endif
 
-#endif // service_win_h__
+#endif // service_util_h__

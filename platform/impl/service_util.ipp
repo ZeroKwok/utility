@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../service_win.hpp"
+#   include "../service_util.hpp"
 #endif
 
 #include <windows.h>

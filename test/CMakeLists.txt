@@ -23,7 +23,9 @@ add_executable(${PROJECT_NAME}
 	filesystem.cpp 
 	process.cpp 
 	common_unit.cpp 
-	platform_cpu.cpp)
+	platform_cpu.cpp 
+	# mini_dump.cpp
+	)
 
 # ¡¨Ω”≤‚ ‘ø‚
 target_link_libraries(${PROJECT_NAME} gtest_main)

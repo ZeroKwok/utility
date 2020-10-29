@@ -324,7 +324,24 @@ fpath path_from_module_dir(intptr_t module/* = 0*/)
 
 fpath path_from_module_dir(intptr_t module, ferror& ferr)
 {
-    return util::path_find_parent(path_from_module(module, ferr));
+    return path_find_parent(path_from_module(module, ferr));
+}
+
+fpath path_from_module_dir(const fpath& stem)
+{
+    ferror ferr;
+    fpath result = path_find_parent(path_from_module(0, ferr));
+
+    if (ferr)
+        throw ferr;
+
+    return path_append(result, stem);
+}
+
+fpath path_from_module_dir(const fpath& stem, ferror& ferr)
+{
+    return path_append(
+        path_find_parent(path_from_module(0, ferr)), stem);
 }
 
 fpath path_from_temp()

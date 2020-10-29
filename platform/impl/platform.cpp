@@ -1,6 +1,7 @@
 #include "utility.hpp"
 #include "cpu.ipp"
+#include "mini_dump.ipp"
+#include "service_util.ipp"
 #include "console_util.ipp"
 #include "platform_util.ipp"
 #include "platform_error.ipp"
-#include "service_win.ipp"

@@ -20,6 +20,8 @@ UTILITY_FUNCT_DECL fpath path_from_module(intptr_t module = 0);
 UTILITY_FUNCT_DECL fpath path_from_module(intptr_t module, ferror& ferr);
 UTILITY_FUNCT_DECL fpath path_from_module_dir(intptr_t module = 0);
 UTILITY_FUNCT_DECL fpath path_from_module_dir(intptr_t module, ferror& ferr);
+UTILITY_FUNCT_DECL fpath path_from_module_dir(const fpath& stem);
+UTILITY_FUNCT_DECL fpath path_from_module_dir(const fpath& stem, ferror& ferr);
 UTILITY_FUNCT_DECL fpath path_from_temp();
 UTILITY_FUNCT_DECL fpath path_from_temp(ferror& ferr);
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag = 0);
