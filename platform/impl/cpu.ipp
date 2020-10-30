@@ -97,8 +97,18 @@ void cpu::initialize()
         _has_ssse3  = (cpu_info[2] & 0x00000200) != 0;
         _has_sse41  = (cpu_info[2] & 0x00080000) != 0;
         _has_sse42  = (cpu_info[2] & 0x00100000) != 0;
-        _cpu_id     = util::sformat("%08X%08X", cpu_info[3], cpu_info[0]);
+
+        _cpu_id     = uint64_t(cpu_info[3]) << 32 | uint64_t(cpu_info[0]);
     }
+#endif
+}
+
+std::string cpu::id_string() const
+{
+#ifdef OS_WIN
+    return util::sformat("%016I64X", _cpu_id);
+#else
+    return util::sformat("%016llX", _cpu_id);
 #endif
 }
 

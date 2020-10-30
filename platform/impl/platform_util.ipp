@@ -199,7 +199,7 @@ std::string system_name()
 
 std::wstring wsystem_name()
 {
-    std::wstring name;
+    std::wstring name = L"Windows ?";
 
     OSVERSIONINFOEXW version = { 0 };
     version.dwOSVersionInfoSize = sizeof(version);

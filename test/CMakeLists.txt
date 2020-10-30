@@ -21,9 +21,9 @@ add_executable(${PROJECT_NAME}
 	string.cpp
 	string_util.cpp
 	filesystem.cpp 
-	process.cpp 
 	common_unit.cpp 
 	platform_cpu.cpp 
+	# process.cpp 
 	# mini_dump.cpp
 	)
 

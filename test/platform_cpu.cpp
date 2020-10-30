@@ -7,6 +7,9 @@ TEST(platform, cpu)
         // Retrieve the CPU information.
         util::cpu cpu;
 
+        EXPECT_TRUE(0 != cpu.id());
+        EXPECT_TRUE("" != cpu.id_string());
+
 #if defined(OS_WIN) && defined(ARCH_CPU_32_BITS)
         EXPECT_TRUE(cpu.has_mmx());
 

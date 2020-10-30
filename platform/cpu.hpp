@@ -33,8 +33,8 @@ public:
         , _has_ssse3 (false)
         , _has_sse41 (false)
         , _has_sse42 (false)
+        , _cpu_id    (0)
         , _cpu_vendor("unknown")
-        , _cpu_id    ("unknown")
     {
         initialize();
     }
@@ -61,7 +61,8 @@ public:
     *   Returns a windows-style CPU Id.
     *   Equate to $wmic cpu get processor id
     */
-    UTILITY_MEMBER_DECL const std::string& processor_id() const { return _cpu_id; }
+    UTILITY_MEMBER_DECL uint64_t    id() const { return _cpu_id; }
+    UTILITY_MEMBER_DECL std::string id_string() const;
 
 private:
     /*
@@ -82,8 +83,8 @@ private:
     bool _has_ssse3;         //SSSE3
     bool _has_sse41;         //SSE4.1
     bool _has_sse42;         //SSE4.2
+    uint64_t _cpu_id;        //CPU Id
     std::string _cpu_vendor;
-    std::string _cpu_id;     //windows-style CPU Id
 };
 
 #if defined(ARCH_CPU_X86_FAMILY)
