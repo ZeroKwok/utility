@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(utility CXX)
 
 # 是否编译单元测试
-option(UTILITY_BUILD_TEST "Enable build unit test" ON)
+option(UTILITY_BUILD_TEST "Enable build unit test" OFF)
 
 # 是否支持Qt
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
@@ -12,7 +12,7 @@ option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
 # 是否启用静态运行时
-option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
+option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
 
 # 初始化UTILITY_TARGET_COMPILE_DEFINITIONS
 set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
@@ -39,6 +39,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
+if(UTILITY_SUPPORT_QT)
+    find_package(Qt5 REQUIRED Widgets)
+endif()
+
 # 设置为根目录
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -64,3 +68,30 @@ if(UTILITY_BUILD_TEST)
 	add_subdirectory(test)
 endif()
 
+# 安装公共头文件
+install(
+  FILES
+    config.h
+    link.hpp
+    prefix.hpp
+    suffix.hpp
+    utility.hpp
+  DESTINATION
+    include)
+
+# msinttypes
+install(
+  FILES
+    msinttypes/stdint.h
+    msinttypes/inttypes.h
+  DESTINATION
+    include/msinttypes)
+
+# 安装CMake配置文件
+install(
+  FILES
+    cmake/utilityConfig.cmake
+  DESTINATION
+    cmake
+  COMPONENT
+    Devel)

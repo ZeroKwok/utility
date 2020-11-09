@@ -12,19 +12,39 @@
 #include <common/common_cfg.hpp>
 #include <filesystem/path_util.hpp>
 
+#ifdef UTILITY_SUPPORT_BOOST
+#   include <boost/archive/binary_oarchive.hpp>
+#   include <boost/archive/binary_iarchive.hpp>
+#   include <boost/serialization/serialization.hpp>
+#endif
+
+#ifdef UTILITY_SUPPORT_QT
+#   include <QByteArray>
+#endif
+
 namespace util {
 
 /*!
  *  /brief  字节数据, 通过std::string作为底层实现;
  */
-struct bytedata : public std::string
+class bytedata : public std::string
 {
+    typedef std::string supper_type;
+public:
     bytedata() {}
-    bytedata(const std::string& other)
-        : std::string(other) {}
+    bytedata(const supper_type& other)
+        : supper_type(other) {}
 
-    const std::string& string() {
-        return *this;
+    const supper_type& string() { 
+        return *this; 
+    }
+ 
+    void swap(bytedata& other) { 
+        supper_type::swap(other); 
+    }
+    
+    void swap(supper_type& other) { 
+        supper_type::swap(other); 
     }
 };
 
@@ -143,6 +163,38 @@ inline _Type ntoh_type(_Type value)
 {
     return hton_type(value); // Same implementation
 }
+
+#ifdef UTILITY_SUPPORT_BOOST
+
+/*!
+ *  Serialize the object into byte data.
+ *  throw: boost::archive::archive_exception.
+ */
+template<class _Type>
+inline bytedata& bytes_serialize(bytedata& bytesRef, const _Type& type)
+{
+    std::ostringstream os;
+    boost::archive::binary_oarchive oa(os);
+    oa << type;
+
+    return bytesRef = os.str();
+}
+	
+/*!
+ *  Deserialize from the byte data to objects.
+ *  throw: boost::archive::archive_exception.
+ */
+template<class _Type>
+inline _Type& bytes_deserialize(_Type& typeRef, const bytedata& bytes)
+{
+    std::istringstream is(bytes);
+    boost::archive::binary_iarchive ia(is);
+    ia >> typeRef;
+    
+    return typeRef;
+}
+	
+#endif
 
 /*!
  *  Copy the byte data into the memory.
