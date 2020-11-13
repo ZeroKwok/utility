@@ -7,6 +7,9 @@
 *   2020-08-28 By GuoJH
 */
 
+#define UTILITY_VERSION        000201
+#define UTILITY_VERSION_STRING "0.2.1"
+
 #if defined(UTILITY_BUILD_SHARED_LIB) || defined(UTILITY_BUILD_STATIC_LIB) ||\
     defined(UTILITY_USING_SHARED_LIB) || defined(UTILITY_USING_STATIC_LIB)      
 #   if !defined(UTILITY_DISABLE_HEADONLY)

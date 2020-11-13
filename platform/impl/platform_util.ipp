@@ -2,6 +2,8 @@
 #   include "../platform_util.hpp"
 #endif
 
+//#include <WinSock2.h>
+//#include <WS2tcpip.h>
 #include <windows.h>
 #include <string/string_util.hpp>
 #include <string/string_conv_easy.hpp>
@@ -149,6 +151,65 @@ bool is_user_non_elevated_admin()
         ::CloseHandle(token);
 
     return non_elevated_admin;
+}
+
+bool is_network_available()
+{
+    static struct _internal
+    {
+        _internal()
+        {
+            WSADATA wsaData = { 0 };
+            WSAStartup(MAKEWORD(2, 2), &wsaData);
+        }
+    } _init;
+
+    sockaddr_in hostaddr = { 0 };
+    hostaddr.sin_family  = AF_INET;
+    hostaddr.sin_port    = htons(53);
+
+    const char *addresses[] = {
+        "1.1.1.1",
+        "223.5.5.5",
+        nullptr
+    };
+
+    for (int i = 0; addresses[i] != nullptr; ++i)
+    {
+        inet_pton(AF_INET, addresses[i], &hostaddr.sin_addr);
+
+        int fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (fd < 0)
+            return false;
+
+        // 设置阻塞模式
+        unsigned long mode = 1;
+        ioctlsocket(fd, FIONBIO, &mode);
+
+        // 尝试连接
+        connect(fd, (sockaddr*)&hostaddr, sizeof(hostaddr));
+
+        timeval timeout = {
+            /* tv_sec  */ 0,
+            /* tv_usec */ 300000
+        };
+
+        fd_set fd_write, fd_error;
+
+        FD_ZERO(&fd_write);
+        FD_ZERO(&fd_error);
+
+        FD_SET(fd, &fd_write);
+        FD_SET(fd, &fd_error);
+
+        select(0, 0, &fd_write, &fd_error, &timeout);
+        closesocket(fd);
+
+        if (FD_ISSET(fd, &fd_write))
+            return true;
+    }
+
+    return false;
 }
 
 bool set_thread_name(const std::string& name, int thread_id/* = -1*/)

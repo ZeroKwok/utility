@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME}
 	filesystem.cpp 
 	common_unit.cpp 
 	platform_cpu.cpp 
+	common_encryption.cpp
 	# process.cpp 
 	# mini_dump.cpp
 	)

@@ -36,6 +36,9 @@ UTILITY_FUNCT_DECL bool is_user_admin();
 // Vista. In case of XP always returns false.
 UTILITY_FUNCT_DECL bool is_user_non_elevated_admin();
 
+// Returns true if the network is available.
+UTILITY_FUNCT_DECL bool is_network_available();
+
 // Sets the name of the given thread.
 UTILITY_FUNCT_DECL bool set_thread_name(const std::string& name, int thread_id = -1);
 

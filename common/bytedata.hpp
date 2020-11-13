@@ -29,9 +29,12 @@ namespace util {
  */
 class bytedata : public std::string
 {
-    typedef std::string supper_type;
 public:
+    typedef std::string supper_type;
+
     bytedata() {}
+    bytedata(const char* str)
+        : supper_type(str) {}
     bytedata(const supper_type& other)
         : supper_type(other) {}
 
@@ -122,7 +125,7 @@ inline _Type bytes_cast(const bytedata& bytes)
 template<class _Type>
 inline _Type bytes_cast(const bytedata& bytes, size_t offset)
 {
-    return bytes_cast<_Type>(bytes_range_ref(bytes, offset, sizeof _Type));
+    return bytes_cast<_Type>(bytes_range(bytes, offset, sizeof _Type));
 }
 
 /*!
