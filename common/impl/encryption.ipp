@@ -97,7 +97,7 @@ bytedata& decrypt_with_tea32(bytedata& bytes, const bytedata& key)
     if(bytes.size() - 8 < length)
         throw std::runtime_error("The decrypted data is incorrect.");
 
-    for (size_t i = 0; i < bytes.size(); i += 8)
+    for (size_t i = 0; i < bytes.size() - 8; i += 8)
     {
         detail::_decrypt_with_tea32(
             reinterpret_cast<uint32_t*>(&bytes[i]),
