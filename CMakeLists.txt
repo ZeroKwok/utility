@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(utility CXX)
 
 # 是否编译单元测试
-option(UTILITY_BUILD_TEST "Enable build unit test" OFF)
+option(UTILITY_BUILD_TEST "Enable build unit test" ON)
 
 # 是否支持Qt
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
@@ -12,7 +12,7 @@ option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
 # 是否启用静态运行时
-option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
+option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
 
 # 初始化UTILITY_TARGET_COMPILE_DEFINITIONS
 set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)

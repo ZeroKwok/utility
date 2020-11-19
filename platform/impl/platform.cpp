@@ -6,5 +6,6 @@
 #include "mini_dump.ipp"
 #include "service_util.ipp"
 #include "console_util.ipp"
+#include "registry_util.ipp"
 #include "platform_util.ipp"
 #include "platform_error.ipp"

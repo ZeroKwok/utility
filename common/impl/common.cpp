@@ -13,4 +13,5 @@
 
 #include "unit.ipp"
 #include "bytedata.ipp"
+#include "math_util.ipp"
 #include "encryption.ipp"

@@ -21,12 +21,14 @@ add_executable(${PROJECT_NAME}
 	string.cpp
 	string_util.cpp
 	filesystem.cpp 
-	common_unit.cpp 
 	platform_cpu.cpp 
+	platform_registry.cpp
+	common_unit.cpp 
+	common_math.cpp
 	common_encryption.cpp
 	# process.cpp 
 	# mini_dump.cpp
-	)
+	 )
 
 # ¡¨Ω”≤‚ ‘ø‚
 target_link_libraries(${PROJECT_NAME} gtest_main)

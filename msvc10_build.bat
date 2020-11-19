@@ -5,4 +5,4 @@ cmake --build . --config debug
 cmake --build . --config release
 cmake --install . --prefix ./install --config debug
 cmake --install . --prefix ./install --config release
-copy install ..\..\..\3rd\utility /e
+xcopy .\install ..\..\..\3rd\utility\ /e
