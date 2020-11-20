@@ -26,7 +26,7 @@ TEST(platform, registry)
 
     // 查询环境变量, 不展开
     EXPECT_TRUE(
-        L"%%%%USERPROFILE%%%%\\AppData\\Local\\Temp" ==
+        L"%USERPROFILE%\\AppData\\Local\\Temp" ==
         registry_get_expand_wstring(L"HKEY_CURRENT_USER\\Environment", L"TEMP", 0, error));
 
     // 查询环境变量, 展开
@@ -62,6 +62,89 @@ TEST(platform, registry)
     // 查询系统DigitalProductId
     EXPECT_TRUE(!registry_get_binary("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId", KEY_WOW64_64KEY, error).empty());
     EXPECT_TRUE(!error);
+
+    // 如果存在则删除
+    if (registry_path_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error))
+    {
+        // 删除path
+        registry_directory_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error);
+        EXPECT_TRUE(!error);
+    }
+
+    // 创建subkey并且设置dword
+    registry_set_dword("HKEY_CURRENT_USER\\SOFTWARE\\utility", "dword", 0xff32, 0, error);
+    EXPECT_TRUE(!error);
+
+    //设置dword
+    registry_set_qword("HKEY_CURRENT_USER\\SOFTWARE\\utility", "qword", 0xff32aa55, 0, error);
+    EXPECT_TRUE(!error);
+
+    //设置二进制
+    registry_set_binary("HKEY_CURRENT_USER\\SOFTWARE\\utility", "binary", util::bytedata("hello binary"), 0, error);
+    EXPECT_TRUE(!error);
+
+    //设置wstring
+    registry_set_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility", "wstring", std::wstring(L"hello wstring"), 0, error);
+    EXPECT_TRUE(!error);
+
+    //设置mutil_string
+    std::vector<std::wstring> mutil_string;
+    mutil_string.push_back(L"hello mutil_string");
+    mutil_string.push_back(L"hello mutil_string 01");
+    mutil_string.push_back(L"hello mutil_string 02");
+    registry_set_multi_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility", "mutil_string", mutil_string, 0, error);
+    EXPECT_TRUE(!error);
+
+    // 删除所有已创建的值
+    const char* value_names[] = {
+        "dword",
+        "qword",
+        "binary",
+        "wstring",
+        "mutil_string",
+        nullptr
+    };
+
+    for (int i = 0; value_names[i] != nullptr; ++i)
+    {
+        if (registry_value_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", value_names[i], 0, error))
+        {
+            registry_value_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", value_names[i], 0, error);
+            EXPECT_TRUE(!error);
+        }
+        else
+        {
+            EXPECT_TRUE(false);
+        }
+    }
+
+    // 删除已创建的key
+    if (registry_path_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error))
+    {
+        // 删除path
+        registry_directory_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error);
+        EXPECT_TRUE(!error);
+    }
+    else
+    {
+        EXPECT_TRUE(false);
+    }
+
+    // 创建多级subkey
+    registry_set_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility\\test\\3rd\\long_long", "wstring", L"hello wstring", 0, error);
+    EXPECT_TRUE(!error);
+
+    // 删除已创建的key
+    if (registry_path_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error))
+    {
+        // 删除path
+        registry_tree_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", error);
+        EXPECT_TRUE(!error);
+    }
+    else
+    {
+        EXPECT_TRUE(false);
+    }
 }
 
 

@@ -60,31 +60,41 @@ inline bool _parse_key(HKEY& key, const tstring& target)
     return true;
 }
 
-/// RegOpenKeyExW 包装
-inline HKEY _open_key(
-    const tstring& path, REGSAM desiredAccess, platform_error& error)
+/// 从字符串解析subkey
+inline void _parse_subkey(HKEY& key, tstring& subkey, const tstring& path)
 {
-    HKEY result = nullptr;
     auto pos = std::min(path.find(L"\\"), path.find(L"/"));
 
-    HKEY    key    = HKEY_LOCAL_MACHINE;
-    tstring subkey = path;
+    key = HKEY_LOCAL_MACHINE;
+    subkey = path;
 
     if (pos != path.npos)
     {
         if (_parse_key(key, path.substr(0, pos)))
             subkey = path.substr(pos + 1);
     }
+}
 
-    LONG retCode = ::RegOpenKeyExW(
-        key,
-        subkey.c_str(),
-        REG_NONE,
-        desiredAccess,
-        &result);
-    if (retCode != ERROR_SUCCESS)
+/// RegOpenKeyExW 包装
+inline HKEY _open_key(
+    const tstring& path, REGSAM desiredAccess, platform_error& error)
+{
+    HKEY result = nullptr;
     {
-        error = platform_error(retCode, "RegOpenKeyEx failed.");
+        HKEY  key;
+        tstring subkey;
+        _parse_subkey(key, subkey, path);
+
+        LONG retCode = ::RegOpenKeyExW(
+            key,
+            subkey.c_str(),
+            REG_NONE,
+            desiredAccess,
+            &result);
+        if (retCode != ERROR_SUCCESS)
+        {
+            error = platform_error(retCode, "RegOpenKeyEx failed.");
+        }
     }
 
     return result;
@@ -94,46 +104,41 @@ inline HKEY _open_or_create_key(
     const tstring& path, REGSAM desiredAccess, platform_error& error)
 {
     HKEY result = nullptr;
-    auto pos = std::min(path.find(L"\\"), path.find(L"/"));
-
-    HKEY    key = HKEY_LOCAL_MACHINE;
-    tstring subkey = path;
-
-    if (pos != path.npos)
     {
-        if (_parse_key(key, path.substr(0, pos)))
-            subkey = path.substr(pos + 1);
-    }
+        HKEY  key;
+        tstring subkey;
+        _parse_subkey(key, subkey, path);
 
-    LONG retCode = ::RegOpenKeyExW(
-        key, 
-        subkey.c_str(), 
-        REG_NONE, 
-        desiredAccess,
-        &result);
-    if (retCode != ERROR_SUCCESS)
-    {
-        if (retCode == ERROR_FILE_NOT_FOUND)
+        LONG retCode = ::RegOpenKeyExW(
+            key,
+            subkey.c_str(),
+            REG_NONE,
+            desiredAccess,
+            &result);
+        if (retCode != ERROR_SUCCESS)
         {
-            retCode = RegCreateKeyExW(
-                key,
-                subkey.c_str(),
-                0,          // reserved
-                REG_NONE,   // user-defined class type parameter not supported
-                REG_OPTION_NON_VOLATILE,
-                desiredAccess,
-                nullptr,    // no security attributes,
-                &result,
-                nullptr     // no disposition
-            );
-            if (retCode != ERROR_SUCCESS)
+            if (retCode == ERROR_FILE_NOT_FOUND)
             {
-                error = platform_error(retCode, "RegCreateKeyEx failed.");
+                retCode = RegCreateKeyExW(
+                    key,
+                    subkey.c_str(),
+                    0,          // reserved
+                    REG_NONE,   // user-defined class type parameter not supported
+                    REG_OPTION_NON_VOLATILE,
+                    desiredAccess,
+                    nullptr,    // no security attributes,
+                    &result,
+                    nullptr     // no disposition
+                );
+                if (retCode != ERROR_SUCCESS)
+                {
+                    error = platform_error(retCode, "RegCreateKeyEx failed.");
+                }
             }
-        }
-        else
-        {
-            error = platform_error(retCode, "RegOpenKeyEx failed.");
+            else
+            {
+                error = platform_error(retCode, "RegOpenKeyEx failed.");
+            }
         }
     }
 
@@ -204,6 +209,8 @@ inline std::vector<wchar_t> BuildMultiString(
 bool registry_path_exist(
     const tstring path, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
     {
         return true;
@@ -218,6 +225,8 @@ bool registry_path_exist(
 bool registry_value_exist(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
     {
         DWORD type;
@@ -237,9 +246,58 @@ bool registry_value_exist(
     return false;
 }
 
+void registry_tree_remove(
+    const tstring path, platform_error& error)
+{
+    error.clear();
+
+    HKEY  key;
+    tstring subkey;
+    detail::_parse_subkey(key, subkey, path);
+
+    LONG retCode = RegDeleteTreeW(key, subkey.c_str());
+    if (retCode != ERROR_SUCCESS)
+    {
+        error = platform_error{ retCode, "RegDeleteTreeW failed." };
+    }
+}
+
+void registry_directory_remove(
+    const tstring path, int access, platform_error& error)
+{
+    error.clear();
+
+    HKEY  key;
+    tstring subkey;
+    detail::_parse_subkey(key, subkey, path);
+
+    LONG retCode = RegDeleteKeyExW(key, subkey.c_str(), KEY_WRITE | access, 0);
+    if (retCode != ERROR_SUCCESS)
+    {
+        error = platform_error{ retCode, "RegDeleteKeyExW failed." };
+    }
+}
+
+void registry_value_remove(
+    const tstring path, const tstring& name, int access, platform_error& error)
+{
+    error.clear();
+
+    if (detail::AutoHKEY key = detail::_open_key(path, KEY_WRITE | access, error))
+    {
+        LONG retCode = RegDeleteValueW(key, name.c_str());
+        if (retCode != ERROR_SUCCESS)
+        {
+            error = platform_error{ retCode, "RegDeleteValue failed." };
+        }
+    }
+}
+
 registry_value_types registry_get_type(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
     {
         DWORD type;
@@ -260,6 +318,8 @@ registry_value_types registry_get_type(
 int32_t registry_get_dword(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
     {
         DWORD data = 0;                  // to be read from the registry
@@ -290,6 +350,8 @@ int32_t registry_get_dword(
 int64_t registry_get_qword(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
     {
         ULONGLONG data = 0;              // to be read from the registry
@@ -319,6 +381,7 @@ int64_t registry_get_qword(
 bytedata registry_get_binary(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
     bytedata data;
 
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
@@ -366,6 +429,7 @@ bytedata registry_get_binary(
 std::wstring registry_get_wstring(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
     std::wstring result;
 
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
@@ -421,6 +485,7 @@ std::wstring registry_get_wstring(
 std::wstring registry_get_expand_wstring(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
     std::wstring result;
 
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
@@ -478,6 +543,7 @@ std::wstring registry_get_expand_wstring(
 std::vector<std::wstring> registry_get_multi_wstring(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
+    error.clear();
     std::vector<std::wstring> result;
 
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
@@ -549,6 +615,8 @@ std::vector<std::wstring> registry_get_multi_wstring(
 void registry_set_dword(
     const tstring path, const tstring& name, int32_t value, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_or_create_key(path, KEY_WRITE | access, error))
     {
         LONG retCode = RegSetValueExW(
@@ -569,6 +637,8 @@ void registry_set_dword(
 void registry_set_qword(
     const tstring path, const tstring& name, int64_t value, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_or_create_key(path, KEY_WRITE | access, error))
     {
         LONG retCode = RegSetValueExW(
@@ -589,6 +659,8 @@ void registry_set_qword(
 void registry_set_binary(
     const tstring path, const tstring& name, const bytedata& value, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_or_create_key(path, KEY_WRITE | access, error))
     {
         // Total data size, in bytes
@@ -612,6 +684,8 @@ void registry_set_binary(
 void registry_set_wstring(
     const tstring path, const tstring& name, const std::wstring& value, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_or_create_key(path, KEY_WRITE | access, error))
     {
         // String size including the terminating NUL, in bytes
@@ -635,6 +709,8 @@ void registry_set_wstring(
 void registry_set_multi_wstring(
     const tstring path, const tstring& name, const std::vector<std::wstring>& value, int access, platform_error& error)
 {
+    error.clear();
+
     if (detail::AutoHKEY key = detail::_open_or_create_key(path, KEY_WRITE | access, error))
     {
         // First, we have to build a double-NUL-terminated multi-string from the input data
