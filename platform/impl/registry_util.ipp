@@ -207,6 +207,18 @@ inline std::vector<wchar_t> BuildMultiString(
 } // detail
 
 bool registry_path_exist(
+    const tstring path, int access)
+{
+    platform_error error;
+    auto result = registry_path_exist(path, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
+}
+
+bool registry_path_exist(
     const tstring path, int access, platform_error& error)
 {
     error.clear();
@@ -220,6 +232,18 @@ bool registry_path_exist(
         error.clear();
 
     return false;
+}
+
+bool registry_value_exist(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_value_exist(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
 }
 
 bool registry_value_exist(
@@ -246,6 +270,15 @@ bool registry_value_exist(
     return false;
 }
 
+void registry_tree_remove(const tstring path)
+{
+    platform_error error;
+    registry_tree_remove(path, error);
+
+    if (error)
+        throw error;
+}
+
 void registry_tree_remove(
     const tstring path, platform_error& error)
 {
@@ -260,6 +293,16 @@ void registry_tree_remove(
     {
         error = platform_error{ retCode, "RegDeleteTreeW failed." };
     }
+}
+
+void registry_directory_remove(
+    const tstring path, int access)
+{
+    platform_error error;
+    registry_directory_remove(path, access, error);
+
+    if (error)
+        throw error;
 }
 
 void registry_directory_remove(
@@ -279,6 +322,16 @@ void registry_directory_remove(
 }
 
 void registry_value_remove(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    registry_value_remove(path, name, access, error);
+
+    if (error)
+        throw error;
+}
+
+void registry_value_remove(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
     error.clear();
@@ -291,6 +344,18 @@ void registry_value_remove(
             error = platform_error{ retCode, "RegDeleteValue failed." };
         }
     }
+}
+
+registry_value_types registry_get_type(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_type(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
 }
 
 registry_value_types registry_get_type(
@@ -313,6 +378,18 @@ registry_value_types registry_get_type(
     }
 
     return registr_none;
+}
+
+int32_t registry_get_dword(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_dword(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
 }
 
 int32_t registry_get_dword(
@@ -348,6 +425,18 @@ int32_t registry_get_dword(
 }
 
 int64_t registry_get_qword(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_qword(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
+}
+
+int64_t registry_get_qword(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
     error.clear();
@@ -376,6 +465,18 @@ int64_t registry_get_qword(
     }
 
     return 0;
+}
+
+bytedata registry_get_binary(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_binary(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
 }
 
 bytedata registry_get_binary(
@@ -424,6 +525,18 @@ bytedata registry_get_binary(
     }
 
     return data;
+}
+
+std::wstring registry_get_wstring(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_wstring(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
 }
 
 std::wstring registry_get_wstring(
@@ -483,6 +596,18 @@ std::wstring registry_get_wstring(
 }
 
 std::wstring registry_get_expand_wstring(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_expand_wstring(path, name, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
+}
+
+std::wstring registry_get_expand_wstring(
     const tstring path, const tstring& name, int access, platform_error& error)
 {
     error.clear();
@@ -536,6 +661,18 @@ std::wstring registry_get_expand_wstring(
         // Remove the NUL terminator scribbled by RegGetValueW from the wstring
         result.resize((dataSize / sizeof(wchar_t)) - 1);
     }
+
+    return result;
+}
+
+std::vector<std::wstring> registry_get_multi_wstring(
+    const tstring path, const tstring& name, int access)
+{
+    platform_error error;
+    auto result = registry_get_multi_wstring(path, name, access, error);
+
+    if (error)
+        throw error;
 
     return result;
 }
@@ -613,6 +750,16 @@ std::vector<std::wstring> registry_get_multi_wstring(
 }
 
 void registry_set_dword(
+    const tstring path, const tstring& name, int32_t value, int access)
+{
+    platform_error error;
+    registry_set_dword(path, name, value, access, error);
+
+    if (error)
+        throw error;
+}
+
+void registry_set_dword(
     const tstring path, const tstring& name, int32_t value, int access, platform_error& error)
 {
     error.clear();
@@ -635,6 +782,16 @@ void registry_set_dword(
 }
 
 void registry_set_qword(
+    const tstring path, const tstring& name, int64_t value, int access)
+{
+    platform_error error;
+    registry_set_qword(path, name, value, access, error);
+
+    if (error)
+        throw error;
+}
+
+void registry_set_qword(
     const tstring path, const tstring& name, int64_t value, int access, platform_error& error)
 {
     error.clear();
@@ -654,6 +811,16 @@ void registry_set_qword(
             error = platform_error{ retCode, "Cannot write QWORD value: RegSetValueExW failed." };
         }
     }
+}
+
+void registry_set_binary(
+    const tstring path, const tstring& name, const bytedata& value, int access)
+{
+    platform_error error;
+    registry_set_binary(path, name, value, access, error);
+
+    if (error)
+        throw error;
 }
 
 void registry_set_binary(
@@ -682,6 +849,16 @@ void registry_set_binary(
 }
 
 void registry_set_wstring(
+    const tstring path, const tstring& name, const std::wstring& value, int access)
+{
+    platform_error error;
+    registry_set_wstring(path, name, value, access, error);
+
+    if (error)
+        throw error;
+}
+
+void registry_set_wstring(
     const tstring path, const tstring& name, const std::wstring& value, int access, platform_error& error)
 {
     error.clear();
@@ -704,6 +881,16 @@ void registry_set_wstring(
             error = platform_error{ retCode, "Cannot write string value: RegSetValueExW failed." };
         }
     }
+}
+
+void registry_set_multi_wstring(
+    const tstring path, const tstring& name, const std::vector<std::wstring>& value, int access)
+{
+    platform_error error;
+    registry_set_multi_wstring(path, name, value, access, error);
+
+    if (error)
+        throw error;
 }
 
 void registry_set_multi_wstring(
@@ -732,6 +919,96 @@ void registry_set_multi_wstring(
             error = platform_error{ retCode, "Cannot write multi-string value: RegSetValueExW failed." };
         }
     }
+}
+
+std::vector<std::wstring> registry_get_wkeys(
+    const tstring path, int access)
+{
+    platform_error error;
+    auto result = registry_get_wkeys(path, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
+}
+
+std::vector<std::wstring> registry_get_wkeys(
+    const tstring path, int access, platform_error& error)
+{
+    error.clear();
+
+    // The result subkey names will be stored here
+    std::vector<std::wstring> subkeyNames;
+
+    if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
+    {
+        // Get some useful enumeration info, like the total number of subkeys
+        // and the maximum length of the subkey names
+        DWORD subKeyCount = 0;
+        DWORD maxSubKeyNameLen = 0;
+        LONG retCode = RegQueryInfoKeyW(
+            key,
+            nullptr,    // no user-defined class
+            nullptr,    // no user-defined class size
+            nullptr,    // reserved
+            &subKeyCount,
+            &maxSubKeyNameLen,
+            nullptr,    // no subkey class length
+            nullptr,    // no value count
+            nullptr,    // no value name max length
+            nullptr,    // no max value length
+            nullptr,    // no security descriptor
+            nullptr     // no last write time
+        );
+        if (retCode != ERROR_SUCCESS)
+        {
+            error = platform_error{
+                retCode,
+                "RegQueryInfoKey failed while preparing for subkey enumeration."
+            };
+        }
+
+        // NOTE: According to the MSDN documentation, the size returned for subkey name max length
+        // does *not* include the terminating NUL, so let's add +1 to take it into account
+        // when I allocate the buffer for reading subkey names.
+        maxSubKeyNameLen++;
+
+        // Preallocate a buffer for the subkey names
+        auto nameBuffer = std::make_unique<wchar_t[]>(maxSubKeyNameLen);
+
+        // Reserve room in the vector to speed up the following insertion loop
+        subkeyNames.reserve(subKeyCount);
+
+        // Enumerate all the subkeys
+        for (DWORD index = 0; index < subKeyCount; index++)
+        {
+            // Get the name of the current subkey
+            DWORD subKeyNameLen = maxSubKeyNameLen;
+            retCode = RegEnumKeyExW(
+                key,
+                index,
+                nameBuffer.get(),
+                &subKeyNameLen,
+                nullptr, // reserved
+                nullptr, // no class
+                nullptr, // no class
+                nullptr  // no last write time
+            );
+            if (retCode != ERROR_SUCCESS)
+            {
+                error = platform_error{ retCode, "Cannot enumerate subkeys: RegEnumKeyEx failed." };
+            }
+
+            // On success, the ::RegEnumKeyEx API writes the length of the
+            // subkey name in the subKeyNameLen output parameter
+            // (not including the terminating NUL).
+            // So I can build a wstring based on that length.
+            subkeyNames.emplace_back(nameBuffer.get(), subKeyNameLen);
+        }
+    }
+
+    return subkeyNames;
 }
 
 } // win

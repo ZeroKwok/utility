@@ -156,6 +156,11 @@ UTILITY_FUNCT_DECL void registry_set_multi_wstring(
 UTILITY_FUNCT_DECL void registry_set_multi_wstring(
     const tstring path, const tstring& name, const std::vector<std::wstring>& value, int access, platform_error& error);
 
+/// 获得指定路径下的所有keys
+UTILITY_FUNCT_DECL std::vector<std::wstring> registry_get_wkeys(
+    const tstring path, int access);
+UTILITY_FUNCT_DECL std::vector<std::wstring> registry_get_wkeys(
+    const tstring path, int access, platform_error& error);
 
 } // win
 } // util
