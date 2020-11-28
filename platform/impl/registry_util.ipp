@@ -947,7 +947,7 @@ std::vector<std::wstring> registry_get_wkeys(
         // and the maximum length of the subkey names
         DWORD subKeyCount = 0;
         DWORD maxSubKeyNameLen = 0;
-        LONG retCode = RegQueryInfoKeyW(
+        LONG retCode = RegQueryInfoKey(
             key,
             nullptr,    // no user-defined class
             nullptr,    // no user-defined class size
@@ -1009,6 +1009,104 @@ std::vector<std::wstring> registry_get_wkeys(
     }
 
     return subkeyNames;
+}
+
+std::vector<std::pair<std::wstring, registry_value_types>>
+    registry_get_wvalues(const tstring path, int access)
+{
+    platform_error error;
+    auto result = registry_get_values(path, access, error);
+
+    if (error)
+        throw error;
+
+    return result;
+}
+
+std::vector<std::pair<std::wstring, registry_value_types>> 
+    registry_get_wvalues(const tstring path, int access, platform_error& error)
+{
+    // The value names and types will be stored here
+    std::vector<std::pair<std::wstring, registry_value_types>> valueInfo;
+
+    if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
+    {
+        // Get useful enumeration info, like the total number of values
+        // and the maximum length of the value names
+        DWORD valueCount = 0;
+        DWORD maxValueNameLen = 0;
+        LONG retCode = RegQueryInfoKey(
+            key,
+            nullptr,    // no user-defined class
+            nullptr,    // no user-defined class size
+            nullptr,    // reserved
+            nullptr,    // no subkey count
+            nullptr,    // no subkey max length
+            nullptr,    // no subkey class length
+            &valueCount,
+            &maxValueNameLen,
+            nullptr,    // no max value length
+            nullptr,    // no security descriptor
+            nullptr     // no last write time
+        );
+        if (retCode != ERROR_SUCCESS)
+        {
+            error = platform_error{
+                retCode,
+                "RegQueryInfoKey failed while preparing for value enumeration."
+            };
+
+            return valueInfo;
+        }
+
+        // NOTE: According to the MSDN documentation, the size returned for value name max length
+        // does *not* include the terminating NUL, so let's add +1 to take it into account
+        // when I allocate the buffer for reading value names.
+        maxValueNameLen++;
+
+        // Preallocate a buffer for the value names
+        auto nameBuffer = std::make_unique<wchar_t[]>(maxValueNameLen);
+
+        // Reserve room in the vector to speed up the following insertion loop
+        valueInfo.reserve(valueCount);
+
+        // Enumerate all the values
+        for (DWORD index = 0; index < valueCount; index++)
+        {
+            // Get the name and the type of the current value
+            DWORD valueNameLen = maxValueNameLen;
+            DWORD valueType = 0;
+            retCode = RegEnumValueW(
+                key,
+                index,
+                nameBuffer.get(),
+                &valueNameLen,
+                nullptr,    // reserved
+                &valueType,
+                nullptr,    // no data
+                nullptr     // no data size
+            );
+            if (retCode != ERROR_SUCCESS)
+            {
+                error = platform_error{ retCode, "Cannot enumerate values: RegEnumValue failed." };
+
+                return valueInfo;
+            }
+
+            // On success, the RegEnumValue API writes the length of the
+            // value name in the valueNameLen output parameter
+            // (not including the terminating NUL).
+            // So we can build a wstring based on that.
+            valueInfo.emplace_back(
+                std::make_pair(
+                    std::wstring(nameBuffer.get(), valueNameLen),
+                    detail::_conver_type(valueType)
+                )
+            );
+        }
+    }
+
+    return valueInfo;
 }
 
 } // win

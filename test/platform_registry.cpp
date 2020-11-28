@@ -75,25 +75,32 @@ TEST(platform, registry)
     registry_set_dword("HKEY_CURRENT_USER\\SOFTWARE\\utility", "dword", 0xff32, 0, error);
     EXPECT_TRUE(!error);
 
-    //设置dword
+    // 设置dword
     registry_set_qword("HKEY_CURRENT_USER\\SOFTWARE\\utility", "qword", 0xff32aa55, 0, error);
     EXPECT_TRUE(!error);
 
-    //设置二进制
+    // 设置二进制
     registry_set_binary("HKEY_CURRENT_USER\\SOFTWARE\\utility", "binary", util::bytedata("hello binary"), 0, error);
     EXPECT_TRUE(!error);
 
-    //设置wstring
+    // 设置wstring
     registry_set_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility", "wstring", std::wstring(L"hello wstring"), 0, error);
     EXPECT_TRUE(!error);
 
-    //设置mutil_string
+    // 设置mutil_string
     std::vector<std::wstring> mutil_string;
     mutil_string.push_back(L"hello mutil_string");
     mutil_string.push_back(L"hello mutil_string 01");
     mutil_string.push_back(L"hello mutil_string 02");
     registry_set_multi_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility", "mutil_string", mutil_string, 0, error);
     EXPECT_TRUE(!error);
+
+    // 查询该路径下所有顶级key
+    auto keys = registry_get_wkeys("HKEY_CURRENT_USER\\SOFTWARE", 0);
+    EXPECT_FALSE(keys.empty());
+
+    auto vaules = registry_get_wvalues("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0);
+    EXPECT_EQ(vaules.size(), 5);
 
     // 删除所有已创建的值
     const char* value_names[] = {
@@ -145,6 +152,5 @@ TEST(platform, registry)
     {
         EXPECT_TRUE(false);
     }
+
 }
-
-
