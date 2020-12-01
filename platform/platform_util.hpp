@@ -15,6 +15,7 @@ namespace util{
 namespace win {
 
 // Returns true, if this program running on Wow64.
+// That is, 32-bit programs run on 64-bit systems.
 UTILITY_FUNCT_DECL bool is_wow64();
 
 // Returns true, if this program running on 64bit OS.

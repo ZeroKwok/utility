@@ -2,16 +2,16 @@
 #   include "../platform_util.hpp"
 #endif
 
-//#include <WinSock2.h>
-//#include <WS2tcpip.h>
 #include <windows.h>
 #include <string/string_util.hpp>
 #include <string/string_conv_easy.hpp>
+#include <platform/registry_util.hpp>
 
 namespace util{
 namespace win {
 
 // Returns true, if this program running on Wow64.
+// That is, 32-bit programs run on 64-bit systems.
 bool is_wow64()
 {
     static bool bIsRead = false;
@@ -260,85 +260,97 @@ std::string system_name()
 
 std::wstring wsystem_name()
 {
-    std::wstring name = L"Windows ?";
+    platform_error error;
 
-    OSVERSIONINFOEXW version = { 0 };
-    version.dwOSVersionInfoSize = sizeof(version);
-    GetVersionExW((OSVERSIONINFOW*)&version);
+    // 优先读取注册表
+    std::wstring name = registry_get_wstring(
+        L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 
+        L"ProductName", 
+        is_wow64() ? KEY_WOW64_64KEY : 0, 
+        error);
 
-    if (version.dwPlatformId != VER_PLATFORM_WIN32_NT || version.dwMajorVersion < 5)
-        return name;
-
-    switch (version.dwMajorVersion)
+    if(error)
     {
-    case 5:
-        switch (version.dwMinorVersion)
+        name = L"Windows ?";
+
+        OSVERSIONINFOEXW version = { 0 };
+        version.dwOSVersionInfoSize = sizeof(version);
+        GetVersionExW((OSVERSIONINFOW*)&version);
+
+        if (version.dwPlatformId == VER_PLATFORM_WIN32_NT && version.dwMajorVersion >= 5)
         {
-        case 0: name = L"Windows 2000"; break;
+            switch (version.dwMajorVersion)
+            {
+            case 5:
+                switch (version.dwMinorVersion)
+                {
+                case 0: name = L"Windows 2000"; break;
 
-        case 1: name = L"Windows XP"; break;
+                case 1: name = L"Windows XP"; break;
 
-        case 2:
-            if (version.wProductType == VER_NT_WORKSTATION && is_64bitsys())
-                name = L"Windows XP Professional x64 Edition";
+                case 2:
+                    if (version.wProductType == VER_NT_WORKSTATION && is_64bitsys())
+                        name = L"Windows XP Professional x64 Edition";
 
-            else if (GetSystemMetrics(SM_SERVERR2) == 0)
-                name = L"Windows Server 2003";
+                    else if (GetSystemMetrics(SM_SERVERR2) == 0)
+                        name = L"Windows Server 2003";
 
-            else if (version.wSuiteMask & 0x00008000) // VER_SUITE_WH_SERVER 0x00008000
-                name = L"Windows Home Server";
+                    else if (version.wSuiteMask & 0x00008000) // VER_SUITE_WH_SERVER 0x00008000
+                        name = L"Windows Home Server";
 
-            else if (GetSystemMetrics(SM_SERVERR2) != 0)
-                name = L"Windows Server 2003 R2";
+                    else if (GetSystemMetrics(SM_SERVERR2) != 0)
+                        name = L"Windows Server 2003 R2";
+                }
+                break;
+
+            case 6:
+                switch (version.dwMinorVersion)
+                {
+                case 0:
+                    if (version.wProductType == VER_NT_WORKSTATION)
+                        name = L"Windows Vista";
+                    else
+                        name = L"Windows Server 2008";
+                    break;
+
+                case 1:
+                    if (version.wProductType == VER_NT_WORKSTATION)
+                        name = L"Windows 7";
+                    else
+                        name = L"Windows Server 2008 R2";
+
+                case 2:
+                    if (version.wProductType == VER_NT_WORKSTATION)
+                        name = L"Windows 8";
+                    else
+                        name = L"Windows Server 2012";
+                    break;
+
+                case 3:
+                    if (version.wProductType == VER_NT_WORKSTATION)
+                        name = L"Windows 8.1";
+                    else
+                        name = L"Windows Server 2012 R2";
+                    break;
+                }
+                break;
+
+            case 10:
+                switch (version.dwMinorVersion)
+                {
+                case 0:
+                    if (version.wProductType == VER_NT_WORKSTATION)
+                        name = L"Windows 10";
+                    else
+                        name = L"Windows Server 2016";
+                }
+                break;
+            }
+
+            if (version.wServicePackMajor > 0)
+                name += util::sformat(L" Service Pack %d", version.wServicePackMajor);
         }
-        break;
-
-    case 6:
-        switch (version.dwMinorVersion)
-        {
-        case 0:
-            if (version.wProductType == VER_NT_WORKSTATION)
-                name = L"Windows Vista";
-            else
-                name = L"Windows Server 2008";
-            break;
-
-        case 1:
-            if (version.wProductType == VER_NT_WORKSTATION)
-                name = L"Windows 7";
-            else
-                name = L"Windows Server 2008 R2";
-
-        case 2:
-            if (version.wProductType == VER_NT_WORKSTATION)
-                name = L"Windows 8";
-            else
-                name = L"Windows Server 2012";
-            break;
-
-        case 3:
-            if (version.wProductType == VER_NT_WORKSTATION)
-                name = L"Windows 8.1";
-            else
-                name = L"Windows Server 2012 R2";
-            break;
-        }
-        break;
-
-    case 10:
-        switch (version.dwMinorVersion)
-        {
-        case 0:
-            if (version.wProductType == VER_NT_WORKSTATION)
-                name = L"Windows 10";
-            else
-                name = L"Windows Server 2016";
-        }
-        break;
     }
-
-    if (version.wServicePackMajor > 0)
-        name += util::sformat(L" Service Pack %d", version.wServicePackMajor);
 
     if (!name.empty())
         name += is_64bitsys() ? L" x64" : L" x86";
