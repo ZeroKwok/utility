@@ -291,7 +291,7 @@ void registry_tree_remove(
     LONG retCode = RegDeleteTreeW(key, subkey.c_str());
     if (retCode != ERROR_SUCCESS)
     {
-        error = platform_error{ retCode, "RegDeleteTreeW failed." };
+        error = platform_error(retCode, "RegDeleteTreeW failed.");
     }
 }
 
@@ -317,7 +317,7 @@ void registry_directory_remove(
     LONG retCode = RegDeleteKeyExW(key, subkey.c_str(), KEY_WRITE | access, 0);
     if (retCode != ERROR_SUCCESS)
     {
-        error = platform_error{ retCode, "RegDeleteKeyExW failed." };
+        error = platform_error(retCode, "RegDeleteKeyExW failed.");
     }
 }
 
@@ -341,7 +341,7 @@ void registry_value_remove(
         LONG retCode = RegDeleteValueW(key, name.c_str());
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "RegDeleteValue failed." };
+            error = platform_error(retCode, "RegDeleteValue failed.");
         }
     }
 }
@@ -458,7 +458,7 @@ int64_t registry_get_qword(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot get QWORD value: RegGetValueW failed." };
+            error = platform_error(retCode, "Cannot get QWORD value: RegGetValueW failed.");
         }
 
         return data;
@@ -501,7 +501,7 @@ bytedata registry_get_binary(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot get size of binary data: RegGetValueW failed." };
+            error = platform_error(retCode, "Cannot get size of binary data: RegGetValueW failed.");
             return data;
         }
 
@@ -520,7 +520,7 @@ bytedata registry_get_binary(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot get binary data: RegGetValueW failed." };
+            error = platform_error(retCode, "Cannot get binary data: RegGetValueW failed.");
         }
     }
 
@@ -699,7 +699,7 @@ std::vector<std::wstring> registry_get_multi_wstring(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot get size of multi-string value: RegGetValueW failed." };
+            error = platform_error(retCode, "Cannot get size of multi-string value: RegGetValueW failed.");
             return result;
         }
 
@@ -720,7 +720,7 @@ std::vector<std::wstring> registry_get_multi_wstring(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot get multi-string value: RegGetValueW failed." };
+            error = platform_error(retCode, "Cannot get multi-string value: RegGetValueW failed.");
             return result;
         }
 
@@ -776,7 +776,7 @@ void registry_set_dword(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot write DWORD value: RegSetValueExW failed." };
+            error = platform_error(retCode, "Cannot write DWORD value: RegSetValueExW failed.");
         }
     }
 }
@@ -808,7 +808,7 @@ void registry_set_qword(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot write QWORD value: RegSetValueExW failed." };
+            error = platform_error(retCode, "Cannot write QWORD value: RegSetValueExW failed.");
         }
     }
 }
@@ -843,7 +843,7 @@ void registry_set_binary(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot write binary data value: RegSetValueExW failed." };
+            error = platform_error(retCode, "Cannot write binary data value: RegSetValueExW failed.");
         }
     }
 }
@@ -878,7 +878,7 @@ void registry_set_wstring(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot write string value: RegSetValueExW failed." };
+            error = platform_error(retCode, "Cannot write string value: RegSetValueExW failed.");
         }
     }
 }
@@ -916,7 +916,7 @@ void registry_set_multi_wstring(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{ retCode, "Cannot write multi-string value: RegSetValueExW failed." };
+            error = platform_error(retCode, "Cannot write multi-string value: RegSetValueExW failed.");
         }
     }
 }
@@ -963,10 +963,9 @@ std::vector<std::wstring> registry_get_wkeys(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{
+            error = platform_error(
                 retCode,
-                "RegQueryInfoKey failed while preparing for subkey enumeration."
-            };
+                "RegQueryInfoKey failed while preparing for subkey enumeration.");
         }
 
         // NOTE: According to the MSDN documentation, the size returned for subkey name max length
@@ -997,7 +996,7 @@ std::vector<std::wstring> registry_get_wkeys(
             );
             if (retCode != ERROR_SUCCESS)
             {
-                error = platform_error{ retCode, "Cannot enumerate subkeys: RegEnumKeyEx failed." };
+                error = platform_error(retCode, "Cannot enumerate subkeys: RegEnumKeyEx failed.");
             }
 
             // On success, the ::RegEnumKeyEx API writes the length of the
@@ -1051,10 +1050,9 @@ std::vector<std::pair<std::wstring, registry_value_types>>
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error{
+            error = platform_error(
                 retCode,
-                "RegQueryInfoKey failed while preparing for value enumeration."
-            };
+                "RegQueryInfoKey failed while preparing for value enumeration.");
 
             return valueInfo;
         }
@@ -1088,7 +1086,7 @@ std::vector<std::pair<std::wstring, registry_value_types>>
             );
             if (retCode != ERROR_SUCCESS)
             {
-                error = platform_error{ retCode, "Cannot enumerate values: RegEnumValue failed." };
+                error = platform_error(retCode, "Cannot enumerate values: RegEnumValue failed.");
 
                 return valueInfo;
             }
