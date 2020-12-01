@@ -110,7 +110,6 @@ write_basic_package_version_file(
 # 安装版本文件
 install(
   FILES
-    cmake/utilityConfigVersion.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake"
   DESTINATION
     cmake
