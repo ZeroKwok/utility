@@ -25,4 +25,5 @@ install(TARGETS ${PROJECT_NAME}
 
 install(EXPORT utility-string
     FILE utility-stringConfig.cmake
+    NAMESPACE utility::
     DESTINATION cmake)

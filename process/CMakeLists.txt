@@ -25,4 +25,5 @@ install(TARGETS ${PROJECT_NAME}
 
 install(EXPORT utility-process
     FILE utility-processConfig.cmake
+    NAMESPACE utility::
     DESTINATION cmake)

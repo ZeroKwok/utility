@@ -38,4 +38,5 @@ install(FILES
 
 install(EXPORT utility-common
     FILE utility-commonConfig.cmake           # 包配置文件名
+    NAMESPACE utility::                       # 名称空间
     DESTINATION cmake)                        # 文件存储目录

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(utility CXX)
+project(utility VERSION 0.2.1 LANGUAGES CXX)
 
 # 是否编译单元测试
 option(UTILITY_BUILD_TEST "Enable build unit test" ON)
@@ -49,11 +49,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # 添加为连接目录
 link_directories("${CMAKE_BINARY_DIR}/lib")
 
-# 3rd modules
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+# cmake modules
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # regular naming
 include(library_regular_naming)
+
+# 填充配置
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/utility.hpp.in" 
+               "${CMAKE_CURRENT_SOURCE_DIR}/utility.hpp")
 
 # 子目录
 add_subdirectory(string)
@@ -95,3 +99,21 @@ install(
     cmake
   COMPONENT
     Devel)
+
+# 生成版本文件
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake"
+  VERSION ${utility_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+
+# 安装版本文件
+install(
+  FILES
+    cmake/utilityConfigVersion.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake"
+  DESTINATION
+    cmake
+  COMPONENT
+    Devel
+)

@@ -25,4 +25,5 @@ install(TARGETS ${PROJECT_NAME}
 
 install(EXPORT utility-platform
     FILE utility-platformConfig.cmake
+    NAMESPACE utility::
     DESTINATION cmake)

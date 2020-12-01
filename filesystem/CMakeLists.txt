@@ -25,4 +25,5 @@ install(TARGETS ${PROJECT_NAME}
 
 install(EXPORT utility-filesystem
     FILE utility-filesystemConfig.cmake
+    NAMESPACE utility::
     DESTINATION cmake)
