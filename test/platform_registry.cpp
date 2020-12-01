@@ -33,10 +33,12 @@ TEST(platform, registry)
     EXPECT_TRUE(!registry_get_wstring(L"HKEY_CURRENT_USER\\Environment", L"TEMP", 0, error).empty());
     EXPECT_TRUE(!error);
 
+#if ARCH_CPU_32_BITS
     // 查询机器id
     // 32位下实际定位: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Cryptography, 不存在
     EXPECT_TRUE(registry_get_wstring(L"SOFTWARE\\Microsoft\\Cryptography", L"MachineGuid", 0, error).empty());
     EXPECT_TRUE(error);
+#endif
 
     // 查询机器id
     EXPECT_TRUE(!registry_get_wstring(L"SOFTWARE\\Microsoft\\Cryptography", L"MachineGuid", KEY_WOW64_64KEY, error).empty());

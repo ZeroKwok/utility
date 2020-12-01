@@ -1015,7 +1015,7 @@ std::vector<std::pair<std::wstring, registry_value_types>>
     registry_get_wvalues(const tstring path, int access)
 {
     platform_error error;
-    auto result = registry_get_values(path, access, error);
+    auto result = registry_get_wvalues(path, access, error);
 
     if (error)
         throw error;
