@@ -30,18 +30,10 @@ install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib                   # 动态库安装路径
     PUBLIC_HEADER DESTINATION include/common) # 头文件安装路径(需要在目标属性里面设置PUBLIC_HEADER)
 
-# 安装pdb
-get_target_property(t_pdb_name ${PROJECT_NAME} COMPILE_PDB_NAME)
-get_target_property(t_pdb_name_debug ${PROJECT_NAME} COMPILE_PDB_NAME_DEBUG)
-get_target_property(t_pdb_output_directory ${PROJECT_NAME} PDB_OUTPUT_DIRECTORY)
-
-message("${t_pdb_output_directory}/\${CMAKE_INSTALL_CONFIG_NAME}/$<$<CONFIG:Debug>:${t_pdb_name_debug}>$<$<NOT:$<CONFIG:Debug>>:${t_pdb_name}>.pdb")
-install(FILES
-    "${t_pdb_output_directory}/\${CMAKE_INSTALL_CONFIG_NAME}/$<$<CONFIG:Debug>:${t_pdb_name_debug}>$<$<NOT:$<CONFIG:Debug>>:${t_pdb_name}>.pdb"
-    DESTINATION lib
-    OPTIONAL)
-
 install(EXPORT utility-common
     FILE utility-commonConfig.cmake           # 包配置文件名
     NAMESPACE utility::                       # 名称空间
     DESTINATION cmake)                        # 文件存储目录
+
+# 安装pdb
+install_pdb(${PROJECT_NAME})

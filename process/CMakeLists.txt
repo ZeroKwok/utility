@@ -32,3 +32,5 @@ install(EXPORT utility-process
     FILE utility-processConfig.cmake
     NAMESPACE utility::
     DESTINATION cmake)
+
+install_pdb(${PROJECT_NAME})

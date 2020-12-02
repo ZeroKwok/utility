@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(utility VERSION 0.2.1 LANGUAGES CXX)
 
 #  «∑Ò±‡“Îµ•‘™≤‚ ‘
-option(UTILITY_BUILD_TEST "Enable build unit test" ON)
+option(UTILITY_BUILD_TEST "Enable build unit test" OFF)
 
 #  «∑Ò÷ß≥÷Qt
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
@@ -38,6 +38,7 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_BINARY_DIR}/lib")
 
 if(UTILITY_SUPPORT_QT)
     find_package(Qt5 REQUIRED Widgets)
@@ -53,6 +54,7 @@ link_directories("${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # regular naming
+include(internal_util)
 include(library_regular_naming)
 
 # ÃÓ≥‰≈‰÷√
