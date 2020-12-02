@@ -34,8 +34,8 @@ function(get_toolset toolset)
 
 	set(${toolset} ${MSToolSet} PARENT_SCOPE)
 
-	# message(STATUS ">- MSVC_VERSION=${MSVC_VERSION}")
-	# message(STATUS ">- MSToolSet=${MSToolSet}")
+	# message(STATUS "**> MSVC_VERSION=${MSVC_VERSION}")
+	# message(STATUS "**> MSToolSet=${MSToolSet}")
 endfunction()
 
 # ÔËÐÐÊ±
@@ -43,8 +43,8 @@ function(get_runtime c_or_cxx_flags is_mt)
 	string(FIND ${c_or_cxx_flags} "MD" md_pos)
 	string(FIND ${c_or_cxx_flags} "MT" mt_pos)
 
-	# message("md_pos: ${md_pos} ${c_or_cxx_flags}\n"
-	#		  "mt_pos: ${mt_pos}")
+	# message(STATUS "**> md_pos: ${md_pos} ${c_or_cxx_flags}")
+	# message(STATUS "**> mt_pos: ${mt_pos}")
 
 	if(${mt_pos} EQUAL -1)
 		set(${is_mt} OFF PARENT_SCOPE)
@@ -87,12 +87,12 @@ function(get_architecture_tag arch_tag)
 	endif()
 
 	set(${arch_tag} ${ARCH_TAG} PARENT_SCOPE)
-	# message(STATUS ">- ARCH_TAG=${ARCH_TAG}")
-	# message(STATUS ">- CMAKE_CXX_COMPILER_ARCHITECTURE_ID=${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
+	# message(STATUS "**> ARCH_TAG=${ARCH_TAG}")
+	# message(STATUS "**> CMAKE_CXX_COMPILER_ARCHITECTURE_ID=${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
 endfunction()
 
-function(library_regular_naming name)
-	get_target_property(LIBRARY_TARGE_TYPE ${name} TYPE)
+function(library_regular_naming_with_name target_name target_origin_name)
+	get_target_property(LIBRARY_TARGE_TYPE ${target_name} TYPE)
 	if(STATIC_LIBRARY MATCHES ${LIBRARY_TARGE_TYPE})
 		set(CONFIG_LIB_PREFIX "lib")
 	elseif(SHARED_LIBRARY MATCHES ${LIBRARY_TARGE_TYPE})
@@ -105,8 +105,8 @@ function(library_regular_naming name)
 		get_toolset(CONFIG_LIB_TOOLSET)
 		get_architecture_tag(CONFIG_ARCHITECTURE_TAG)
 
-		# message(STATUS ">- CONFIG_LIB_TOOLSET=${CONFIG_LIB_TOOLSET}")
-		# message(STATUS ">- CONFIG_ARCHITECTURE_TAG=${CONFIG_ARCHITECTURE_TAG}")
+		# message(STATUS "**> CONFIG_LIB_TOOLSET=${CONFIG_LIB_TOOLSET}")
+		# message(STATUS "**> CONFIG_ARCHITECTURE_TAG=${CONFIG_ARCHITECTURE_TAG}")
 
 		get_runtime(${CMAKE_CXX_FLAGS_DEBUG}   is_debug_mt)
 		get_runtime(${CMAKE_CXX_FLAGS_RELEASE} is_release_mt)
@@ -124,15 +124,14 @@ function(library_regular_naming name)
 		endif()
 
 		# libname-vc100-mt-sgd-x32.lib
-		get_target_property(_TARGE_ORIGIN_NAME ${name} NAME)
-		set(CONFIG_DEBUG_OUTPUT_NAME "${CONFIG_LIB_PREFIX}${_TARGE_ORIGIN_NAME}-${CONFIG_LIB_TOOLSET}${CONFIG_DEBUG_LIB_RT_OPT}${CONFIG_ARCHITECTURE_TAG}")
-		set(CONFIG_RELEASE_OUTPUT_NAME "${CONFIG_LIB_PREFIX}${_TARGE_ORIGIN_NAME}-${CONFIG_LIB_TOOLSET}${CONFIG_RELEASE_LIB_RT_OPT}${CONFIG_ARCHITECTURE_TAG}")
+		set(CONFIG_DEBUG_OUTPUT_NAME "${CONFIG_LIB_PREFIX}${target_origin_name}-${CONFIG_LIB_TOOLSET}${CONFIG_DEBUG_LIB_RT_OPT}${CONFIG_ARCHITECTURE_TAG}")
+		set(CONFIG_RELEASE_OUTPUT_NAME "${CONFIG_LIB_PREFIX}${target_origin_name}-${CONFIG_LIB_TOOLSET}${CONFIG_RELEASE_LIB_RT_OPT}${CONFIG_ARCHITECTURE_TAG}")
 
-		message(STATUS ">- ${name} Target CONFIG_DEBUG_OUTPUT_NAME=${CONFIG_DEBUG_OUTPUT_NAME}")
-		message(STATUS ">- ${name} Target CONFIG_RELEASE_OUTPUT_NAME=${CONFIG_RELEASE_OUTPUT_NAME}")
+		message(STATUS "**>  ${target_name} Target CONFIG_DEBUG_OUTPUT_NAME=${CONFIG_DEBUG_OUTPUT_NAME}")
+		message(STATUS "**>  ${target_name} Target CONFIG_RELEASE_OUTPUT_NAME=${CONFIG_RELEASE_OUTPUT_NAME}")
 
 		# static
-		set_target_properties(${name} PROPERTIES 
+		set_target_properties(${target_name} PROPERTIES 
 			ARCHIVE_OUTPUT_NAME_DEBUG "${CONFIG_DEBUG_OUTPUT_NAME}"
 			ARCHIVE_OUTPUT_NAME_RELEASE "${CONFIG_RELEASE_OUTPUT_NAME}"
 			ARCHIVE_OUTPUT_NAME_MINSIZEREL "${CONFIG_RELEASE_OUTPUT_NAME}"
@@ -140,7 +139,7 @@ function(library_regular_naming name)
 
 		# shared
 		if(NOT CONFIG_LIB_PREFIX MATCHES "lib")
-			set_target_properties(${name} PROPERTIES 
+			set_target_properties(${target_name} PROPERTIES 
 			RUNTIME_OUTPUT_NAME_DEBUG "${CONFIG_DEBUG_OUTPUT_NAME}"
 			RUNTIME_OUTPUT_NAME_RELEASE "${CONFIG_RELEASE_OUTPUT_NAME}"
 			RUNTIME_OUTPUT_NAME_MINSIZEREL "${CONFIG_RELEASE_OUTPUT_NAME}"
@@ -148,7 +147,7 @@ function(library_regular_naming name)
 		endif()
 
 		# pdb
-		set_target_properties(${name} PROPERTIES 
+		set_target_properties(${target_name} PROPERTIES 
 		  PDB_NAME_DEBUG "${CONFIG_DEBUG_OUTPUT_NAME}"
 		  PDB_NAME_RELEASE "${CONFIG_RELEASE_OUTPUT_NAME}"
 		  PDB_NAME_MINSIZEREL "${CONFIG_RELEASE_OUTPUT_NAME}"
@@ -158,6 +157,11 @@ function(library_regular_naming name)
 		  COMPILE_PDB_NAME_MINSIZERE "${CONFIG_RELEASE_OUTPUT_NAME}"
 		  COMPILE_PDB_NAME_RELWITHDEBINFO "${CONFIG_RELEASE_OUTPUT_NAME}")
 	endif()
+endfunction()
+
+function(library_regular_naming target_name)
+	get_target_property(target_origin_name ${target_name} NAME)
+	library_regular_naming_with_name(${target_name} ${target_origin_name})
 endfunction()
 
 function(library_regular_named_query library_debug library_release orgin)
@@ -205,7 +209,7 @@ macro(create_named_static_import_target static_target orgin_name)
 	  IMPORTED_LOCATION_RELWITHDEBINFO "${_releaselib}")
 
 	get_target_property(LIBRARY_TARGE_TYPE ${static_target} TYPE)
-	message("_debuglib=${_debuglib} _releaselib=${_releaselib} LIBRARY_TARGE_TYPE=${LIBRARY_TARGE_TYPE}")
+	message(STATUS "**> _debuglib=${_debuglib} _releaselib=${_releaselib} LIBRARY_TARGE_TYPE=${LIBRARY_TARGE_TYPE}")
 endmacro()
 
 macro(create_named_shared_import_target static_target orgin_name)
