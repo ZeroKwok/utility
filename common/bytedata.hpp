@@ -33,10 +33,15 @@ public:
     typedef std::string supper_type;
 
     bytedata() {}
-    bytedata(const char* str)
-        : supper_type(str) {}
+    bytedata(const char* buf)
+        : supper_type(buf) {}
+    bytedata(size_t count, char ch)
+        : supper_type(count, ch) {}
     bytedata(const supper_type& other)
         : supper_type(other) {}
+    bytedata(const void* buf, size_t lenght)
+        : supper_type(reinterpret_cast<const char*>(buf), lenght) 
+    {}
 
     const supper_type& string() { 
         return *this; 
