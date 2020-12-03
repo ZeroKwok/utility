@@ -5,6 +5,9 @@ project(utility VERSION 0.2.1 LANGUAGES CXX)
 # 是否编译单元测试
 option(UTILITY_BUILD_TEST "Enable build unit test" OFF)
 
+# 是否支持Boost
+option(UTILITY_SUPPORT_BOOST "Enable Boost support" ON)
+
 # 是否支持Qt
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 
@@ -12,10 +15,14 @@ option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
 # 是否启用静态运行时
-option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
+option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
 
 # 初始化UTILITY_TARGET_COMPILE_DEFINITIONS
 set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
+
+if(UTILITY_SUPPORT_BOOST)
+	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BOOST)
+endif()
 
 if(UTILITY_SUPPORT_QT)
 	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_QT)
@@ -40,10 +47,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_BINARY_DIR}/lib")
 
-if(UTILITY_SUPPORT_QT)
-    find_package(Qt5 REQUIRED Widgets)
-endif()
-
 # 设置为根目录
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -52,6 +55,16 @@ link_directories("${CMAKE_BINARY_DIR}/lib")
 
 # cmake modules
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+if(UTILITY_SUPPORT_BOOST)
+    find_package(Boost REQUIRED thread serialization)
+    include_directories(${Boost_INCLUDE_DIRS})
+    link_directories(${Boost_LIBRARY_DIRS})
+endif()
+
+if(UTILITY_SUPPORT_QT)
+    find_package(Qt5 REQUIRED Widgets)
+endif()
 
 # regular naming
 include(internal_util)
