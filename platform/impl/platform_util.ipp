@@ -420,6 +420,32 @@ std::wstring wformat_error(int error_code)
     return std::wstring(L"Error message not available.");
 }
 
+bool is_network_error(int error_code)
+{
+    switch (error_code)
+    {
+    case ERROR_REM_NOT_LIST:
+    case ERROR_DUP_NAME:
+    case ERROR_BAD_NETPATH:
+    case ERROR_NETWORK_BUSY:
+    case ERROR_DEV_NOT_EXIST:
+    case ERROR_TOO_MANY_CMDS:
+    case ERROR_ADAP_HDW_ERR:
+    case ERROR_BAD_NET_RESP:
+    case ERROR_UNEXP_NET_ERR:
+    case ERROR_NETNAME_DELETED:
+    case ERROR_NETWORK_ACCESS_DENIED:
+    case ERROR_BAD_DEV_TYPE:
+    case ERROR_BAD_NET_NAME:
+    case ERROR_TOO_MANY_NAMES:
+    case ERROR_TOO_MANY_SESS:
+    case ERROR_SHARING_PAUSED:
+        return true;
+    }
+
+    return false;
+}
+
 // Determine the mandatory level of a SID
 HRESULT get_sid_integrity_level(PSID sid, MANDATORY_LEVEL* level)
 {

@@ -52,6 +52,9 @@ UTILITY_FUNCT_DECL std::wstring wsystem_name();
 UTILITY_FUNCT_DECL std::string format_error(int error_code);
 UTILITY_FUNCT_DECL std::wstring wformat_error(int error_code);
 
+// Returns true if the error_code is the network error.
+UTILITY_FUNCT_DECL bool is_network_error(int error_code);
+
 } // win
 } // util
 
