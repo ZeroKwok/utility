@@ -140,10 +140,15 @@ AUTO_LINK_LIB_VERSION:    The Boost version, in the form x_y, for version x.y.
 // vc14:
 #    define AUTO_LINK_LIB_TOOLSET "vc140"
 
+#  elif defined(AUTO_LINK_MSVC) && (AUTO_LINK_MSVC < 1920)
+
+     // vc14.1:
+#    define AUTO_LINK_LIB_TOOLSET "vc141"
+
 #  elif defined(AUTO_LINK_MSVC)
 
-// vc14.1:
-#    define AUTO_LINK_LIB_TOOLSET "vc141"
+     // vc14.2:
+#    define AUTO_LINK_LIB_TOOLSET "vc142"
 
 #  elif defined(__BORLANDC__)
 
