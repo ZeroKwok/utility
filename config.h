@@ -101,23 +101,37 @@
 #endif
 
 // Microsoft Visual C++各版本的_MSC_VER值定义
+// https://zh.m.wikipedia.org/zh-hans/Microsoft_Visual_C%2B%2B
 #if defined(COMPILER_MSVC)
-#   define _MSVC_16_OLDEST  1927   // (Visual Studio 2019) MSVC++ 16.7
-#   define _MSVC_16         1920   // (Visual Studio 2019) MSVC++ 16.0
-#   define _MSVC_15_OLDEST  1916   // (Visual Studio 2017) MSVC++ 15.9
-#   define _MSVC_15         1910   // (Visual Studio 2017) MSVC++ 15.0
-#   define _MSVC_14         1900   // (Visual Studio 2015) MSVC++ 14.0
-#   define _MSVC_12         1800   // (Visual Studio 2013) MSVC++ 12.0
-#   define _MSVC_11         1700   // (Visual Studio 2012) MSVC++ 11.0
-#   define _MSVC_10         1600   // (Visual Studio 2010) MSVC++ 10.0
-#   define _MSVC_09         1500   // (Visual Studio 2008) MSVC++ 9.0 
-#   define _MSVC_08         1400   // (Visual Studio 2005) MSVC++ 8.0 
-#   define _MSVC_07         1310   // (Visual Studio 2003) MSVC++ 7.1 
+                                  // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
+                                  // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
+                                  // _MSC_VER == 1924 (Visual Studio 2019 Version 16.4 MSVC++ 14.24)
+                                  // _MSC_VER == 1923 (Visual Studio 2019 Version 16.3 MSVC++ 14.23)
+                                  // _MSC_VER == 1922 (Visual Studio 2019 Version 16.2 MSVC++ 14.22)
+                                  // _MSC_VER == 1921 (Visual Studio 2019 Version 16.1 MSVC++ 14.21)
+
+#   define  _MSVC_142       1920  // _MSC_VER == 1920 (Visual Studio 2019 Version 16.0 MSVC++ 14.20)
+
+                                  // _MSC_VER == 1916 (Visual Studio 2017 version 15.9 MSVC++ 14.16)
+                                  // _MSC_VER == 1915 (Visual Studio 2017 version 15.8 MSVC++ 14.15)
+                                  // _MSC_VER == 1914 (Visual Studio 2017 version 15.7 MSVC++ 14.14)
+                                  // _MSC_VER == 1913 (Visual Studio 2017 version 15.6 MSVC++ 14.13)
+                                  // _MSC_VER == 1912 (Visual Studio 2017 version 15.5 MSVC++ 14.12)
+                                  // _MSC_VER == 1911 (Visual Studio 2017 version 15.3 MSVC++ 14.11)
+
+#   define  _MSVC_141       1910  // _MSC_VER == 1910 (Visual Studio 2017 version 15.0 MSVC++ 14.1)
+#   define  _MSVC_140       1900  // _MSC_VER == 1900 (Visual Studio 2015 version 14.0 MSVC++ 14.0)
+#   define  _MSVC_120       1800  // _MSC_VER == 1800 (Visual Studio 2013 version 12.0 MSVC++ 12.0)
+#   define  _MSVC_110       1700  // _MSC_VER == 1700 (Visual Studio 2012 version 11.0 MSVC++ 11.0)
+#   define  _MSVC_100       1600  // _MSC_VER == 1600 (Visual Studio 2010 version 10.0 MSVC++ 10.0)
+#   define  _MSVC_90        1500  // _MSC_VER == 1500 (Visual Studio 2008 version 9.0  MSVC++ 9.0 )
+#   define  _MSVC_80        1400  // _MSC_VER == 1400 (Visual Studio 2005 version 8.0  MSVC++ 8.0 )
 #endif
 
 // noexcept
+// https://zh.cppreference.com/w/cpp/compiler_support/11
 #if defined(COMPILER_MSVC)
-#   if _MSC_VER < _MSVC_15 
+#   if _MSC_VER < _MSVC_140 
 #       define noexcept throw()
 #   endif
 #   include <tchar.h>
