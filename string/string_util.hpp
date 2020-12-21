@@ -14,13 +14,13 @@
 namespace util {
 
 /*
-*   ¿í×Ö½Ú, ¶à×Ö½Ú×Ö·û°æ±¾µÄ¸ñÊ½»¯
+*   å®½å­—èŠ‚, å¤šå­—èŠ‚å­—ç¬¦ç‰ˆæœ¬çš„æ ¼å¼åŒ–
 */
 UTILITY_FUNCT_DECL std::string  sformat(const char * format, ...);
 UTILITY_FUNCT_DECL std::wstring sformat(const wchar_t * format, ...);
 
 /*
-*   ×Ö·û´®Ìæ»»
+*   å­—ç¬¦ä¸²æ›¿æ¢
 */
 UTILITY_FUNCT_DECL std::string& replace(
     std::string& target,
@@ -40,7 +40,7 @@ UTILITY_FUNCT_DECL std::wstring replace_copy(
     const std::wstring& after);
 
 /*
-*	´óĞ¡Ğ´×ª»»
+*	å¤§å°å†™è½¬æ¢
 */
 UTILITY_FUNCT_DECL std::string  to_lower(const std::string& str);
 UTILITY_FUNCT_DECL std::wstring to_lower(const std::wstring& str);
@@ -48,10 +48,10 @@ UTILITY_FUNCT_DECL std::string  to_upper(const std::string& str);
 UTILITY_FUNCT_DECL std::wstring to_upper(const std::wstring& str);
 
 /*!
- *  /brief  ÔÚ¸ø¶¨µÄÄ¿±ê×Ö·û´®´Ó×ó±ß½ØÈ¡Ò»¶Î×Ó´®²¢·µ»Ø;
- *  /param  target  ¸ø¶¨µÄÄ¿±ê×Ö·û´®;
- *  /param  mark    ¸ø¶¨µÄ±ê¼Ç;
- *  /return         ·µ»Ø´Ómark±ê¼Ç´¦(²»°üº¬¸Ã±ê¼Ç)µÄ×ó±ß½ØÈ¡×Ö·û´®, Èô¸ø¶¨µÄ±ê¼Ç²»´æÔÚÔò·µ»Ø¿Õ×Ö·û´®;
+ *  /brief  åœ¨ç»™å®šçš„ç›®æ ‡å­—ç¬¦ä¸²ä»å·¦è¾¹æˆªå–ä¸€æ®µå­ä¸²å¹¶è¿”å›;
+ *  /param  target  ç»™å®šçš„ç›®æ ‡å­—ç¬¦ä¸²;
+ *  /param  mark    ç»™å®šçš„æ ‡è®°;
+ *  /return         è¿”å›ä»markæ ‡è®°å¤„(ä¸åŒ…å«è¯¥æ ‡è®°)çš„å·¦è¾¹æˆªå–å­—ç¬¦ä¸², è‹¥ç»™å®šçš„æ ‡è®°ä¸å­˜åœ¨åˆ™è¿”å›ç©ºå­—ç¬¦ä¸²;
  */
 UTILITY_FUNCT_DECL std::string  left(
     const std::string& target,
@@ -61,10 +61,10 @@ UTILITY_FUNCT_DECL std::wstring left(
     const std::wstring& mark);
 
 /*!
- *  /brief  ÔÚ¸ø¶¨µÄÄ¿±ê×Ö·û´®´ÓÓÒ±ß½ØÈ¡Ò»¶Î×Ó´®²¢·µ»Ø;
- *  /param  target  ¸ø¶¨µÄÄ¿±ê×Ö·û´®;
- *  /param  mark    ¸ø¶¨µÄ±ê¼Ç;
- *  /return         ·µ»Ø´Ómark±ê¼Ç´¦(²»°üº¬¸Ã±ê¼Ç)µÄÓÒ±ß½ØÈ¡×Ö·û´®, Èô¸ø¶¨µÄ±ê¼Ç²»´æÔÚÔò·µ»Ø¿Õ×Ö·û´®;
+ *  /brief  åœ¨ç»™å®šçš„ç›®æ ‡å­—ç¬¦ä¸²ä»å³è¾¹æˆªå–ä¸€æ®µå­ä¸²å¹¶è¿”å›;
+ *  /param  target  ç»™å®šçš„ç›®æ ‡å­—ç¬¦ä¸²;
+ *  /param  mark    ç»™å®šçš„æ ‡è®°;
+ *  /return         è¿”å›ä»markæ ‡è®°å¤„(ä¸åŒ…å«è¯¥æ ‡è®°)çš„å³è¾¹æˆªå–å­—ç¬¦ä¸², è‹¥ç»™å®šçš„æ ‡è®°ä¸å­˜åœ¨åˆ™è¿”å›ç©ºå­—ç¬¦ä¸²;
  */
 UTILITY_FUNCT_DECL std::string  right(
     const std::string& target,
@@ -75,17 +75,17 @@ UTILITY_FUNCT_DECL std::wstring right(
 
 enum UTILITY_CLASS_DECL between_policy
 {
-    without_mark = 0x00, ///< between()·µ»ØµÄ×Ó´®²»°üº¬±ê¼ÇÄÚÈİ;
-    contains_mark = 0x01, ///< between()·µ»ØµÄ×Ó´®°üº¬±ê¼ÇÄÚÈİ;
+    without_mark = 0x00, ///< between()è¿”å›çš„å­ä¸²ä¸åŒ…å«æ ‡è®°å†…å®¹;
+    contains_mark = 0x01, ///< between()è¿”å›çš„å­ä¸²åŒ…å«æ ‡è®°å†…å®¹;
 };
 
 /*!
- *  /brief  ÔÚ¸ø¶¨µÄÄ¿±ê×Ö·û´®ÖĞ¼ä½ØÈ¡Ò»¶Î×Ó´®²¢·µ»Ø;
- *  /param  target  ¸ø¶¨µÄÄ¿±ê×Ö·û´®;
- *  /param  left    ¸ø¶¨µÄ×ø±ê¼Ç;
- *  /param  right   ¸ø¶¨µÄÓÒ±ê¼Ç;
- *  /param  policy  ¸ø¶¨µÄ½ØÈ¡²ßÂÔ, ÈôÎªwithout_markÔò²»°üº¬leftÓëright±¾Éí, ·ñÔò°üº¬Ëü;
- *  /return         ·µ»Ø´Óleft~right Ö®¼ä¼ä½ØÈ¡×Ö·û´®, Èô¸ø¶¨µÄ±ê¼Ç²»´æÔÚÔò·µ»Ø¿Õ×Ö·û´®;
+ *  /brief  åœ¨ç»™å®šçš„ç›®æ ‡å­—ç¬¦ä¸²ä¸­é—´æˆªå–ä¸€æ®µå­ä¸²å¹¶è¿”å›;
+ *  /param  target  ç»™å®šçš„ç›®æ ‡å­—ç¬¦ä¸²;
+ *  /param  left    ç»™å®šçš„åæ ‡è®°;
+ *  /param  right   ç»™å®šçš„å³æ ‡è®°;
+ *  /param  policy  ç»™å®šçš„æˆªå–ç­–ç•¥, è‹¥ä¸ºwithout_markåˆ™ä¸åŒ…å«leftä¸rightæœ¬èº«, å¦åˆ™åŒ…å«å®ƒ;
+ *  /return         è¿”å›ä»left~right ä¹‹é—´é—´æˆªå–å­—ç¬¦ä¸², è‹¥ç»™å®šçš„æ ‡è®°ä¸å­˜åœ¨åˆ™è¿”å›ç©ºå­—ç¬¦ä¸²;
  */
 UTILITY_FUNCT_DECL std::string  between(
     const std::string& target, 

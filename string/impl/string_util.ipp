@@ -13,7 +13,9 @@ template<class _TString>
 inline _TString __to_lower(const _TString& str)
 {
     _TString result(str.length(), 0);
+
     std::transform(str.begin(), str.end(), result.begin(), ::tolower); 
+
     return result;
 }
 
@@ -21,7 +23,9 @@ template<class _TString>
 inline _TString __to_upper(const _TString& str)
 {
     _TString result(str.length(), 0);
+
     std::transform(str.begin(), str.end(), result.begin(), ::toupper); 
+
     return result;
 }
 
@@ -31,11 +35,11 @@ inline _TString& _replace(
     const _TString& before,
     const _TString& after)
 {  
-    _TString::size_type beforeLen = before.length();  
-    _TString::size_type afterLen  = after.length();  
-    _TString::size_type pos       = target.find(before, 0);
+    typename _TString::size_type beforeLen = before.length();
+    typename _TString::size_type afterLen = after.length();
+    typename _TString::size_type pos = target.find(before, 0);
 
-    while(pos != _TString::npos)  
+    while(pos != _TString::npos)
     {  
         target.replace(pos, beforeLen, after);  
         pos = target.find(before, (pos + afterLen));  
@@ -47,7 +51,7 @@ inline _TString& _replace(
 template<class _TString>
 inline _TString _left(const _TString& target, const _TString& mark)
 {
-    _TString::size_type index;
+    typename _TString::size_type index;
     if ((index = target.find(mark)) != _TString::npos)
     {
         return target.substr(0, index);
@@ -59,7 +63,7 @@ inline _TString _left(const _TString& target, const _TString& mark)
 template<class _TString>
 inline _TString _right(const _TString& target, const _TString& mark)
 {
-    _TString::size_type index;
+    typename _TString::size_type index;
     if ((index = target.rfind(mark)) != _TString::npos)
     {
         return target.substr(index + mark.length());
@@ -75,12 +79,12 @@ inline _TString _between(
     const _TString& right,
     between_policy policy)
 {
-    _TString::size_type begin, end, middle;
+    typename _TString::size_type begin, end, middle;
     if ((begin = target.find(left)) != _TString::npos)
     {
         if ((end = target.find(right, begin)) != _TString::npos)
         {
-            // Ѱ����Сƥ��
+            // 寻找最小匹配
             middle = begin + 1;
             while (middle < end && (middle = target.find(left, middle)) != _TString::npos)
                 begin = middle++;
@@ -99,26 +103,77 @@ inline _TString _between(
 
 std::string  sformat(const char * format, ...)
 {
-    va_list marker = NULL;
-    va_start(marker, format);
+#if OS_WIN
+    va_list list;
+    va_start(list, format);
 
-    std::string text(_vscprintf(format, marker) + 1, 0);
-    vsprintf_s(&text[0], text.capacity(), format, marker);
-    va_end(marker);
+    std::string text(_vscprintf(format, list) + 1, 0);
+    vsprintf_s(&text[0], text.size(), format, list);
+
+    va_end(list);
 
     return text.data();
+
+#else
+    va_list list;
+    va_start(list, format);
+
+    std::string text(vsnprintf(nullptr, 0, format, list) + 1, 0);
+
+    // These functions do not call the va_end macro. 
+    // Because they invoke the va_arg macro, the value of ap is 
+    // undefined after the call.
+    // https://linux.die.net/man/3/vsnprintf
+    va_start(list, format);
+
+    size_t size = vsnprintf(&text[0], text.size(), format, list);
+
+    return text.data();
+#endif
 }
 
 std::wstring sformat(const wchar_t * format, ...)
 {
-    va_list marker = NULL;
-    va_start(marker, format);
+#if OS_WIN
+    va_list list;
+    va_start(list, format);
 
-    std::wstring text(_vscwprintf(format, marker) + 1, 0);
-    vswprintf_s(&text[0], text.capacity(), format, marker);
-    va_end(marker);
+    std::wstring text(_vscwprintf(format, list) + 1, 0);
+    vswprintf_s(&text[0], text.size(), format, list);
+
+    va_end(list);
 
     return text.data();
+
+#else
+
+    va_list list;
+    va_start(list, format);
+
+    // 窄字符串提供 std::vsnprintf ，它使得程序能够确定要求的输出缓冲区大小。
+    // 不过宽字符串无等价版本，而且为确定缓冲区大小，程序需要调用 std::vswprintf 并检查结果值，
+    // 再重新分配更大的缓冲区，反复尝试直至成功。
+    // https://zh.cppreference.com/w/cpp/io/c/vfwprintf
+    
+    int size = 0;
+    std::wstring text(1024, 0);
+
+    while ((size = vswprintf(&text[0], text.size(), format, list)) < 0)
+    {
+        if (text.size() > 0x500000) // 上限5MB
+            throw std::runtime_error("The formatted content is too long, over 5MB.");
+
+        text.resize(text.size() + 1024);
+
+        va_start(list, format);
+    }
+
+    va_end(list);
+
+    text.resize(size);
+
+    return text;
+#endif
 }
 
 std::string  to_lower(const std::string& str)
@@ -160,7 +215,9 @@ std::string replace_copy(
     const std::string& before,
     const std::string& after)
 {
-    return detail::_replace(std::string(target), before, after);
+    std::string result(target);
+
+    return detail::_replace(result, before, after);
 }
 
 std::wstring replace_copy(
@@ -168,7 +225,9 @@ std::wstring replace_copy(
     const std::wstring& before,
     const std::wstring& after)
 {
-    return detail::_replace(std::wstring(target), before, after);
+    std::wstring result(target);
+
+    return detail::_replace(result, before, after);
 }
 
 std::string left(

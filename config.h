@@ -100,9 +100,38 @@
 #   error Please set up your byte order config.h.
 #endif
 
+// The arraysize(arr) macro returns the # of elements in an array arr.
+// The expression is a compile-time constant, and therefore can be
+// used in defining new arrays, for example.  If you use arraysize on
+// a pointer by mistake, you will get a compile-time error.
+//
+// One caveat is that arraysize() doesn't accept any array of an
+// anonymous type or a type defined inside a function.  In these rare
+// cases, you have to use the unsafe ARRAYSIZE_UNSAFE() macro below.  This is
+// due to a limitation in C++'s template system.  The limitation might
+// eventually be removed, but it hasn't happened yet.
+
+// This template function declaration is used in defining arraysize.
+// Note that the function doesn't need an implementation, as we only
+// use its type.
+template <typename T, int N>
+char (&ArraySizeHelper(T (&array)[N]))[N];
+
+// That gcc wants both of these prototypes seems mysterious. VC, for
+// its part, can't decide which to use (another mystery). Matching of
+// template overloads: the final frontier.
+#ifndef _MSC_VER
+template <typename T, int N>
+char (&ArraySizeHelper(const T (&array)[N]))[N];
+#endif
+
+#define arraysize(array) (sizeof(ArraySizeHelper(array)))
+
+// MSVC 
+#if defined(COMPILER_MSVC)
+
 // Microsoft Visual C++各版本的_MSC_VER值定义
 // https://zh.m.wikipedia.org/zh-hans/Microsoft_Visual_C%2B%2B
-#if defined(COMPILER_MSVC)
                                   // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
                                   // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
                                   // _MSC_VER == 1924 (Visual Studio 2019 Version 16.4 MSVC++ 14.24)
@@ -126,69 +155,38 @@
 #   define  _MSVC_100       1600  // _MSC_VER == 1600 (Visual Studio 2010 version 10.0 MSVC++ 10.0)
 #   define  _MSVC_90        1500  // _MSC_VER == 1500 (Visual Studio 2008 version 9.0  MSVC++ 9.0 )
 #   define  _MSVC_80        1400  // _MSC_VER == 1400 (Visual Studio 2005 version 8.0  MSVC++ 8.0 )
-#endif
 
 // noexcept
 // https://zh.cppreference.com/w/cpp/compiler_support/11
-#if defined(COMPILER_MSVC)
 #   if _MSC_VER < _MSVC_140 
 #       define noexcept throw()
 #   endif
 #   include <tchar.h>
-#endif
 
 // MSVC 10之前的版本使用自身携带的stdint.h
-#if defined(COMPILER_MSVC) && _MSC_VER >= _MSVC_10
-#   include <stdint.h>
-#else
-#   include "msinttypes/stdint.h"
-#   ifndef nullptr
-#       define nullptr NULL
+#   if _MSC_VER >= _MSVC_10
+#      include <stdint.h>
+#   else
+#      include "msinttypes/stdint.h"
+#      ifndef nullptr
+#          define nullptr NULL
+#      endif
 #   endif
-#endif
-
-// The arraysize(arr) macro returns the # of elements in an array arr.
-// The expression is a compile-time constant, and therefore can be
-// used in defining new arrays, for example.  If you use arraysize on
-// a pointer by mistake, you will get a compile-time error.
-//
-// One caveat is that arraysize() doesn't accept any array of an
-// anonymous type or a type defined inside a function.  In these rare
-// cases, you have to use the unsafe ARRAYSIZE_UNSAFE() macro below.  This is
-// due to a limitation in C++'s template system.  The limitation might
-// eventually be removed, but it hasn't happened yet.
-
-// This template function declaration is used in defining arraysize.
-// Note that the function doesn't need an implementation, as we only
-// use its type.
-template <typename T, size_t N>
-char (&ArraySizeHelper(T (&array)[N]))[N];
-
-// That gcc wants both of these prototypes seems mysterious. VC, for
-// its part, can't decide which to use (another mystery). Matching of
-// template overloads: the final frontier.
-#ifndef _MSC_VER
-template <typename T, size_t N>
-char (&ArraySizeHelper(const T (&array)[N]))[N];
-#endif
-
-#define arraysize(array) (sizeof(ArraySizeHelper(array)))
 
 // 去除Windows.h中携带的min, max宏定义, 且在后面禁止包含
-#if defined(OS_WIN)
 #   ifndef  NOMINMAX
 #      define  NOMINMAX
 #   endif
 #   ifndef WIN32_LEAN_AND_MEAN
 #      define  WIN32_LEAN_AND_MEAN 
 #   endif
-
 #   ifdef min
 #      undef min
 #   endif
 #   ifdef max
 #      undef max
 #   endif
-#endif
+
+#endif // if defined(COMPILER_MSVC)
 
 #endif // config_h__

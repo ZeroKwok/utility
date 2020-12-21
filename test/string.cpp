@@ -27,17 +27,17 @@ TEST(tstring, char_constructor)
     }
 
     {
-        util::tstring string("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~");
-        EXPECT_EQ(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.utf8());
-        EXPECT_EQ("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.string());
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        util::tstring string("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~");
+        EXPECT_EQ(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.utf8());
+        EXPECT_EQ("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.string());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring string(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
-        EXPECT_EQ(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.utf8());
-        EXPECT_EQ("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.string());
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        util::tstring string(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
+        EXPECT_EQ(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.utf8());
+        EXPECT_EQ("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.string());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 }
 
@@ -58,17 +58,17 @@ TEST(tstring, wchar_t_constructor)
     }
 
     {
-        util::tstring string(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~");
-        EXPECT_EQ(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.utf8());
-        EXPECT_EQ("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.string());
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        util::tstring string(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~");
+        EXPECT_EQ(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.utf8());
+        EXPECT_EQ("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.string());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring string(std::string(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~"), util::tstring::format_utf8);
-        EXPECT_EQ(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.utf8());
-        EXPECT_EQ("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.string());
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        util::tstring string(std::string(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~"), util::tstring::format_utf8);
+        EXPECT_EQ(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.utf8());
+        EXPECT_EQ("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.string());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 }
 
@@ -89,10 +89,10 @@ TEST(tstring, string_constructor)
     }
 
     {
-        util::tstring string(std::string("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~"));
-        EXPECT_EQ(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.utf8());
-        EXPECT_EQ("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.string());
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        util::tstring string(std::string("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~"));
+        EXPECT_EQ(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.utf8());
+        EXPECT_EQ("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.string());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 }
 
@@ -113,10 +113,10 @@ TEST(tstring, wstring_constructor)
     }
 
     {
-        util::tstring string(std::wstring(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~"));
-        EXPECT_EQ(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.utf8());
-        EXPECT_EQ("ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.string());
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        util::tstring string(std::wstring(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~"));
+        EXPECT_EQ(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.utf8());
+        EXPECT_EQ("æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.string());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 }
 
@@ -129,39 +129,39 @@ TEST(tstring, copy_constructor)
     }
 
     {
-        util::tstring s1(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
+        util::tstring s1(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
         util::tstring string = s1;
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring s1(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
+        util::tstring s1(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
         util::tstring string = std::move(s1);
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring s1(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
+        util::tstring s1(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
         util::tstring string(s1);
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring s1(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
+        util::tstring s1(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
         util::tstring string(std::move(s1));
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring string, s1(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
+        util::tstring string, s1(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
         string = s1;
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 
     {
-        util::tstring string, s1(u8"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", util::tstring::format_utf8);
+        util::tstring string, s1(u8"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", util::tstring::format_utf8);
         string = std::move(s1);
-        EXPECT_EQ(L"ÎÒÃÇµÄÕ÷³ÌÊÇĞÇ³½´óº£~~~", string.wstring());
+        EXPECT_EQ(L"æˆ‘ä»¬çš„å¾ç¨‹æ˜¯æ˜Ÿè¾°å¤§æµ·~~~", string.wstring());
     }
 }
 
@@ -193,8 +193,8 @@ TEST(tstring, operator_constructor)
 
     {
         util::tstring string(u8"Hello {1} {2}!", util::tstring::format_utf8);
-        string % util::tstring(L"World") % util::tstring(L"ÄãºÃÊÀ½ç");
-        EXPECT_EQ(L"Hello World ÄãºÃÊÀ½ç!", string.wstring());
+        string % util::tstring(L"World") % util::tstring(L"ä½ å¥½ä¸–ç•Œ");
+        EXPECT_EQ(L"Hello World ä½ å¥½ä¸–ç•Œ!", string.wstring());
     }
 
     {
@@ -210,34 +210,34 @@ TEST(tstring, operator_constructor)
     }
 
     {
-        util::tstring string(u8"¸öÌåºÍ{1} ¸ßÓÚ{2}ºÍ{3}!", util::tstring::format_utf8);
-        string % "»¥¶¯" % "Á÷³Ì" % L"¹¤¾ß";
-        EXPECT_EQ(L"¸öÌåºÍ»¥¶¯ ¸ßÓÚÁ÷³ÌºÍ¹¤¾ß!", string.wstring());
+        util::tstring string(u8"ä¸ªä½“å’Œ{1} é«˜äº{2}å’Œ{3}!", util::tstring::format_utf8);
+        string % "äº’åŠ¨" % "æµç¨‹" % L"å·¥å…·";
+        EXPECT_EQ(L"ä¸ªä½“å’Œäº’åŠ¨ é«˜äºæµç¨‹å’Œå·¥å…·!", string.wstring());
     }
 
     {
-        util::tstring string(u8"¸öÌåºÍ{1} ¸ßÓÚ{1}ºÍ{2}!", util::tstring::format_utf8);
-        string % "»¥¶¯" % "Á÷³Ì" % L"¹¤¾ß";
-        EXPECT_EQ(L"¸öÌåºÍ»¥¶¯ ¸ßÓÚ»¥¶¯ºÍÁ÷³Ì!", string.wstring());
+        util::tstring string(u8"ä¸ªä½“å’Œ{1} é«˜äº{1}å’Œ{2}!", util::tstring::format_utf8);
+        string % "äº’åŠ¨" % "æµç¨‹" % L"å·¥å…·";
+        EXPECT_EQ(L"ä¸ªä½“å’Œäº’åŠ¨ é«˜äºäº’åŠ¨å’Œæµç¨‹!", string.wstring());
     }
 
     {
-        util::tstring string(u8"¸öÌåºÍ{1} ¸ßÓÚ{2}ºÍ{1}!", util::tstring::format_utf8);
-        string % "»¥¶¯" % "Á÷³Ì" % L"¹¤¾ß";
-        EXPECT_EQ(L"¸öÌåºÍ»¥¶¯ ¸ßÓÚÁ÷³ÌºÍ»¥¶¯!", string.wstring());
+        util::tstring string(u8"ä¸ªä½“å’Œ{1} é«˜äº{2}å’Œ{1}!", util::tstring::format_utf8);
+        string % "äº’åŠ¨" % "æµç¨‹" % L"å·¥å…·";
+        EXPECT_EQ(L"ä¸ªä½“å’Œäº’åŠ¨ é«˜äºæµç¨‹å’Œäº’åŠ¨!", string.wstring());
     }
 
     {
-        util::tstring s1(u8"¸öÌåºÍ{1} ¸ßÓÚ{2}ºÍ{1}!", util::tstring::format_utf8);
+        util::tstring s1(u8"ä¸ªä½“å’Œ{1} é«˜äº{2}å’Œ{1}!", util::tstring::format_utf8);
         util::tstring string = s1;
-        string % "»¥¶¯" % "Á÷³Ì" % L"¹¤¾ß";
-        EXPECT_EQ(L"¸öÌåºÍ»¥¶¯ ¸ßÓÚÁ÷³ÌºÍ»¥¶¯!", string.wstring());
+        string % "äº’åŠ¨" % "æµç¨‹" % L"å·¥å…·";
+        EXPECT_EQ(L"ä¸ªä½“å’Œäº’åŠ¨ é«˜äºæµç¨‹å’Œäº’åŠ¨!", string.wstring());
     }
 
     {
-        util::tstring string, s1(u8"¸öÌåºÍ{1} ¸ßÓÚ{2}ºÍ{1}!", util::tstring::format_utf8);
+        util::tstring string, s1(u8"ä¸ªä½“å’Œ{1} é«˜äº{2}å’Œ{1}!", util::tstring::format_utf8);
         string = s1;
-        string % "»¥¶¯" % "Á÷³Ì" % L"¹¤¾ß";
-        EXPECT_EQ(L"¸öÌåºÍ»¥¶¯ ¸ßÓÚÁ÷³ÌºÍ»¥¶¯!", string.wstring());
+        string % "äº’åŠ¨" % "æµç¨‹" % L"å·¥å…·";
+        EXPECT_EQ(L"ä¸ªä½“å’Œäº’åŠ¨ é«˜äºæµç¨‹å’Œäº’åŠ¨!", string.wstring());
     }
 }

@@ -14,34 +14,41 @@
 namespace util {
 namespace conv {
 
-// ansi string to utf16 string.
-UTILITY_FUNCT_DECL std::wstring& ansi2utf16(
-    const std::string& src, std::wstring& dest);
+//! local 8 bit string or std::string to std::wstring.
+UTILITY_FUNCT_DECL std::wstring& string_to_wstring(
+    const std::string& input, std::wstring& output);
 
-// utf16 string to ansi string.
-UTILITY_FUNCT_DECL std::string& utf162ansi(
-    const std::wstring& src, std::string& dest);
+//! std::wstring to local 8 bit string or std::string.
+UTILITY_FUNCT_DECL std::string& wstring_to_string(
+    const std::wstring& input, std::string& output);
 
-// utf8 string to utf16 string.
-UTILITY_FUNCT_DECL std::wstring& utf82utf16(
-    const std::string& src, std::wstring& dest);
+//! utf8 string to std::wstring.
+UTILITY_FUNCT_DECL std::wstring& utf8_to_wstring(
+    const std::string& input, std::wstring& output);
 
-// utf16 string to utf8 string.
-UTILITY_FUNCT_DECL std::string& utf162utf8(
-    const std::wstring& str, std::string& dest);
+//! std::wstring to utf8 string.
+UTILITY_FUNCT_DECL std::string& wstring_to_utf8(
+    const std::wstring& input, std::string& output);
 
-// utf8 string to ansi string.
-UTILITY_FUNCT_DECL std::string& utf82ansi(
-    const std::string& src, std::string& dest);
+//! utf8 string to local 8 bit string or std::string.
+//! On Linux, no conversion is done, because UTF-8 is the default.
+UTILITY_FUNCT_DECL std::string& utf8_to_string(
+    const std::string& input, std::string& output);
 
-// ansi string to utf8 string.
-UTILITY_FUNCT_DECL std::string& ansi2utf8(
-    const std::string& src, std::string& dest);
+//! local 8 bit string or std::string to utf8 string.
+//! On Linux, no conversion is done, because UTF-8 is the default.
+UTILITY_FUNCT_DECL std::string& string_to_utf8(
+    const std::string& input, std::string& output);
 
-// return the persents of replacement character in utf16.
-// https://en.wikipedia.org/wiki/Specials_(Unicode_block)
-UTILITY_FUNCT_DECL float utf16_replacement_character_persents(
-    const std::wstring& utf);
+#if OS_WIN
+
+//! return the persents of replacement character in utf16.
+//! https://en.wikipedia.org/wiki/Specials_(Unicode_block)
+//! 
+UTILITY_FUNCT_DECL float wstring_replacement_character_persents(
+    const std::wstring& utf16);
+
+#endif
 
 } // conv
 } // util

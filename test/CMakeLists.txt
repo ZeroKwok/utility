@@ -20,12 +20,12 @@ endif()
 add_executable(${PROJECT_NAME} 
 	string.cpp
 	string_util.cpp
-	filesystem.cpp 
-	platform_cpu.cpp 
-	platform_registry.cpp
-	common_unit.cpp 
-	common_math.cpp
-	common_encryption.cpp
+	# filesystem.cpp 
+	# platform_cpu.cpp 
+	# platform_registry.cpp
+	# common_unit.cpp 
+	# common_math.cpp
+	# common_encryption.cpp
 	# process.cpp 
 	# mini_dump.cpp
 	 )
@@ -49,10 +49,11 @@ if(NOT UTILITY_ENABLE_AUTO_LINK)
 	else()
 		target_link_libraries(${PROJECT_NAME} 
 			string 
-			filesystem 
-			platform 
-			process 
-			common)
+			# filesystem 
+			# platform 
+			# process 
+			# common
+			)
 	endif()
 	target_compile_definitions(${PROJECT_NAME} PRIVATE UTILITY_DISABLE_AUTO_LINK)
 endif()

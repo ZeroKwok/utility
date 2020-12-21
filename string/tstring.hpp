@@ -20,16 +20,16 @@
 namespace util {
 
 /*
-*	Ìá¹©Ò»¸öSTL string µÄ°ü×°
-*   1. ¸Ã°ü×°ÔÊĞíÒÔÏÂÀàĞÍ¹¹Ôì:
+*	æä¾›ä¸€ä¸ªSTL string çš„åŒ…è£…
+*   1. è¯¥åŒ…è£…å…è®¸ä»¥ä¸‹ç±»å‹æ„é€ :
 *       const char*, const wchar_t*, std::string, std::wstring, QString
 *
-*   2. Ö§³Ö±àÂë¼¯:
+*   2. æ”¯æŒç¼–ç é›†:
 *       ansi, utf8, utf16
 *
-*   3. ÄÚ²¿Î¬»¤³ÖÓĞÒ»¸öutf16(std::wstring), ÈôÍ¨¹ıÆäËû×Ö·û¼¯¹¹Ôì,
-*      Ôò»á²úÉú×ªÂë, ÖÁÓÚÎªÊ²Ã´Ê¹ÓÃstd::wstring, ÊÇÒòÎªÄ¬ÈÏ½«¹¤³ÌÊÓÎª
-*      UNICODE±àÂë, ÄÇÃ´Ê¹ÓÃ×îÎªÆµ·±µÄÓ¦ÊÇstd::wstring
+*   3. å†…éƒ¨ç»´æŠ¤æŒæœ‰ä¸€ä¸ªutf16(std::wstring), è‹¥é€šè¿‡å…¶ä»–å­—ç¬¦é›†æ„é€ ,
+*      åˆ™ä¼šäº§ç”Ÿè½¬ç , è‡³äºä¸ºä»€ä¹ˆä½¿ç”¨std::wstring, æ˜¯å› ä¸ºé»˜è®¤å°†å·¥ç¨‹è§†ä¸º
+*      UNICODEç¼–ç , é‚£ä¹ˆä½¿ç”¨æœ€ä¸ºé¢‘ç¹çš„åº”æ˜¯std::wstring
 */
 class UTILITY_CLASS_DECL tstring : public std::wstring
 {
@@ -40,14 +40,15 @@ public:
 
     enum coded_format
     {
-        format_ansi = 1,
-        format_utf8 = 2,
+        format_local = 1,   //!< æœ¬åœ°8ä½ç¼–ç æ ¼å¼, æ ¹æ®å¹³å°ä»¥åŠåœ°åŒºä¸åŒè€Œä¸åŒ,
+                            //!< ä¾‹å¦‚: Windows ä¸­å›½å¤§é™†: GB2312, Linux: UTF-8;
+        format_utf8  = 2,   //!< UTF-8ç¼–ç æ ¼å¼
     };
 
     UTILITY_MEMBER_DECL tstring();
-    UTILITY_MEMBER_DECL tstring(const char* right, coded_format format = format_ansi);
+    UTILITY_MEMBER_DECL tstring(const char* right, coded_format format = format_local);
     UTILITY_MEMBER_DECL tstring(const wchar_t* right);
-    UTILITY_MEMBER_DECL tstring(const std::string& right, coded_format format = format_ansi);
+    UTILITY_MEMBER_DECL tstring(const std::string& right, coded_format format = format_local);
     UTILITY_MEMBER_DECL tstring(const std::wstring& right);
     UTILITY_MEMBER_DECL tstring(const tstring& right);
     UTILITY_MEMBER_DECL ~tstring();
@@ -79,7 +80,9 @@ public:
 template<class _Type>
 tstring& util::tstring::operator%(const _Type& arg)
 {
-    return (*this) % (std::wstringstream() << arg).str();
+    std::wstringstream stream;
+    stream << arg;
+    return (*this) % stream.str();
 }
 
 } // util

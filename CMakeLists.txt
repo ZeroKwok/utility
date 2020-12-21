@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(utility VERSION 0.2.1 LANGUAGES CXX)
 
 # 是否编译单元测试
-option(UTILITY_BUILD_TEST "Enable build unit test" OFF)
+option(UTILITY_BUILD_TEST "Enable build unit test" ON)
 
 # 是否支持Boost
 option(UTILITY_SUPPORT_BOOST "Enable Boost support" ON)
@@ -17,8 +17,9 @@ option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 # 是否启用静态运行时
 option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
 
-# 初始化UTILITY_TARGET_COMPILE_DEFINITIONS
-set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
+if(WIN32)
+    set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
+endif()
 
 if(UTILITY_SUPPORT_BOOST)
 	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BOOST)
@@ -76,10 +77,10 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/utility.hpp.in"
 
 # 子目录
 add_subdirectory(string)
-add_subdirectory(process)
-add_subdirectory(platform)
-add_subdirectory(filesystem)
-add_subdirectory(common)
+# add_subdirectory(process)
+# add_subdirectory(platform)
+# add_subdirectory(filesystem)
+# add_subdirectory(common)
 
 # 单元测试
 if(UTILITY_BUILD_TEST)

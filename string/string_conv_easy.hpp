@@ -26,31 +26,40 @@ namespace easy {
 
 enum coded_format
 {
-    format_ansi = 1,
-    format_utf8 = 2,
+    format_local = 1,   //!< æœ¬åœ°8ä½ç¼–ç æ ¼å¼, æ ¹æ®å¹³å°ä»¥åŠåœ°åŒºä¸åŒè€Œä¸åŒ,
+                        //!< ä¾‹å¦‚: Windows ä¸­å›½å¤§é™†: GB2312, Linux: UTF-8;
+    format_utf8  = 2,   //!< UTF-8ç¼–ç æ ¼å¼
 };
 
 inline std::string _2str(const std::wstring& string)
 {
-    return util::conv::utf162ansi(string, std::string());
+    std::string result;
+
+    return util::conv::wstring_to_string(string, result);
 }
 
 inline std::string _2str(
-    const std::string& string, coded_format format = format_ansi)
+    const std::string& string, coded_format format = format_local)
 {
     if (format == format_utf8)
-        return util::conv::utf82ansi(string, std::string());
+    {
+        std::string result;
+
+        return util::conv::utf8_to_string(string, result);
+    }
 
     return string;
 }
 
 inline std::wstring _2wstr(
-    const std::string& string, coded_format format = format_ansi)
+    const std::string& string, coded_format format = format_local)
 {
-    if (format == format_utf8)
-        return util::conv::utf82utf16(string, std::wstring());
+    std::wstring result;
 
-    return util::conv::ansi2utf16(string, std::wstring());
+    if (format == format_utf8)
+        return util::conv::utf8_to_wstring(string, result);
+
+    return util::conv::string_to_wstring(string, result);
 }
 
 inline std::wstring _2wstr(const std::wstring& string)
@@ -60,16 +69,20 @@ inline std::wstring _2wstr(const std::wstring& string)
 
 inline std::string _2utf8(const std::wstring& string)
 {
-    return util::conv::utf162utf8(string, std::string());
+    std::string result;
+
+    return util::conv::wstring_to_utf8(string, result);
 }
 
 inline std::string _2utf8(
-    const std::string& string, coded_format format = format_ansi)
+    const std::string& string, coded_format format = format_local)
 {
     if (format == format_utf8)
         return string;
 
-    return util::conv::ansi2utf8(string, std::string());
+    std::string result;
+
+    return util::conv::string_to_utf8(string, result);
 }
 
 #ifdef UTILITY_SUPPORT_QT
@@ -81,33 +94,43 @@ inline std::string _2str(const QString& string)
 
 inline std::wstring _2wstr(const QString& string)
 {
+#if OS_WIN
     return std::wstring((const wchar_t*)string.utf16(), string.length());
+#else
+
+    return string.toStdWString();
+#endif
 }
 
 inline std::string _2utf8(const QString& string)
 {
-    return util::conv::utf162ansi(_2wstr(string), std::string());
+    return util::conv::wstring_to_string(_2wstr(string), std::string());
 }
 
 inline QString _2qstr(const std::wstring& string)
 {
+#if OS_WIN
     /*
-    *  ÔÚQt libÖÐÎ´½«wchar_tÊÓÎªÄÚÖÃÀàÐÍ, ¶øÊÇ×÷ÎªÁËunsigned short
-    *  ËùÒÔÔÚÊ¹ÓÃ°üº¬wchar_tµÄ½Ó¿ÚÊ±½«³öÏÖerror _2019, Í¨³£, QtÄ¬ÈÏ
-    *  ½«¹¤³ÌÅäÖÃÐÞ¸ÄÎª²»½«wchar_tÊÓÎªÄÚÖÃÀàÐÍ, µ«ÊÇÔÚÊ¹ÓÃµÚÈý·½¿âÊ±
-    *  (Ä¬ÈÏ¹¤³ÌÅäÖÃ, ÇÒ´øwchar_tµÄ½Ó¿Ú)Ò²»á³öÏÖerror _2019´íÎó.
+    *  åœ¨Qt libä¸­æœªå°†wchar_tè§†ä¸ºå†…ç½®ç±»åž‹, è€Œæ˜¯ä½œä¸ºäº†unsigned short
+    *  æ‰€ä»¥åœ¨ä½¿ç”¨åŒ…å«wchar_tçš„æŽ¥å£æ—¶å°†å‡ºçŽ°error 2019, é€šå¸¸, Qté»˜è®¤
+    *  å°†å·¥ç¨‹é…ç½®ä¿®æ”¹ä¸ºä¸å°†wchar_tè§†ä¸ºå†…ç½®ç±»åž‹, ä½†æ˜¯åœ¨ä½¿ç”¨ç¬¬ä¸‰æ–¹åº“æ—¶
+    *  (é»˜è®¤å·¥ç¨‹é…ç½®, ä¸”å¸¦wchar_tçš„æŽ¥å£)ä¹Ÿä¼šå‡ºçŽ°error 2019é”™è¯¯.
     *
-    *  Ò»¸öÕÛÖÐµÄ°ì·¨ÊÇ, ÐÞ¸Ä¹¤³ÌÉèÖÃ½«wchar_t×÷ÎªÄÚÖÃÀàÐÍ, ÇÒ±ÜÃâ
-    *  Ê¹ÓÃQtÖÐ´øÓÐwchar_tµÄ½Ó¿Ú. (ÐÒÔËµÄÊÇQtÖÐ¼¸ºõËùÓÐµÄ¿í×Ö·û½Ó¿Ú
-    *  ¶¼ÏÔÊ¾ÉùÃ÷Îª unsigned short*)
+    *  ä¸€ä¸ªæŠ˜ä¸­çš„åŠžæ³•æ˜¯, ä¿®æ”¹å·¥ç¨‹è®¾ç½®å°†wchar_tä½œä¸ºå†…ç½®ç±»åž‹, ä¸”é¿å…
+    *  ä½¿ç”¨Qtä¸­å¸¦æœ‰wchar_tçš„æŽ¥å£. (å¹¸è¿çš„æ˜¯Qtä¸­å‡ ä¹Žæ‰€æœ‰çš„å®½å­—ç¬¦æŽ¥å£
+    *  éƒ½æ˜¾ç¤ºå£°æ˜Žä¸º unsigned short*)
     *  _2018-5-11 By GuoJH
     */
 
     return QString::fromUtf16((const ushort *)string.c_str(), string.size());
+#else
+
+    return QString::fromStdWString(string);
+#endif
 }
 
 inline QString _2qstr(
-    const std::string& string, coded_format format = format_ansi)
+    const std::string& string, coded_format format = format_local)
 {
     if (format == format_utf8)
         return QString::fromUtf8(string.c_str(), string.size());
@@ -139,7 +162,7 @@ inline BSTR _2bstr(const std::wstring& string)
     return (BSTR)_bstr_t(string.c_str());
 }
 
-inline BSTR _2bstr(const std::string& string, coded_format format = format_ansi)
+inline BSTR _2bstr(const std::string& string, coded_format format = format_local)
 {
     return _2bstr(_2wstr(string, format));
 }
