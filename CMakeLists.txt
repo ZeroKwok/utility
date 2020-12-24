@@ -15,7 +15,7 @@ option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
 # 是否启用静态运行时
-option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
+option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
 
 if(WIN32)
     set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
@@ -47,6 +47,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_BINARY_DIR}/lib")
+
+# 设置utf-8编译
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
 
 # 设置为根目录
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

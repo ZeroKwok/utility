@@ -100,6 +100,18 @@
 #   error Please set up your byte order config.h.
 #endif
 
+#if defined(COMPILER_MSVC)
+#   if _MSC_VER >= 1600 // vs2010åŠä¹‹å‰çš„ç‰ˆæœ¬ä½¿ç”¨è‡ªèº«æºå¸¦çš„stdint.h
+#      include <inttypes.h>
+#   else
+#      include "msinttypes/inttypes.h"
+#   endif
+#else
+#   include <stddef.h>
+#   include <inttypes.h>
+#endif
+
+
 // The arraysize(arr) macro returns the # of elements in an array arr.
 // The expression is a compile-time constant, and therefore can be
 // used in defining new arrays, for example.  If you use arraysize on
@@ -114,14 +126,14 @@
 // This template function declaration is used in defining arraysize.
 // Note that the function doesn't need an implementation, as we only
 // use its type.
-template <typename T, int N>
+template <typename T, size_t N>
 char (&ArraySizeHelper(T (&array)[N]))[N];
 
 // That gcc wants both of these prototypes seems mysterious. VC, for
 // its part, can't decide which to use (another mystery). Matching of
 // template overloads: the final frontier.
 #ifndef _MSC_VER
-template <typename T, int N>
+template <typename T, size_t N>
 char (&ArraySizeHelper(const T (&array)[N]))[N];
 #endif
 
@@ -130,7 +142,7 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 // MSVC 
 #if defined(COMPILER_MSVC)
 
-// Microsoft Visual C++¸÷°æ±¾µÄ_MSC_VERÖµ¶¨Òå
+// Microsoft Visual C++å„ç‰ˆæœ¬çš„_MSC_VERå€¼å®šä¹‰
 // https://zh.m.wikipedia.org/zh-hans/Microsoft_Visual_C%2B%2B
                                   // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
                                   // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
@@ -161,19 +173,15 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 #   if _MSC_VER < _MSVC_140 
 #       define noexcept throw()
 #   endif
-#   include <tchar.h>
 
-// MSVC 10Ö®Ç°µÄ°æ±¾Ê¹ÓÃ×ÔÉíĞ¯´øµÄstdint.h
-#   if _MSC_VER >= _MSVC_10
-#      include <stdint.h>
-#   else
-#      include "msinttypes/stdint.h"
+// nullptr
+#   if _MSC_VER < _MSVC_100 
 #      ifndef nullptr
 #          define nullptr NULL
 #      endif
 #   endif
 
-// È¥³ıWindows.hÖĞĞ¯´øµÄmin, maxºê¶¨Òå, ÇÒÔÚºóÃæ½ûÖ¹°üº¬
+// å»é™¤Windows.hä¸­æºå¸¦çš„min, maxå®å®šä¹‰, ä¸”åœ¨åé¢ç¦æ­¢åŒ…å«
 #   ifndef  NOMINMAX
 #      define  NOMINMAX
 #   endif

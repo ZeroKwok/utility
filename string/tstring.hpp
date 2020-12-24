@@ -38,13 +38,6 @@ public:
     typedef std::wstring supper_type;
     typedef wchar_t      element_type;
 
-    enum coded_format
-    {
-        format_local = 1,   //!< 本地8位编码格式, 根据平台以及地区不同而不同,
-                            //!< 例如: Windows 中国大陆: GB2312, Linux: UTF-8;
-        format_utf8  = 2,   //!< UTF-8编码格式
-    };
-
     UTILITY_MEMBER_DECL tstring();
     UTILITY_MEMBER_DECL tstring(const char* right, coded_format format = format_local);
     UTILITY_MEMBER_DECL tstring(const wchar_t* right);

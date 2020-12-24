@@ -26,7 +26,7 @@ tstring::tstring()
 }
 
 tstring::tstring(const char* right, coded_format format/* = ansi*/)
-    : supper_type(conv::easy::_2wstr(right ? right : "", conv::easy::coded_format(format)))
+    : supper_type(conv::easy::_2wstr(right ? right : "", coded_format(format)))
 {
     UTILITY_INIT_PRIVATE(tstring);
 }
@@ -38,7 +38,7 @@ tstring::tstring(const wchar_t* right)
 }
 
 tstring::tstring(const std::string& right, coded_format format/* = ansi*/)
-    : supper_type(conv::easy::_2wstr(right, conv::easy::coded_format(format)))
+    : supper_type(conv::easy::_2wstr(right, coded_format(format)))
 {
     UTILITY_INIT_PRIVATE(tstring);
 }

@@ -24,13 +24,6 @@ namespace util {
 namespace conv {
 namespace easy {
 
-enum coded_format
-{
-    format_local = 1,   //!< 本地8位编码格式, 根据平台以及地区不同而不同,
-                        //!< 例如: Windows 中国大陆: GB2312, Linux: UTF-8;
-    format_utf8  = 2,   //!< UTF-8编码格式
-};
-
 inline std::string _2str(const std::wstring& string)
 {
     std::string result;
