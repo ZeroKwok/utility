@@ -39,8 +39,8 @@ public:
     }
 
     /*
-    *	·µ»ØÊÇ·ñ·¢ÉúÁË´íÎó
-    *   ÕâÀï¼ÙÉèËùÓĞÆ½Ì¨µÄ´íÎó´úÂë0, ¾ù±íÊ¾Ã»ÓĞ·¢Éú´íÎó
+    *	è¿”å›æ˜¯å¦å‘ç”Ÿäº†é”™è¯¯
+    *   è¿™é‡Œå‡è®¾æ‰€æœ‰å¹³å°çš„é”™è¯¯ä»£ç 0, å‡è¡¨ç¤ºæ²¡æœ‰å‘ç”Ÿé”™è¯¯
     */
     operator bool() const
     {
@@ -58,16 +58,16 @@ public:
     }
 
     /*
-    *	·µ»Ø´íÎó´úÂëµÄÏêÏ¸ĞÅÏ¢
-    *   ¸ù¾İµ±Ç°Æ½Ì¨»·¾³Êä³ö´íÎó´úÂë´ú±íµÄÒâÒå
+    *	è¿”å›é”™è¯¯ä»£ç çš„è¯¦ç»†ä¿¡æ¯
+    *   æ ¹æ®å½“å‰å¹³å°ç¯å¢ƒè¾“å‡ºé”™è¯¯ä»£ç ä»£è¡¨çš„æ„ä¹‰
     */
     fsemsgs_type error_message() const; // Different implementations
 
     fsemsgs_type print() const;
 
 private:
-    fsecode_type _code;     //ÏµÍ³´íÎó´úÂë
-    fsemsgs_type _desc;     //´íÎóÃèÊöĞÅÏ¢, ²»ÊÇ´íÎó´úÂëµÄÒâÒå
+    fsecode_type _code;     //ç³»ç»Ÿé”™è¯¯ä»£ç 
+    fsemsgs_type _desc;     //é”™è¯¯æè¿°ä¿¡æ¯, ä¸æ˜¯é”™è¯¯ä»£ç çš„æ„ä¹‰
 };
 
 UTILITY_FUNCT_DECL bool file_exist(const fpath& name);
@@ -87,18 +87,21 @@ UTILITY_FUNCT_DECL fsize file_size(const fpath& name, ferror& ferr);
 
 /*
 *	file time
-*   Ê¹ÓÃepochÊ±¼ä´Á, µ¥Î»ÊÇÎ¢Ãë
-*   ¼´(UTC)1970-01-01 00:00:00µ½ÏÖÔÚµÄÎ¢ÃëÊı
+*   ä½¿ç”¨epochæ—¶é—´æˆ³, å•ä½æ˜¯å¾®ç§’
+*   å³(UTC)1970-01-01 00:00:00åˆ°ç°åœ¨çš„å¾®ç§’æ•°
 */
 struct ftime
 {
-    uint64_t create_time;   /* ´´½¨Ê±¼ä */
-    uint64_t access_time;   /* ·ÃÎÊÊ±¼ä */
-    uint64_t modify_time;   /* ĞŞ¸ÄÊ±¼ä */
+    uint64_t create_time;   /* åˆ›å»ºæ—¶é—´ */
+    uint64_t access_time;   /* è®¿é—®æ—¶é—´ */
+    uint64_t modify_time;   /* ä¿®æ”¹æ—¶é—´ */
 };
 
 UTILITY_FUNCT_DECL ftime file_time(const fpath& name);
 UTILITY_FUNCT_DECL ftime file_time(const fpath& name, ferror& ferr);
+
+UTILITY_FUNCT_DECL void file_set_time(const fpath& name, const ftime& time);
+UTILITY_FUNCT_DECL void file_set_time(const fpath& name, const ftime& time, ferror& ferr);
 
 class ffile
 {
@@ -233,6 +236,11 @@ UTILITY_FUNCT_DECL fsize file_size(const ffile& file, ferror& ferr);
 UTILITY_FUNCT_DECL ftime file_time(const ffile& file);
 UTILITY_FUNCT_DECL ftime file_time(const ffile& file, ferror& ferr);
 
+//! è®¾ç½®æ–‡ä»¶æ—¶é—´
+//! å¦‚æœä¸éœ€è¦ä¿®æ”¹ftimeå†…çš„æŸä¸€é¡¹æ—¶é—´, åˆ™å°†å…¶è®¾ç½®ä¸º0;
+UTILITY_FUNCT_DECL void file_set_time(const ffile& file, const ftime& time);
+UTILITY_FUNCT_DECL void file_set_time(const ffile& file, const ftime& time, ferror& ferr);
+
 UTILITY_FUNCT_DECL bool file_is_writable(const fpath& name);
 UTILITY_FUNCT_DECL bool file_is_writable(const fpath& name, ferror& ferr);
      
@@ -252,10 +260,10 @@ struct fversion
         struct 
         {
 #ifdef CPU_BIG_ENDIAN
-            short major;      //!< Ö÷°æ±¾ºÅ 
-            short minor;      //!< ´Î°æ±¾ºÅ
-            short patch;      //!< ĞŞ¶©°æ±¾ºÅ
-            short build;      //!< ¹¹½¨°æ±¾ºÅ
+            short major;      //!< ä¸»ç‰ˆæœ¬å· 
+            short minor;      //!< æ¬¡ç‰ˆæœ¬å·
+            short patch;      //!< ä¿®è®¢ç‰ˆæœ¬å·
+            short build;      //!< æ„å»ºç‰ˆæœ¬å·
 #else
             short build;
             short patch;
@@ -263,27 +271,27 @@ struct fversion
             short major;
 #endif // CPU_BIG_ENDIAN
         };
-        int64_t version;    //!< 64Î»°æ±¾ºÅ
+        int64_t version;    //!< 64ä½ç‰ˆæœ¬å·
     };
 
-    int       file_flag_mask;  //!< Èç: 0x3f 
-    int       file_flags;      //!< Èç: 0x00
-    int       file_os;         //!< Èç: VOS_NT_WINDOWS32
-    int       file_type;       //!< Èç: VFT_APP
-    int       file_sub_type;   //!< Èç: VFT2_UNKNOWN
-    version_t file_version;    //!< ÎÄ¼ş°æ±¾
-    version_t product_version; //!< ²úÆ·°æ±¾
+    int       file_flag_mask;  //!< å¦‚: 0x3f 
+    int       file_flags;      //!< å¦‚: 0x00
+    int       file_os;         //!< å¦‚: VOS_NT_WINDOWS32
+    int       file_type;       //!< å¦‚: VFT_APP
+    int       file_sub_type;   //!< å¦‚: VFT2_UNKNOWN
+    version_t file_version;    //!< æ–‡ä»¶ç‰ˆæœ¬
+    version_t product_version; //!< äº§å“ç‰ˆæœ¬
 };
 
 UTILITY_FUNCT_DECL fversion file_version(const fpath& name);
 UTILITY_FUNCT_DECL fversion file_version(const fpath& name, ferror& ferr);
 
 /*
-*   ´´½¨windows linkÎÄ¼ş(¿ì½İ·½Ê½)
-*   @hot_key Èç: (HOTKEYF_CONTROL | HOTKEYF_ALT) << 8 | 0x42 (ĞéÄâ¼üÂë B)
-*   ²Î¿¼: https://docs.microsoft.com/zh-cn/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinka-gethotkey
+*   åˆ›å»ºwindows linkæ–‡ä»¶(å¿«æ·æ–¹å¼)
+*   @hot_key å¦‚: (HOTKEYF_CONTROL | HOTKEYF_ALT) << 8 | 0x42 (è™šæ‹Ÿé”®ç  B)
+*   å‚è€ƒ: https://docs.microsoft.com/zh-cn/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinka-gethotkey
 *   @show_cmd
-*   ²Î¿¼: https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-showwindow
+*   å‚è€ƒ: https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-showwindow
 */
 UTILITY_FUNCT_DECL void link_create(
     const util::fpath& file_path,

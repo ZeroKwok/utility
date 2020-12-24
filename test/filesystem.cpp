@@ -23,210 +23,250 @@ TEST(file_util, file_exist)
     EXPECT_FALSE(ferr);
 }
 
-// file_open Ö»¶ÁÄ£Ê½
+// file_open åªè¯»æ¨¡å¼
 TEST(file_util, file_open_reonly_and_creat)
 {
     util::ferror ferr;
     util::ffile  file;
 
-	// ÎÄ¼ş´æÔÚÔò½«ÆäÉ¾³ı
+	// æ–‡ä»¶å­˜åœ¨åˆ™å°†å…¶åˆ é™¤
     if (util::file_exist(current_directory_temp_file, ferr))
         util::file_remove(current_directory_temp_file, ferr);
 
-    // ÒÔÖ»¶Á´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // ä»¥åªè¯»æ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDONLY, ferr);
-    EXPECT_TRUE (ferr) << "Í¨¹ıO_RDONLY´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_TRUE (ferr) << "é€šè¿‡O_RDONLYæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_FALSE(file.vaild());
 
-	// ÒÔÖ»¶ÁÇÒ´´½¨´ò¿ª²»´æÔÚµÄÎÄ¼ş
+	// ä»¥åªè¯»ä¸”åˆ›å»ºæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDONLY | O_CREAT, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_RDONLY | O_CREAT´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_RDONLY | O_CREATæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-	// ¹Ø±ÕÎÄ¼ş
+	// å…³é—­æ–‡ä»¶
     util::file_close(file);
     EXPECT_FALSE(file.vaild());
     EXPECT_EQ   (0, file.flags());
 
-	// ÎÄ¼ş´æÔÚ
+	// æ–‡ä»¶å­˜åœ¨
     EXPECT_TRUE (util::file_exist(current_directory_temp_file, ferr));
     EXPECT_FALSE(ferr);
 
-	// ÒÔÖ»¶Á´ò¿ª´æÔÚµÄÎÄ¼ş
+	// ä»¥åªè¯»æ‰“å¼€å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDONLY, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_RDONLY´ò¿ªÒÑ¾­´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_RDONLYæ‰“å¼€å·²ç»å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-	// ³¢ÊÔĞ´Ö»¶ÁÎÄ¼ş
+	// å°è¯•å†™åªè¯»æ–‡ä»¶
     std::string wbuff = "Hello World!";
     util::file_write(file, wbuff.data(), wbuff.size(), ferr);
-    EXPECT_TRUE (ferr) << "Ğ´ÈëÖ»¶ÁÎÄ¼ş";
+    EXPECT_TRUE (ferr) << "å†™å…¥åªè¯»æ–‡ä»¶";
 
-    // ÎÄ¼ş´óĞ¡Îª0
+    // æ–‡ä»¶å¤§å°ä¸º0
     EXPECT_EQ(0, util::file_size(file, ferr));
     EXPECT_FALSE(ferr);
 
-    // ³¢ÊÔ¶ÁÖ»¶ÁÎÄ¼ş
+    // å°è¯•è¯»åªè¯»æ–‡ä»¶
     std::string rbuff(10, 0);
     util::file_read(file, &rbuff[0], rbuff.size(), ferr);
-    EXPECT_TRUE  (ferr) << "¶ÁÈ¡Ö»¶ÁÎÄ¼ş"; // ÎÄ¼ş¶ÁÈ¡³É¹¦, µ«ÊÇ¶ÁÈ¡ÄÚÈİÌ«¶Ì
+    EXPECT_TRUE  (ferr) << "è¯»å–åªè¯»æ–‡ä»¶"; // æ–‡ä»¶è¯»å–æˆåŠŸ, ä½†æ˜¯è¯»å–å†…å®¹å¤ªçŸ­
     EXPECT_EQ    (0, strlen(rbuff.c_str()));
 }
 
-// file_open Ö»Ğ´Ä£Ê½
+// file_open åªå†™æ¨¡å¼
 TEST(file_util, file_open_wronly_and_creat)
 {
     util::ferror ferr;
     util::ffile  file;
 
-    // ÎÄ¼ş´æÔÚÔò½«ÆäÉ¾³ı
+    // æ–‡ä»¶å­˜åœ¨åˆ™å°†å…¶åˆ é™¤
     if (util::file_exist(current_directory_temp_file, ferr))
         util::file_remove(current_directory_temp_file, ferr);
 
-    // ÒÔÖ»Ğ´´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // ä»¥åªå†™æ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_WRONLY, ferr);
-    EXPECT_TRUE(ferr) << "Í¨¹ıO_WRONLY´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_TRUE(ferr) << "é€šè¿‡O_WRONLYæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_FALSE(file.vaild());
 
-    // ÒÔ´´½¨´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // ä»¥åˆ›å»ºæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_WRONLY | O_CREAT, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_WRONLY | O_CREAT´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_WRONLY | O_CREATæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE(file.vaild());
 
-	// ¹Ø±ÕÎÄ¼ş
+	// å…³é—­æ–‡ä»¶
     util::file_close(file);
     EXPECT_FALSE(file.vaild());
     EXPECT_EQ   (0, file.flags());
 
-	// ÎÄ¼ş´æÔÚ
+	// æ–‡ä»¶å­˜åœ¨
     EXPECT_TRUE (util::file_exist(current_directory_temp_file, ferr));
     EXPECT_FALSE(ferr);
 
-	// ´ò¿ª´æÔÚµÄÎÄ¼ş
+	// æ‰“å¼€å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_WRONLY, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_WRONLY´ò¿ªÒÑ¾­´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_WRONLYæ‰“å¼€å·²ç»å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-	// ³¢ÊÔĞ´ÎÄ¼ş
+	// å°è¯•å†™æ–‡ä»¶
     std::string wbuff = "Hello World!";
     util::file_write(file, wbuff.data(), wbuff.size(), ferr);
-    EXPECT_FALSE(ferr) << "Ğ´ÈëÖ»Ğ´ÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "å†™å…¥åªå†™æ–‡ä»¶";
 
-    // ÎÄ¼ş´óĞ¡Îª0
+    // æ–‡ä»¶å¤§å°ä¸º0
     EXPECT_EQ	(wbuff.size(), util::file_size(file, ferr));
     EXPECT_FALSE(ferr);
 
-    // ³¢ÊÔ¶ÁÎÄ¼ş
+    // å°è¯•è¯»æ–‡ä»¶
     std::string rbuff(wbuff.size(), 0);
     util::file_read(file, &rbuff[0], rbuff.size(), ferr);
-    EXPECT_TRUE (ferr) << "¶ÁÈ¡Ö»¶ÁÎÄ¼ş";
+    EXPECT_TRUE (ferr) << "è¯»å–åªè¯»æ–‡ä»¶";
     EXPECT_EQ   (0, strlen(rbuff.c_str()));
 }
 
-// file_open ¶ÁĞ´Ä£Ê½
+// file_open è¯»å†™æ¨¡å¼
 TEST(file_util, file_open_rdwr_and_creat)
 {
     util::ferror ferr;
     util::ffile  file;
 
-	// ÎÄ¼ş´æÔÚÔò½«ÆäÉ¾³ı
+	// æ–‡ä»¶å­˜åœ¨åˆ™å°†å…¶åˆ é™¤
     if (util::file_exist(current_directory_temp_file, ferr))
         util::file_remove(current_directory_temp_file, ferr);
 
-    // ÒÔ´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // ä»¥æ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDWR, ferr);
-    EXPECT_TRUE (ferr) << "Í¨¹ıO_RDWR´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_TRUE (ferr) << "é€šè¿‡O_RDWRæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_FALSE(file.vaild());
 
-	// ÒÔ´´½¨´ò¿ª²»´æÔÚµÄÎÄ¼ş
+	// ä»¥åˆ›å»ºæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDWR | O_CREAT, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_RDWR | O_CREAT´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_RDWR | O_CREATæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-	// ¹Ø±ÕÎÄ¼ş
+	// å…³é—­æ–‡ä»¶
     util::file_close(file);
     EXPECT_FALSE(file.vaild());
     EXPECT_EQ   (0, file.flags());
 
-	// ÎÄ¼ş´æÔÚ
+	// æ–‡ä»¶å­˜åœ¨
     EXPECT_TRUE (util::file_exist(current_directory_temp_file, ferr));
     EXPECT_FALSE(ferr);
 
-	// ´ò¿ª´æÔÚµÄÎÄ¼ş
+	// æ‰“å¼€å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDWR, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_RDWR´ò¿ªÒÑ¾­´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_RDWRæ‰“å¼€å·²ç»å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-	// ³¢ÊÔĞ´ÎÄ¼ş
+	// å°è¯•å†™æ–‡ä»¶
     std::string wbuff = "Hello World!";
     util::file_write(file, wbuff.data(), wbuff.size(), ferr);
-    EXPECT_FALSE(ferr) << "³¢ÊÔĞ´ÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "å°è¯•å†™æ–‡ä»¶";
 
-    // ÎÄ¼ş´óĞ¡Îª0
+    // æ–‡ä»¶å¤§å°ä¸º0
     EXPECT_EQ(wbuff.size(), util::file_size(file, ferr));
     EXPECT_FALSE(ferr);
     
-    // ÉèÖÃÎÄ¼şÖ¸Õë
+    // è®¾ç½®æ–‡ä»¶æŒ‡é’ˆ
     util::file_seek(file, 0, SEEK_SET, ferr);
     EXPECT_FALSE(ferr);
     EXPECT_EQ   (0, util::file_tell(file, ferr));
     EXPECT_FALSE(ferr);
 
-    // ³¢ÊÔ¶ÁÎÄ¼ş
+    // å°è¯•è¯»æ–‡ä»¶
     std::string rbuff(wbuff.size(), 0);
     util::file_read(file, &rbuff[0], rbuff.size(), ferr);
-    EXPECT_FALSE (ferr) << "¶ÁÈ¡ÎÄ¼ş";
+    EXPECT_FALSE (ferr) << "è¯»å–æ–‡ä»¶";
     EXPECT_EQ    (wbuff.size(), strlen(rbuff.c_str()));
 }
 
-// file_open ½Ø¶ÏÄ£Ê½
+// file_open æˆªæ–­æ¨¡å¼
 TEST(file_util, file_open_trunc_and_creat)
 {
     util::ferror ferr;
     util::ffile  file;
 
-    // ÎÄ¼ş´æÔÚÔò½«ÆäÉ¾³ı
+    // æ–‡ä»¶å­˜åœ¨åˆ™å°†å…¶åˆ é™¤
     if (util::file_exist(current_directory_temp_file, ferr))
         util::file_remove(current_directory_temp_file, ferr);
 
-    // ½Ø¶ÏÄ£Ê½´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // æˆªæ–­æ¨¡å¼æ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_RDONLY | O_TRUNC, ferr);
-    EXPECT_TRUE(ferr) << "Í¨¹ıO_RDONLY | O_TRUNC´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_TRUE(ferr) << "é€šè¿‡O_RDONLY | O_TRUNCæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_FALSE(file.vaild());
 
-    // ½Ø¶ÏÄ£Ê½´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // æˆªæ–­æ¨¡å¼æ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_WRONLY | O_TRUNC, ferr);
-    EXPECT_TRUE (ferr) << "Í¨¹ıO_WRONLY | O_TRUNC´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_TRUE (ferr) << "é€šè¿‡O_WRONLY | O_TRUNCæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_FALSE(file.vaild());
 
-    // ½Ø¶Ï´´½¨Ä£Ê½´ò¿ª²»´æÔÚµÄÎÄ¼ş
+    // æˆªæ–­åˆ›å»ºæ¨¡å¼æ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶
     file = util::file_open(current_directory_temp_file, O_WRONLY | O_CREAT | O_TRUNC, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_WRONLY | O_CREAT | O_TRUNC´ò¿ª²»´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_WRONLY | O_CREAT | O_TRUNCæ‰“å¼€ä¸å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-    // ³¢ÊÔĞ´ÎÄ¼ş
+    // å°è¯•å†™æ–‡ä»¶
     std::string wbuff = "Hello World!";
     for (int i = 0; i < 10000; ++i)
     {
         util::file_write(file, wbuff.data(), wbuff.size(), ferr);
-        EXPECT_FALSE(ferr) << "Ğ´ÈëÖ»Ğ´ÎÄ¼ş";
+        EXPECT_FALSE(ferr) << "å†™å…¥åªå†™æ–‡ä»¶";
     }
 
-    // ¼ì²éÎÄ¼ş´óĞ¡
+    // æ£€æŸ¥æ–‡ä»¶å¤§å°
     EXPECT_EQ	(wbuff.size() * 10000, util::file_size(file, ferr));
     EXPECT_FALSE(ferr);
 
-    // ¹Ø±ÕÎÄ¼ş
+    // å…³é—­æ–‡ä»¶
     file.close();
     EXPECT_FALSE(file.vaild());
     EXPECT_EQ   (0, file.flags());
 
-    // ½Ø¶ÏÄ£Ê½´ò¿ª
+    // æˆªæ–­æ¨¡å¼æ‰“å¼€
     file = util::file_open(current_directory_temp_file, O_WRONLY | O_TRUNC, ferr);
-    EXPECT_FALSE(ferr) << "Í¨¹ıO_WRONLY | O_TRUNC´ò¿ªÒÑ¾­´æÔÚµÄÎÄ¼ş";
+    EXPECT_FALSE(ferr) << "é€šè¿‡O_WRONLY | O_TRUNCæ‰“å¼€å·²ç»å­˜åœ¨çš„æ–‡ä»¶";
     EXPECT_TRUE (file.vaild());
 
-    // ¼ì²éÎÄ¼ş´óĞ¡
+    // æ£€æŸ¥æ–‡ä»¶å¤§å°
     EXPECT_EQ	(0, util::file_size(file, ferr));
     EXPECT_FALSE(ferr);
+}
+
+
+TEST(path_util, path_filename_increment)
+{
+    auto result_1 = util::path_filename_increment("log.txt");
+    EXPECT_EQ(result_1 , "log(1).txt");
+
+    auto result_2 = util::path_filename_increment(result_1);
+    EXPECT_EQ(result_2 , "log(2).txt");
+
+    auto result_3 = util::path_filename_increment(L"log( 1036 ).txt");
+    EXPECT_EQ(result_3 , L"log(1037).txt");
+
+    auto result_4 = util::path_filename_increment("log(a).txt");
+    EXPECT_EQ(result_4 , "log(a)(1).txt");
+
+    auto result_5 = util::path_filename_increment(L"file(ä¸­æ–‡).log");
+    EXPECT_EQ(result_5 , L"file(ä¸­æ–‡)(1).log");
+
+    auto result_6 = util::path_filename_increment(L"file(hello world)");
+    EXPECT_EQ(result_6 , L"file(hello world)(1)");
+
+    auto result_7 = util::path_filename_increment(L"./folder/filename.(4)");
+    EXPECT_EQ(result_7 , L"./folder/filename(1).(4)");
+
+    auto result_8 = util::path_filename_increment(L"./folder(1)/filename");
+    EXPECT_EQ(result_8 , L"./folder(1)/filename(1)");
+
+    auto result_9 = util::path_filename_increment(L"./folder/filename(1)-backup.txt");
+    EXPECT_EQ(result_9 , L"./folder/filename(1)-backup(1).txt");
+
+    auto result_10 = util::path_filename_increment("./folder/filename(1)-backup");
+    EXPECT_EQ(result_10 , "./folder/filename(1)-backup(1)");
+
+    auto result_11 = util::path_filename_increment(L"./folder/filename(1) .txt");
+    EXPECT_EQ(result_11 , L"./folder/filename(2) .txt");
+
+    auto result_12 = util::path_filename_increment("./folder/filename(1) ");
+    EXPECT_EQ(result_12 , "./folder/filename(2) ");
 }

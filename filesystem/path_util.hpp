@@ -14,7 +14,7 @@
 namespace util {
 
 /*
-*   Â·¾¶¹¤³§º¯Êý
+*   è·¯å¾„å·¥åŽ‚å‡½æ•°
 */
 UTILITY_FUNCT_DECL fpath path_from_module(intptr_t module = 0);
 UTILITY_FUNCT_DECL fpath path_from_module(intptr_t module, ferror& ferr);
@@ -28,61 +28,61 @@ UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag = 0);
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag, ferror& ferr);
 
 /*
-*   ÔÚexplorerÖÐ´ò¿ªÎÄ¼þ¼Ð²¢Ñ¡ÔñÖ¸¶¨µÄÎÄ¼þ
+*   åœ¨explorerä¸­æ‰“å¼€æ–‡ä»¶å¤¹å¹¶é€‰æ‹©æŒ‡å®šçš„æ–‡ä»¶
 */
 UTILITY_FUNCT_DECL void path_open_with_explorer(const fpath& path, bool select = true);
 UTILITY_FUNCT_DECL void path_open_with_explorer(const fpath& path, bool select, ferror& ferr);
 
 /*
-*	ÅÐ¶ÏÊÇ·ñÎªRootÄ¿Â¼
+*	åˆ¤æ–­æ˜¯å¦ä¸ºRootç›®å½•
 */
 UTILITY_FUNCT_DECL bool path_is_root(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÊÇ·ñÎªUNCÂ·¾¶
+*	åˆ¤æ–­æ˜¯å¦ä¸ºUNCè·¯å¾„
 */
 UTILITY_FUNCT_DECL bool path_is_unc(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÊÇ·ñÎªURLÂ·¾¶
+*	åˆ¤æ–­æ˜¯å¦ä¸ºURLè·¯å¾„
 */
 UTILITY_FUNCT_DECL bool path_is_url(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÂ·¾¶ÊÇ·ñÎªWindows·ç¸ñ
-*   1. ¼ì²âµ½Çý¶¯Æ÷ºÅ :
-*   2. ¼ì²âµ½·Ö¸ô·û   \
+*	åˆ¤æ–­è·¯å¾„æ˜¯å¦ä¸ºWindowsé£Žæ ¼
+*   1. æ£€æµ‹åˆ°é©±åŠ¨å™¨å· :
+*   2. æ£€æµ‹åˆ°åˆ†éš”ç¬¦   \
 */
 UTILITY_FUNCT_DECL bool path_is_win_style(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÂ·¾¶ÊÇ·ñÎªLinux·ç¸ñ
-*   1. ¼ì²âµ½¸ùÄ¿Â¼ /
-*   2. ¼ì²âµ½·Ö¸ô·û / ÇÒÎª ·ÇWindows ·ç¸ñ
+*	åˆ¤æ–­è·¯å¾„æ˜¯å¦ä¸ºLinuxé£Žæ ¼
+*   1. æ£€æµ‹åˆ°æ ¹ç›®å½• /
+*   2. æ£€æµ‹åˆ°åˆ†éš”ç¬¦ / ä¸”ä¸º éžWindows é£Žæ ¼
 */
 UTILITY_FUNCT_DECL bool path_is_linux_style(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÂ·¾¶ÊÇ·ñÎªUNC·ç¸ñ
-*   1. ¼ì²âµ½Ç°×º     \\
-*   2. Î´¼ì²âµ½·Ö¸ô·û /
+*	åˆ¤æ–­è·¯å¾„æ˜¯å¦ä¸ºUNCé£Žæ ¼
+*   1. æ£€æµ‹åˆ°å‰ç¼€     \\
+*   2. æœªæ£€æµ‹åˆ°åˆ†éš”ç¬¦ /
 */
 UTILITY_FUNCT_DECL bool path_is_unc_style(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÊÇ·ñÎªÔ¶³ÌÂ·¾¶ (²»ÄÜÅÐ¶Ï¶Ï¿ªÁ¬½ÓµÄÍøÂçÇý¶¯Æ÷)
+*	åˆ¤æ–­æ˜¯å¦ä¸ºè¿œç¨‹è·¯å¾„ (ä¸èƒ½åˆ¤æ–­æ–­å¼€è¿žæŽ¥çš„ç½‘ç»œé©±åŠ¨å™¨)
 */
 UTILITY_FUNCT_DECL bool path_is_remote(const fpath& path);
 
 /*
-*	ÅÐ¶ÏÂ·¾¶ÊÇ·ñ¿ÉÐ´
-*   ÈôÖ¸¶¨Â·¾¶²»´æÔÚ, ÔòÏòÉÏ²éÕÒµÚÒ»¸ö´æÔÚµÄ¸¸Ä¿Â¼²¢ÅÐ¶ÏÊÇ·ñ¿ÉÐ´
+*	åˆ¤æ–­è·¯å¾„æ˜¯å¦å¯å†™
+*   è‹¥æŒ‡å®šè·¯å¾„ä¸å­˜åœ¨, åˆ™å‘ä¸ŠæŸ¥æ‰¾ç¬¬ä¸€ä¸ªå­˜åœ¨çš„çˆ¶ç›®å½•å¹¶åˆ¤æ–­æ˜¯å¦å¯å†™
 */
 UTILITY_FUNCT_DECL bool path_is_writable(const fpath& path);
 UTILITY_FUNCT_DECL bool path_is_writable(const fpath& path, ferror& ferr);
 
 /*
-*	Â·¾¶´¦Àí
+*	è·¯å¾„å¤„ç†
 */
 UTILITY_FUNCT_DECL std::string  path_append(const std::string& path, const std::string& stem_1);
 UTILITY_FUNCT_DECL std::wstring path_append(const std::wstring& path, const std::wstring& stem_1);
@@ -90,9 +90,9 @@ UTILITY_FUNCT_DECL std::string  path_append(const std::string& path, const std::
 UTILITY_FUNCT_DECL std::wstring path_append(const std::wstring& path, const std::wstring& stem_1, const std::wstring& stem_2);
 
 /*
-*	»ñµÃrootÄ¿Â¼
-*   ±¾µØÂ·¾¶: Çý¶¯Æ÷    C:\Program Files\windows    -> C:\
-*   ÍøÂçÂ·¾¶: UNC¸ùÄ¿Â¼ \\192.168.0.13\share\folder -> \\192.168.0.13\share
+*	èŽ·å¾—rootç›®å½•
+*   æœ¬åœ°è·¯å¾„: é©±åŠ¨å™¨    C:\Program Files\windows    -> C:\
+*   ç½‘ç»œè·¯å¾„: UNCæ ¹ç›®å½• \\192.168.0.13\share\folder -> \\192.168.0.13\share
 */
 UTILITY_FUNCT_DECL std::string  path_find_root(const std::string& path);
 UTILITY_FUNCT_DECL std::wstring path_find_root(const std::wstring& path);
@@ -104,14 +104,14 @@ UTILITY_FUNCT_DECL std::string  path_find_extension(const std::string& path, boo
 UTILITY_FUNCT_DECL std::wstring path_find_extension(const std::wstring& path, bool hasdot = true, bool lower = true);
 
 /*
-*   ÎÄ¼þÃû²Ã¼ô, Ê¹ÎÄ¼þÃûºÏ·¨»¯
-*   filename ½öÎÄ¼þÃû, ²»ÄÜÎªÂ·¾¶
+*   æ–‡ä»¶åè£å‰ª, ä½¿æ–‡ä»¶ååˆæ³•åŒ–
+*   filename ä»…æ–‡ä»¶å, ä¸èƒ½ä¸ºè·¯å¾„
 */
 UTILITY_FUNCT_DECL std::string  path_filename_trim(const std::string& filename);
 UTILITY_FUNCT_DECL std::wstring path_filename_trim(const std::wstring& filename);
 
 /*
-*   ·µ»ØÒ»¸öµÝÔöºóµÄÎÄ¼þÃû
+*   è¿”å›žä¸€ä¸ªé€’å¢žåŽçš„æ–‡ä»¶å
 *   etc. log.txt -> log(1).txt
 *                   log(1).txt -> log(2).txt
 */

@@ -18,6 +18,6 @@ TEST(platform, mini_dump)
 
     EXPECT_TRUE(util::file_exist(file));
     
-    // ¥•∑¢“Ï≥£
+    // Ëß¶ÂèëÂºÇÂ∏∏
     *((int*)0) = 3;
 }

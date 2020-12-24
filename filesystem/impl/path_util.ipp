@@ -27,7 +27,7 @@ namespace detail {
     static const char linux_style_root = '/';
     static const char linux_style_separator = '/';
 
-    // UNC��Universal Naming Convention��
+    // UNC（Universal Naming Convention）
     static const char unc_prefix = '\\';
     static const char unc_separator = '\\';
 
@@ -234,54 +234,93 @@ namespace detail {
         size_t dotPos = filename.rfind('.');
         size_t leftPos = filename.rfind('(');
         size_t rightPos = filename.rfind(')');
+        size_t borderPos = detail::rfind_separator(filename);
 
-        std::basic_string<_TChar> target = filename;
+        // 预防: ./folder/filename -> .(1)/folder/filename
+        if (dotPos != filename.npos && borderPos != filename.npos)
+        {
+            if (dotPos < borderPos)
+                dotPos = filename.npos;
+        }
 
+        // 预防: ./folder/filename.(4) -> ./folder/filename.(5)
         do
         {
-            if (leftPos == filename.npos || rightPos == filename.npos || leftPos > rightPos)
+            if (dotPos != filename.npos)
             {
-                std::basic_string<_TChar> index(3, 0);
-                index[0] = '(';
-                index[1] = '1';
-                index[2] = ')';
-
-                if (dotPos == filename.npos)
-                    return target + index;
-
-                return target.insert(dotPos, index);
-            }
-
-            ++leftPos;
-
-            auto subscript = filename.substr(leftPos, rightPos - leftPos);
-            if (std::all_of(subscript.begin(), subscript.end(),
-                [](unsigned char c) { return std::isdigit(c) || std::isspace(c); }))
-            {
-                long long number = 1;
-                try
+                if (leftPos != filename.npos && dotPos < leftPos)
                 {
-                    size_t pos = 0;
-                    number = std::stoll(subscript, &pos);
-                    number++;
-                }
-                catch (std::invalid_argument)
-                {
+                    leftPos = filename.rfind('(', leftPos - 1);
+                    continue;
                 }
 
-                auto string = std::to_string(number);
-                return target.replace(leftPos, rightPos - leftPos,
-                    std::basic_string<_TChar>(string.begin(), string.end()));
+                if (rightPos != filename.npos && dotPos < rightPos)
+                {
+                    rightPos = filename.rfind(')', rightPos - 1);
+                    continue;
+                }
             }
-            else
-            {
-                leftPos = filename.npos;
-                rightPos = filename.npos;
-                continue;
-            }
+            break;
         } while (1);
 
-        return target; // never get here
+        // 预防: 
+        // 1) ./folder/filename(1)-backup.txt -> ./folder/filename(2)-backup.txt
+        // 2) ./folder/filename(1)-backup     -> ./folder/filename(2)-backup
+        if (leftPos != filename.npos && rightPos != filename.npos && leftPos < rightPos)
+        {
+            do
+            {
+                size_t pos = leftPos + 1;
+
+                // 判断'(' 至 ')' 全部都是数字, 或空格
+                while (pos < rightPos && (std::isdigit(unsigned char(filename[pos])) || std::isspace(unsigned char(filename[pos]))))
+                    pos++;
+
+                if (pos == rightPos)
+                {
+                    // 允许: 
+                    // 1) "./folder/filename(1) .txt" -> "./folder/filename(2) .txt"
+                    // 2) "./folder/filename(1) "     -> "./folder/filename(2) "
+
+                    size_t endPos = dotPos != filename.npos ? dotPos : filename.size();
+
+                    if (pos + 1 == endPos || pos + 2 == endPos)
+                        break;
+                }
+
+                // 无效的括号对
+                leftPos = filename.npos;
+                rightPos = filename.npos;
+            } while (0);
+        }
+
+        auto target = filename;
+
+        // 没有匹配的括号对
+        if (leftPos == filename.npos || rightPos == filename.npos || leftPos > rightPos)
+        {
+            std::basic_string<_TChar> index(3, 0);
+            index[0] = '(';
+            index[1] = '1';
+            index[2] = ')';
+
+            if (dotPos == filename.npos)
+                return target + index;
+
+            return target.insert(dotPos, index);
+        }
+        else
+        {
+            // 有匹配的括号对
+            long long number = 1;
+
+            size_t pos = 0;
+            number = std::stoll(filename.substr(++leftPos, rightPos - leftPos), &pos);
+
+            auto string = std::to_string(++number);
+            return target.replace(leftPos, rightPos - leftPos,
+                std::basic_string<_TChar>(string.begin(), string.end()));
+        }
     }
 
 #if defined(_MSC_VER)

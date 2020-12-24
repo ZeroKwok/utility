@@ -5,7 +5,7 @@ TEST(common_encryption, tea32)
 {
     const char* text[] = {
         "Hello World",
-        "²ÉÓÃTEA-32(Tiny Encryption Algorithm)µÄ·½Ê½¼ÓÃÜÊı¾İ.",
+        "é‡‡ç”¨TEA-32(Tiny Encryption Algorithm)çš„æ–¹å¼åŠ å¯†æ•°æ®.",
         "The mouse pointer is considered to be hovering when it stays within a specified rectangle for a specified period of time. Call SystemParametersInfo. and use the values SPI_GETMOUSEHOVERWIDTH, SPI_GETMOUSEHOVERHEIGHT, and SPI_GETMOUSEHOVERTIME to retrieve the size of the rectangle and the time.",
         nullptr
     };

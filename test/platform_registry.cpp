@@ -8,88 +8,88 @@ TEST(platform, registry)
 
     util::platform_error error;
 
-    // ´æÔÚµÄ×Ó½¡
+    // å­˜åœ¨çš„å­å¥
     EXPECT_TRUE(registry_path_exist(L"HKEY_CURRENT_USER\\Software", 0, error));
     EXPECT_TRUE(!error);
 
-    // ²»´æÔÚµÄ×Ó½¡
+    // ä¸å­˜åœ¨çš„å­å¥
     EXPECT_TRUE(!registry_path_exist(L"HKEY_CURRENT_USER\\Software\\Not_Exist", 0, error));
     EXPECT_TRUE(!error);
 
-    // ´æÔÚµÄÖµ
+    // å­˜åœ¨çš„å€¼
     EXPECT_TRUE(registry_value_exist(L"HKEY_CURRENT_USER\\Environment", L"TEMP", 0, error));
     EXPECT_TRUE(!error);
 
-    // ²»´æÔÚµÄÖµ
+    // ä¸å­˜åœ¨çš„å€¼
     EXPECT_TRUE(!registry_value_exist(L"HKEY_CURRENT_USER\\Environment", L"Not_Exist", 0, error));
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯»·¾³±äÁ¿, ²»Õ¹¿ª
+    // æŸ¥è¯¢ç¯å¢ƒå˜é‡, ä¸å±•å¼€
     EXPECT_TRUE(
         L"%USERPROFILE%\\AppData\\Local\\Temp" ==
         registry_get_expand_wstring(L"HKEY_CURRENT_USER\\Environment", L"TEMP", 0, error));
 
-    // ²éÑ¯»·¾³±äÁ¿, Õ¹¿ª
+    // æŸ¥è¯¢ç¯å¢ƒå˜é‡, å±•å¼€
     EXPECT_TRUE(!registry_get_wstring(L"HKEY_CURRENT_USER\\Environment", L"TEMP", 0, error).empty());
     EXPECT_TRUE(!error);
 
 #if ARCH_CPU_32_BITS
-    // ²éÑ¯»úÆ÷id
-    // 32Î»ÏÂÊµ¼Ê¶¨Î»: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Cryptography, ²»´æÔÚ
+    // æŸ¥è¯¢æœºå™¨id
+    // 32ä½ä¸‹å®é™…å®šä½: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Cryptography, ä¸å­˜åœ¨
     EXPECT_TRUE(registry_get_wstring(L"SOFTWARE\\Microsoft\\Cryptography", L"MachineGuid", 0, error).empty());
     EXPECT_TRUE(error);
 #endif
 
-    // ²éÑ¯»úÆ÷id
+    // æŸ¥è¯¢æœºå™¨id
     EXPECT_TRUE(!registry_get_wstring(L"SOFTWARE\\Microsoft\\Cryptography", L"MachineGuid", KEY_WOW64_64KEY, error).empty());
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯ÏµÍ³Ãû³Æ
-    // 32Î»ÏÂÊµ¼Ê¶¨Î»: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion
+    // æŸ¥è¯¢ç³»ç»Ÿåç§°
+    // 32ä½ä¸‹å®é™…å®šä½: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion
     EXPECT_TRUE(!registry_get_wstring("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", 0, error).empty());
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯ÏµÍ³Ãû³Æ
+    // æŸ¥è¯¢ç³»ç»Ÿåç§°
     EXPECT_TRUE(!registry_get_wstring("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", KEY_WOW64_64KEY, error).empty());
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯ÏµÍ³Ö÷°æ±¾ºÅ
+    // æŸ¥è¯¢ç³»ç»Ÿä¸»ç‰ˆæœ¬å·
     EXPECT_NE(0, registry_get_dword("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentMajorVersionNumber", KEY_WOW64_64KEY, error));
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯ÏµÍ³°²×°Ê±¼ä
+    // æŸ¥è¯¢ç³»ç»Ÿå®‰è£…æ—¶é—´
     EXPECT_NE(0, registry_get_qword("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "InstallTime", KEY_WOW64_64KEY, error));
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯ÏµÍ³DigitalProductId
+    // æŸ¥è¯¢ç³»ç»ŸDigitalProductId
     EXPECT_TRUE(!registry_get_binary("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId", KEY_WOW64_64KEY, error).empty());
     EXPECT_TRUE(!error);
 
-    // Èç¹û´æÔÚÔòÉ¾³ı
+    // å¦‚æœå­˜åœ¨åˆ™åˆ é™¤
     if (registry_path_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error))
     {
-        // É¾³ıpath
+        // åˆ é™¤path
         registry_directory_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error);
         EXPECT_TRUE(!error);
     }
 
-    // ´´½¨subkey²¢ÇÒÉèÖÃdword
+    // åˆ›å»ºsubkeyå¹¶ä¸”è®¾ç½®dword
     registry_set_dword("HKEY_CURRENT_USER\\SOFTWARE\\utility", "dword", 0xff32, 0, error);
     EXPECT_TRUE(!error);
 
-    // ÉèÖÃdword
+    // è®¾ç½®dword
     registry_set_qword("HKEY_CURRENT_USER\\SOFTWARE\\utility", "qword", 0xff32aa55, 0, error);
     EXPECT_TRUE(!error);
 
-    // ÉèÖÃ¶ş½øÖÆ
+    // è®¾ç½®äºŒè¿›åˆ¶
     registry_set_binary("HKEY_CURRENT_USER\\SOFTWARE\\utility", "binary", util::bytedata("hello binary"), 0, error);
     EXPECT_TRUE(!error);
 
-    // ÉèÖÃwstring
+    // è®¾ç½®wstring
     registry_set_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility", "wstring", std::wstring(L"hello wstring"), 0, error);
     EXPECT_TRUE(!error);
 
-    // ÉèÖÃmutil_string
+    // è®¾ç½®mutil_string
     std::vector<std::wstring> mutil_string;
     mutil_string.push_back(L"hello mutil_string");
     mutil_string.push_back(L"hello mutil_string 01");
@@ -97,14 +97,14 @@ TEST(platform, registry)
     registry_set_multi_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility", "mutil_string", mutil_string, 0, error);
     EXPECT_TRUE(!error);
 
-    // ²éÑ¯¸ÃÂ·¾¶ÏÂËùÓĞ¶¥¼¶key
+    // æŸ¥è¯¢è¯¥è·¯å¾„ä¸‹æ‰€æœ‰é¡¶çº§key
     auto keys = registry_get_wkeys("HKEY_CURRENT_USER\\SOFTWARE", 0);
     EXPECT_FALSE(keys.empty());
 
     auto vaules = registry_get_wvalues("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0);
     EXPECT_EQ(vaules.size(), 5);
 
-    // É¾³ıËùÓĞÒÑ´´½¨µÄÖµ
+    // åˆ é™¤æ‰€æœ‰å·²åˆ›å»ºçš„å€¼
     const char* value_names[] = {
         "dword",
         "qword",
@@ -127,10 +127,10 @@ TEST(platform, registry)
         }
     }
 
-    // É¾³ıÒÑ´´½¨µÄkey
+    // åˆ é™¤å·²åˆ›å»ºçš„key
     if (registry_path_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error))
     {
-        // É¾³ıpath
+        // åˆ é™¤path
         registry_directory_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error);
         EXPECT_TRUE(!error);
     }
@@ -139,14 +139,14 @@ TEST(platform, registry)
         EXPECT_TRUE(false);
     }
 
-    // ´´½¨¶à¼¶subkey
+    // åˆ›å»ºå¤šçº§subkey
     registry_set_wstring("HKEY_CURRENT_USER\\SOFTWARE\\utility\\test\\3rd\\long_long", "wstring", L"hello wstring", 0, error);
     EXPECT_TRUE(!error);
 
-    // É¾³ıÒÑ´´½¨µÄkey
+    // åˆ é™¤å·²åˆ›å»ºçš„key
     if (registry_path_exist("HKEY_CURRENT_USER\\SOFTWARE\\utility", 0, error))
     {
-        // É¾³ıpath
+        // åˆ é™¤path
         registry_tree_remove("HKEY_CURRENT_USER\\SOFTWARE\\utility", error);
         EXPECT_TRUE(!error);
     }

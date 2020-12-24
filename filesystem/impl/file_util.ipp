@@ -222,6 +222,36 @@ ftime file_time(const fpath& name, ferror& ferr)
     return file_time(file, ferr);
 }
 
+void file_set_time(const fpath& name, const ftime& time)
+{
+    ferror ferr;
+    file_set_time(name, time, ferr);
+
+    if (ferr)
+        throw ferr;
+}
+
+void file_set_time(const fpath& name, const ftime& time, ferror& ferr)
+{
+    ferr.clear();
+    fscope file = reinterpret_cast<fscope::native_type>(::CreateFileW(
+        name.c_str(),               // lpFileName
+        FILE_WRITE_ATTRIBUTES,      // dwDesiredAccess
+        FILE_SHARE_READ,            // dwShareMode
+        NULL,                       // lpSecurityAttributes
+        OPEN_EXISTING,              // dwCreationDisposition
+        FILE_FLAG_BACKUP_SEMANTICS, // dwFlagsAndAttributes
+        NULL));                    // hTemplateFile
+
+    if (!file.vaild())
+    {
+        ferr = ferror(::GetLastError(), L"Can't open file");
+        return;
+    }
+
+    return file_set_time(file, time, ferr);
+}
+
 ffile file_open(const fpath& name, int flags)
 {
     ferror ferr;
@@ -592,6 +622,45 @@ ftime file_time(const ffile& file, ferror& ferr)
     return ft;
 }
 
+void file_time(const ffile& file, const ftime& time)
+{
+    ferror ferr;
+    file_set_time(file, time, ferr);
+
+    if (ferr)
+        throw ferr;
+}
+
+void file_time(const ffile& file, const ftime& time, ferror& ferr)
+{
+    ferr.clear();
+    if (!file.vaild())
+    {
+        ferr = ferror(-1, L"Invalid file handle");
+        return;
+    }
+
+    ftime ft = time;
+    if (ft.create_time != 0)
+        ft.create_time = ft.create_time * 10 + 0x019DB1DED53E8000;
+    if (ft.access_time != 0)
+        ft.access_time = ft.access_time * 10 + 0x019DB1DED53E8000;
+    if (ft.modify_time != 0)
+        ft.modify_time = ft.modify_time * 10 + 0x019DB1DED53E8000;
+
+    // If the function succeeds, the return value is nonzero.
+    // If the function fails, the return value is zero. To get extended error information, 
+    // call GetLastError.
+    if (::SetFileTime(
+        reinterpret_cast<void*>(file.native_id()),
+        (const FILETIME*)&ft.create_time,
+        (const FILETIME*)&ft.access_time,
+        (const FILETIME*)&ft.modify_time) == 0)
+    {
+        ferr = ferror(::GetLastError(), L"Can't set file time");
+    }
+}
+
 bool file_is_writable(const fpath& name)
 {
     ferror ferr;
@@ -700,7 +769,7 @@ bool file_open_with_shell(const fpath& name, ferror& ferr)
     ferr.clear();
     if (::ShellExecuteW(NULL, L"open", name.data(), NULL, NULL, SW_SHOWNORMAL) <= HINSTANCE(32))
     {
-        //ÎÄ¼þ¸ñÊ½²»±»Ö§³ÖÔò·µ»Ø ERROR_NO_ASSOCIATION
+        //æ–‡ä»¶æ ¼å¼ä¸è¢«æ”¯æŒåˆ™è¿”å›ž ERROR_NO_ASSOCIATION
         ferr = ferror(::GetLastError(), "Can't open file");
         return false;
     }
@@ -722,7 +791,7 @@ fversion file_version(const fpath& name)
 fversion file_version(const fpath& name, ferror& ferr)
 {
     /*
-    *   ÕâÀïÖ»¶ÁÈ¡ÎÄ¼þ°æ±¾¼°Ò»Ð©flags, Óû¶ÁÈ¡×Ö·û´®ÐÅÏ¢²Î¿¼:
+    *   è¿™é‡Œåªè¯»å–æ–‡ä»¶ç‰ˆæœ¬åŠä¸€äº›flags, æ¬²è¯»å–å­—ç¬¦ä¸²ä¿¡æ¯å‚è€ƒ:
     *   https://docs.microsoft.com/zh-cn/windows/win32/api/winver/nf-winver-verqueryvaluea#return-value
     */
     ferr.clear();
@@ -877,8 +946,8 @@ void directories_remove(const fpath& path, ferror& ferr)
             fpath subpath = path + L"\\" + file_data.cFileName;
 
             /*
-            *   Èôµ±Ç°Ã¶¾Ùµ½µÄÊÇÒ»¸öÄ¿Â¼, ÄÇÃ´½«ÆäµÝ¹é´¦Àí
-            *   ·ñÔòÊÇÒ»¸öÎÄ¼þ, ÕâÀï½«ÆäÉ¾³ý
+            *   è‹¥å½“å‰æžšä¸¾åˆ°çš„æ˜¯ä¸€ä¸ªç›®å½•, é‚£ä¹ˆå°†å…¶é€’å½’å¤„ç†
+            *   å¦åˆ™æ˜¯ä¸€ä¸ªæ–‡ä»¶, è¿™é‡Œå°†å…¶åˆ é™¤
             */
             if (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
