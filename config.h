@@ -17,6 +17,8 @@
 #   define OS_MACOSX   1
 #elif defined(__linux__)
 #   define OS_LINUX    1
+#elif defined(__ANDROID__)
+#   define OS_ANDROID  1
 #elif defined(__FreeBSD__)
 #   define OS_FREEBSD  1
 #else
@@ -25,7 +27,7 @@
 
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
-#if defined(OS_MACOSX) || defined(OS_IOS) || defined(OS_LINUX) || defined(OS_FREEBSD)
+#if defined(OS_MACOSX) || defined(OS_IOS) || defined(OS_LINUX) || defined(OS_ANDROID) || defined(OS_FREEBSD)
 #   define OS_POSIX    1
 #endif
 
@@ -64,29 +66,29 @@
 #if defined(__GLIBC__)
 #   include <endian.h>
 #   if (__BYTE_ORDER == __LITTLE_ENDIAN)
-#       define CPU_LITTLE_ENDIAN
+#       define CPU_LITTLE_ENDIAN    1
 #   elif (__BYTE_ORDER == __BIG_ENDIAN)
-#       define CPU_BIG_ENDIAN
+#       define CPU_BIG_ENDIAN   1
 #   elif (__BYTE_ORDER == __PDP_ENDIAN)
-#       define CPU_PDP_ENDIAN
+#       define CPU_PDP_ENDIAN   1
 #   else
 #       error Unknown machine endianness detected.
 #   endif
 #   define CPU_BYTE_ORDER __BYTE_ORDER
 #elif defined(_BIG_ENDIAN)
-#   define CPU_BIG_ENDIAN
-#   define CPU_BYTE_ORDER 4321
+#   define CPU_BIG_ENDIAN       1
+#   define CPU_BYTE_ORDER       4321
 #elif defined(_LITTLE_ENDIAN)
-#    define CPU_LITTLE_ENDIAN
-#    define CPU_BYTE_ORDER 1234
+#    define CPU_LITTLE_ENDIAN   1
+#    define CPU_BYTE_ORDER      1234
 #elif defined(__sparc) || defined(__sparc__) \
    || defined(_POWER) || defined(__powerpc__) \
    || defined(__ppc__) || defined(__hpux) \
    || defined(_MIPSEB) || defined(_POWER) \
    || defined(_MIPSEB) || defined(_POWER) \
    || defined(__s390__)
-#   define CPU_BIG_ENDIAN
-#   define CPU_BYTE_ORDER 4321
+#   define CPU_BIG_ENDIAN       1
+#   define CPU_BYTE_ORDER       4321
 #elif defined(__i386__) || defined(__alpha__) \
     || defined(__ia64) || defined(__ia64__) \
     || defined(_M_IX86) || defined(_M_IA64) \
@@ -94,8 +96,8 @@
     || defined(__amd64__) || defined(_M_AMD64) \
     || defined(__x86_64) || defined(__x86_64__) \
     || defined(_M_X64) || defined (__ARMEL__)
-#   define CPU_LITTLE_ENDIAN
-#   define CPU_BYTE_ORDER 1234
+#   define CPU_LITTLE_ENDIAN    1
+#   define CPU_BYTE_ORDER       1234
 #else
 #   error Please set up your byte order config.h.
 #endif

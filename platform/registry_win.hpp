@@ -1,46 +1,51 @@
-#ifndef registry_util_h__
-#define registry_util_h__
+#ifndef registry_win_h__
+#define registry_win_h__
 
 /*
-*   registry_util.hpp 
+*   registry_win.hpp  
 *
 *   v0.1 2018-08 by GuoJH
 *   v0.2 2020-11 by GuoJH
 */
 
+#include <utility.hpp>
+
+#if OS_WIN
+
 #include <vector>
 #include <string/tstring.hpp>
 #include <common/bytedata.hpp>
+#include <platform/platform_cfg.hpp>
 #include <platform/platform_error.hpp>
 
 namespace util {
 namespace win {
 
 /*!
- *  /brief  ×¢²á±íÖĞ¼üÖµµÄÊı¾İÀàĞÍ
+ *  /brief  æ³¨å†Œè¡¨ä¸­é”®å€¼çš„æ•°æ®ç±»å‹
  *  
  *  /see    https://docs.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types
  */
 enum registry_value_types
 {
     registr_none,
-    registr_dword,          //!< 4×Ö½ÚÕûÊı
-    registr_qword,          //!< 8×Ö½ÚÕûÊı
-    registr_binary,         //!< ¶ş½øÖÆ
-    registr_string,         //!< ×Ö·û´®
-    registr_multi_string,   //!< ×Ö·û´®Êı×é
-    registr_expand_string,  //!< À©Õ¹×Ö·û´®, °üº¬Î´À©Õ¹µÄ»·¾³±äÁ¿, Èç:%PATH%
+    registr_dword,          //!< 4å­—èŠ‚æ•´æ•°
+    registr_qword,          //!< 8å­—èŠ‚æ•´æ•°
+    registr_binary,         //!< äºŒè¿›åˆ¶
+    registr_string,         //!< å­—ç¬¦ä¸²
+    registr_multi_string,   //!< å­—ç¬¦ä¸²æ•°ç»„
+    registr_expand_string,  //!< æ‰©å±•å­—ç¬¦ä¸², åŒ…å«æœªæ‰©å±•çš„ç¯å¢ƒå˜é‡, å¦‚:%PATH%
 };
 
 /*!
- *  /brief  ·µ»Ø×¢²á±íÖ¸¶¨µÄÂ·¾¶(subkey)ÊÇ·ñ´æÔÚ.
+ *  /brief  è¿”å›æ³¨å†Œè¡¨æŒ‡å®šçš„è·¯å¾„(subkey)æ˜¯å¦å­˜åœ¨.
  *
- *  /param  path   ·ÃÎÊµÄ×¢²á±íÂ·¾¶, ¿ÉÒÔÊÇÒ»¸öÔ¤¶¨ÒåµÄHKEY¿ªÍ·, Èç: HKEY_CURRENT_USER\Software\Wow6432Node.
- *                 Èô²»°üº¬Ô¤¶¨ÒåKHEYÔòÄ¬ÈÏ·ÃÎÊ HKEY_LOCAL_MACHINE.
- *  /param  access ±íÊ¾×¢²á±í¸½¼Ó·ÃÎÊÊôĞÔ, ÈôÔÚ64Î»²Ù×÷ÏµÍ³ÏÂµÄ32Î»³ÌĞòÒª·ÃÎÊ64Î»µÄ×¢²á±í¿ÉÒÔÖ¸¶¨KEY_WOW64_64KEY.
- *  /param  error  Èô·¢Éú´íÎóÔò»áÉèÖÃµ½¸Ã±äÁ¿.
+ *  /param  path   è®¿é—®çš„æ³¨å†Œè¡¨è·¯å¾„, å¯ä»¥æ˜¯ä¸€ä¸ªé¢„å®šä¹‰çš„HKEYå¼€å¤´, å¦‚: HKEY_CURRENT_USER\Software\Wow6432Node.
+ *                 è‹¥ä¸åŒ…å«é¢„å®šä¹‰KHEYåˆ™é»˜è®¤è®¿é—® HKEY_LOCAL_MACHINE.
+ *  /param  access è¡¨ç¤ºæ³¨å†Œè¡¨é™„åŠ è®¿é—®å±æ€§, è‹¥åœ¨64ä½æ“ä½œç³»ç»Ÿä¸‹çš„32ä½ç¨‹åºè¦è®¿é—®64ä½çš„æ³¨å†Œè¡¨å¯ä»¥æŒ‡å®šKEY_WOW64_64KEY.
+ *  /param  error  è‹¥å‘ç”Ÿé”™è¯¯åˆ™ä¼šè®¾ç½®åˆ°è¯¥å˜é‡.
  * 
- *  /return true ±íÊ¾Ö¸¶¨µÄÂ·¾¶´æÔÚ.
+ *  /return true è¡¨ç¤ºæŒ‡å®šçš„è·¯å¾„å­˜åœ¨.
  */
 UTILITY_FUNCT_DECL bool registry_path_exist(
     const tstring path, int access);
@@ -48,121 +53,121 @@ UTILITY_FUNCT_DECL bool registry_path_exist(
     const tstring path, int access, platform_error& error);
 
 /*!
- *  /brief  ·µ»Ø×¢²á±íÖ¸¶¨µÄÖµÊÇ·ñ´æÔÚ.
+ *  /brief  è¿”å›æ³¨å†Œè¡¨æŒ‡å®šçš„å€¼æ˜¯å¦å­˜åœ¨.
  * 
- *  /param path   ÂÔ.
- *  /param name   ±íÊ¾×¢²á±íÖµÃû(value name).
+ *  /param path   ç•¥.
+ *  /param name   è¡¨ç¤ºæ³¨å†Œè¡¨å€¼å(value name).
  */
 UTILITY_FUNCT_DECL bool registry_value_exist(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL bool registry_value_exist(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// É¾³ı×¢²á±íÄ¿Â¼Ê÷(¶à¼¶Ä¿Â¼), ¼°ÆäÏÂµÄÖµ.
+/// åˆ é™¤æ³¨å†Œè¡¨ç›®å½•æ ‘(å¤šçº§ç›®å½•), åŠå…¶ä¸‹çš„å€¼.
 UTILITY_FUNCT_DECL void registry_tree_remove(
     const tstring path);
 UTILITY_FUNCT_DECL void registry_tree_remove(
     const tstring path, platform_error& error);
 
 /*!
- *  /brief  É¾³ı×¢²á±íÄ¿Â¼(subkey), ¼°ÆäÏÂµÄÖµ.
+ *  /brief  åˆ é™¤æ³¨å†Œè¡¨ç›®å½•(subkey), åŠå…¶ä¸‹çš„å€¼.
  *
- *  /note   ²»ÄÜÉ¾³ı¶à¼¶Ä¿Â¼, ·ñÔò½«»áµÃµ½: ERROR_ACCESS_DENIED.
+ *  /note   ä¸èƒ½åˆ é™¤å¤šçº§ç›®å½•, å¦åˆ™å°†ä¼šå¾—åˆ°: ERROR_ACCESS_DENIED.
  */
 UTILITY_FUNCT_DECL void registry_directory_remove(
     const tstring path, int access);
 UTILITY_FUNCT_DECL void registry_directory_remove(
     const tstring path, int access, platform_error& error);
 
-/// É¾³ı×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂµÄÖµ.
+/// åˆ é™¤æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹çš„å€¼.
 UTILITY_FUNCT_DECL void registry_value_remove(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL void registry_value_remove(
     const tstring path, const tstring& name, int access, platform_error& error);
 
- /// ·µ»Ø×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂÖµµÄÀàĞÍ.
+ /// è¿”å›æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹å€¼çš„ç±»å‹.
 UTILITY_FUNCT_DECL registry_value_types registry_get_type(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL registry_value_types registry_get_type(
     const tstring path, const tstring& name, int access, platform_error& error);
 
 /*!
- *  /brief  ·µ»ØÖµ×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂ4×Ö½ÚÀàĞÍÖµµÄÄÚÈİ.
+ *  /brief  è¿”å›å€¼æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹4å­—èŠ‚ç±»å‹å€¼çš„å†…å®¹.
  *
- *  /note   ÈôÖ¸¶¨ÖµµÄÀàĞÍ²»Îªdword»ò²»ÄÜ×ªµ½dword, ½«µÃµ½ERROR_UNSUPPORTED_TYPE.
+ *  /note   è‹¥æŒ‡å®šå€¼çš„ç±»å‹ä¸ä¸ºdwordæˆ–ä¸èƒ½è½¬åˆ°dword, å°†å¾—åˆ°ERROR_UNSUPPORTED_TYPE.
  */
 UTILITY_FUNCT_DECL int32_t registry_get_dword(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL int32_t registry_get_dword(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// ·µ»ØÖµ×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂ8×Ö½ÚÀàĞÍÖµµÄÄÚÈİ.
+/// è¿”å›å€¼æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹8å­—èŠ‚ç±»å‹å€¼çš„å†…å®¹.
 UTILITY_FUNCT_DECL int64_t registry_get_qword(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL int64_t registry_get_qword(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// ·µ»ØÖµ×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂ¶ş½øÖÆÀàĞÍÖµµÄÄÚÈİ.
+/// è¿”å›å€¼æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹äºŒè¿›åˆ¶ç±»å‹å€¼çš„å†…å®¹.
 UTILITY_FUNCT_DECL bytedata registry_get_binary(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL bytedata registry_get_binary(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// ·µ»ØÖµ×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂ×Ö·û´®ÀàĞÍÖµµÄÄÚÈİ.
+/// è¿”å›å€¼æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹å­—ç¬¦ä¸²ç±»å‹å€¼çš„å†…å®¹.
 UTILITY_FUNCT_DECL std::wstring registry_get_wstring(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL std::wstring registry_get_wstring(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// ·µ»ØÖµ×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂÀ©Õ¹×Ö·û´®ÀàĞÍÖµµÄÄÚÈİ(ÆäÖĞ°üº¬µÄ»·¾³±äÁ¿½«²»±»Õ¹¿ªÔ­Ñù·µ»Ø).
+/// è¿”å›å€¼æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹æ‰©å±•å­—ç¬¦ä¸²ç±»å‹å€¼çš„å†…å®¹(å…¶ä¸­åŒ…å«çš„ç¯å¢ƒå˜é‡å°†ä¸è¢«å±•å¼€åŸæ ·è¿”å›).
 UTILITY_FUNCT_DECL std::wstring registry_get_expand_wstring(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL std::wstring registry_get_expand_wstring(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// ·µ»ØÖµ×¢²á±íÖĞÖ¸¶¨Â·¾¶ÏÂ×Ö·û´®Êı×éÀàĞÍÖµµÄÄÚÈİ.
+/// è¿”å›å€¼æ³¨å†Œè¡¨ä¸­æŒ‡å®šè·¯å¾„ä¸‹å­—ç¬¦ä¸²æ•°ç»„ç±»å‹å€¼çš„å†…å®¹.
 UTILITY_FUNCT_DECL std::vector<std::wstring> registry_get_multi_wstring(
     const tstring path, const tstring& name, int access);
 UTILITY_FUNCT_DECL std::vector<std::wstring> registry_get_multi_wstring(
     const tstring path, const tstring& name, int access, platform_error& error);
 
-/// ÉèÖÃ4×Ö½ÚÊı¾İÀàĞÍ
+/// è®¾ç½®4å­—èŠ‚æ•°æ®ç±»å‹
 UTILITY_FUNCT_DECL void registry_set_dword(
     const tstring path, const tstring& name, int32_t value, int access);
 UTILITY_FUNCT_DECL void registry_set_dword(
     const tstring path, const tstring& name, int32_t value, int access, platform_error& error);
 
-/// ÉèÖÃ8×Ö½ÚÊı¾İÀàĞÍ
+/// è®¾ç½®8å­—èŠ‚æ•°æ®ç±»å‹
 UTILITY_FUNCT_DECL void registry_set_qword(
     const tstring path, const tstring& name, int64_t value, int access);
 UTILITY_FUNCT_DECL void registry_set_qword(
     const tstring path, const tstring& name, int64_t value, int access, platform_error& error);
 
-/// ÉèÖÃ¶ş½øÖÆÊı¾İÀàĞÍ
+/// è®¾ç½®äºŒè¿›åˆ¶æ•°æ®ç±»å‹
 UTILITY_FUNCT_DECL void registry_set_binary(
     const tstring path, const tstring& name, const bytedata& value, int access);
 UTILITY_FUNCT_DECL void registry_set_binary(
     const tstring path, const tstring& name, const bytedata& value, int access, platform_error& error);
 
-/// ÉèÖÃ×Ö·û´®Êı¾İÀàĞÍ
+/// è®¾ç½®å­—ç¬¦ä¸²æ•°æ®ç±»å‹
 UTILITY_FUNCT_DECL void registry_set_wstring(
     const tstring path, const tstring& name, const std::wstring& value, int access);
 UTILITY_FUNCT_DECL void registry_set_wstring(
     const tstring path, const tstring& name, const std::wstring& value, int access, platform_error& error);
 
-/// ÉèÖÃ×Ö·û´®Êı×éÊı¾İÀàĞÍ
+/// è®¾ç½®å­—ç¬¦ä¸²æ•°ç»„æ•°æ®ç±»å‹
 UTILITY_FUNCT_DECL void registry_set_multi_wstring(
     const tstring path, const tstring& name, const std::vector<std::wstring>& value, int access);
 UTILITY_FUNCT_DECL void registry_set_multi_wstring(
     const tstring path, const tstring& name, const std::vector<std::wstring>& value, int access, platform_error& error);
 
-/// »ñµÃÖ¸¶¨Â·¾¶ÏÂµÄËùÓĞ¶¥¼¶key
+/// è·å¾—æŒ‡å®šè·¯å¾„ä¸‹çš„æ‰€æœ‰é¡¶çº§key
 UTILITY_FUNCT_DECL std::vector<std::wstring> registry_get_wkeys(
     const tstring path, int access);
 UTILITY_FUNCT_DECL std::vector<std::wstring> registry_get_wkeys(
     const tstring path, int access, platform_error& error);
 
-/// »ñµÃÖ¸¶¨Â·¾¶ÏÂËùÓĞµÄÖµ
+/// è·å¾—æŒ‡å®šè·¯å¾„ä¸‹æ‰€æœ‰çš„å€¼
 /// std::vector<std::pair<value name, value_types>>
 UTILITY_FUNCT_DECL std::vector<std::pair<std::wstring, registry_value_types>>
     registry_get_wvalues(const tstring path, int access);
@@ -172,8 +177,10 @@ UTILITY_FUNCT_DECL std::vector<std::pair<std::wstring, registry_value_types>>
 } // win
 } // util
 
+#endif // OS_WIN
+
 #ifndef UTILITY_DISABLE_HEADONLY
-#   include "impl/registry_util.ipp "
+#   include "impl/registry_win.ipp"
 #endif
 
-#endif // registry_util_h__
+#endif // registry_win_h__

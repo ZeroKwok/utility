@@ -1,6 +1,8 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../service_util.hpp"
+#   include "../service_win.hpp"
 #endif
+
+#if OS_WIN
 
 #include <windows.h>
 #include <platform/platform_error.hpp>
@@ -10,12 +12,12 @@ namespace win {
 namespace detail {
 
 /*
-*	ÒÔÖ¸¶¨È¨ÏŞ´ò¿ª·şÎñ¿ØÖÆ¹ÜÀíÆ÷(service control manager)
-*   SC_MANAGER_ALL_ACCESS   ËùÓĞÈ¨ÏŞ
+*	ä»¥æŒ‡å®šæƒé™æ‰“å¼€æœåŠ¡æ§åˆ¶ç®¡ç†å™¨(service control manager)
+*   SC_MANAGER_ALL_ACCESS   æ‰€æœ‰æƒé™
 */
 inline SC_HANDLE InitSCManager(DWORD dwAccess, platform_error& error)
 {
-    // SCMÉèÖÃµÄ´íÎó, ÆäËû´íÎóÓÉµ÷ÓÃµÄ×¢²á±íº¯Êı
+    // SCMè®¾ç½®çš„é”™è¯¯, å…¶ä»–é”™è¯¯ç”±è°ƒç”¨çš„æ³¨å†Œè¡¨å‡½æ•°
     // ERROR_ACCESS_DENIED
     // ERROR_DATABASE_DOES_NOT_EXIST
 
@@ -33,8 +35,8 @@ inline SC_HANDLE InitSCManager(DWORD dwAccess, platform_error& error)
 }
 
 /*
-*	ÒÔÖ¸¶¨µÄ·şÎñÃû³Æ¼°È¨ÏŞ´ò¿ª·şÎñ
-*   SERVICE_ALL_ACCESS  ËùÓĞÈ¨ÏŞ
+*	ä»¥æŒ‡å®šçš„æœåŠ¡åç§°åŠæƒé™æ‰“å¼€æœåŠ¡
+*   SERVICE_ALL_ACCESS  æ‰€æœ‰æƒé™
 */
 inline SC_HANDLE OpenServiceWithName(
     SC_HANDLE hSCManager, const std::wstring& name, DWORD dwAccess, platform_error& error)
@@ -58,7 +60,7 @@ inline SC_HANDLE OpenServiceWithName(
 }
 
 /*
-*	²éÑ¯·şÎñ×´Ì¬
+*	æŸ¥è¯¢æœåŠ¡çŠ¶æ€
 */
 inline bool QueryServiceStatusWithHandle(
     SC_HANDLE hService, SERVICE_STATUS_PROCESS& status, platform_error& error)
@@ -82,7 +84,7 @@ inline bool QueryServiceStatusWithHandle(
 }
 
 /*
-*	µÈ´ı·şÎñ´ÓÄ³¸ö×´Ì¬¹ı¶ÉÄ³¸ö×´Ì¬
+*	ç­‰å¾…æœåŠ¡ä»æŸä¸ªçŠ¶æ€è¿‡æ¸¡æŸä¸ªçŠ¶æ€
 */
 inline bool WaitServiceChangeToSomeState(
     SC_HANDLE hService, SERVICE_STATUS_PROCESS& status, DWORD state, platform_error& error)
@@ -131,7 +133,7 @@ inline bool WaitServiceChangeToSomeState(
 }
 
 /*
-*	Æô¶¯·şÎñ
+*	å¯åŠ¨æœåŠ¡
 */
 inline bool StartServiceWithHandle(SC_HANDLE hService, platform_error& error)
 {
@@ -171,7 +173,7 @@ inline bool StartServiceWithHandle(SC_HANDLE hService, platform_error& error)
     return status.dwCurrentState == SERVICE_RUNNING;
 }
 
-// ÓÃÓÚ¹æ±Ü__tryµÄ´íÎó: error C2712:  __try
+// ç”¨äºè§„é¿__tryçš„é”™è¯¯: error C2712:  __try
 struct error_struct
 {
     int     code;
@@ -179,7 +181,7 @@ struct error_struct
 };
 
 /*
-*	Í£Ö¹ËùÓĞ´Ë·şÎñµÄÒÀÀµ
+*	åœæ­¢æ‰€æœ‰æ­¤æœåŠ¡çš„ä¾èµ–
 */
 inline bool _StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, error_struct& error)
 {
@@ -322,7 +324,7 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
 }
 
 /*
-*	Í£Ö¹·şÎñ
+*	åœæ­¢æœåŠ¡
 */
 inline bool StopServiceeWithHandle(
     SC_HANDLE hSCManager, SC_HANDLE hService, platform_error& error)
@@ -609,3 +611,5 @@ bool service_running(
 
 } // win
 } // util
+
+#endif // OS_WIN

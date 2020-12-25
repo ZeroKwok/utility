@@ -1,10 +1,12 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../mini_dump.hpp"
+#   include "../mini_dump_win.hpp"
 #endif
 
+#if OS_WIN
+
+#include <ctime>
 #include <windows.h>
 #include <DbgHelp.h>
-#include <ctime>
 #include <common/time_util.hpp>
 #include <string/string_util.hpp>
 #include <filesystem/path_util.hpp>
@@ -24,7 +26,7 @@ struct mini_dump_private
 
 namespace detail {
 
-// mini_dump Ä£¿éĞÅÏ¢¹ıÂË»Øµ÷, ÓÃ»§É¸Ñ¡Ä£¿éÖĞµÄÄÇĞ©ĞÅÏ¢ÒªĞ´Èëdump.
+// mini_dump æ¨¡å—ä¿¡æ¯è¿‡æ»¤å›è°ƒ, ç”¨æˆ·ç­›é€‰æ¨¡å—ä¸­çš„é‚£äº›ä¿¡æ¯è¦å†™å…¥dump.
 inline BOOL CALLBACK MiniDumpCallback(
     _Inout_ PVOID CallbackParam,
     _In_    PMINIDUMP_CALLBACK_INPUT CallbackInput,
@@ -36,20 +38,20 @@ inline BOOL CALLBACK MiniDumpCallback(
     BOOL retsult = FALSE;
     switch(CallbackInput->CallbackType)
     {
-    case IncludeModuleCallback: // ÊÇ·ñ°üº¬ÌØ¶¨µÄÄ£¿éĞÅÏ¢
+    case IncludeModuleCallback: // æ˜¯å¦åŒ…å«ç‰¹å®šçš„æ¨¡å—ä¿¡æ¯
     case IncludeThreadCallback:
     case ThreadCallback:
     case ThreadExCallback:
-        retsult = TRUE;         // ·µ»Øtrue, ½«Ö¸¶¨µÄĞÅÏ¢Êä³öµ½minidumpÎÄ¼ş
+        retsult = TRUE;         // è¿”å›true, å°†æŒ‡å®šçš„ä¿¡æ¯è¾“å‡ºåˆ°minidumpæ–‡ä»¶
         break;
 
-    case ModuleCallback:        // Ö¸¶¨Ä£¿éµÄÄÇĞ©ĞÅÏ¢°üº¬ÔÚÄ£¿éÖĞ
+    case ModuleCallback:        // æŒ‡å®šæ¨¡å—çš„é‚£äº›ä¿¡æ¯åŒ…å«åœ¨æ¨¡å—ä¸­
     {
-        // ModuleReferencedByMemory Ö¸Ê¾Í¨¹ıÏß³ÌµÄ¶ÑÕ»Ö¸Õë,»òºó±¸´æ´¢ÒıÓÃµÄÄ£¿é,
-        // Õâ¸öÖµ½öÔÚMiniDumpWriteDumpº¯ÊıµÄdumpTypeÖ¸¶¨ÁËMiniDumpScanMemory·½²ÅÓĞĞ§.
+        // ModuleReferencedByMemory æŒ‡ç¤ºé€šè¿‡çº¿ç¨‹çš„å †æ ˆæŒ‡é’ˆ,æˆ–åå¤‡å­˜å‚¨å¼•ç”¨çš„æ¨¡å—,
+        // è¿™ä¸ªå€¼ä»…åœ¨MiniDumpWriteDumpå‡½æ•°çš„dumpTypeæŒ‡å®šäº†MiniDumpScanMemoryæ–¹æ‰æœ‰æ•ˆ.
 
         if (!(CallbackOutput->ModuleWriteFlags & ModuleReferencedByMemory))
-            CallbackOutput->ModuleWriteFlags &= ~ModuleWriteModule; // È¥³ı½öĞ´Ä£¿éĞÅÏ¢±êÖ¾Î»
+            CallbackOutput->ModuleWriteFlags &= ~ModuleWriteModule; // å»é™¤ä»…å†™æ¨¡å—ä¿¡æ¯æ ‡å¿—ä½
 
         retsult = TRUE;
     }
@@ -62,7 +64,7 @@ inline BOOL CALLBACK MiniDumpCallback(
     return retsult;
 }
 
-// ´´½¨mini dump
+// åˆ›å»ºmini dump
 inline DWORD CreateMiniDump(
     const std::wstring& file,  
     EXCEPTION_POINTERS* excptionPtr = nullptr)
@@ -79,7 +81,7 @@ inline DWORD CreateMiniDump(
     if (hFile == INVALID_HANDLE_VALUE)
         return GetLastError();
 
-    // ÃèÊöµ¼ÖÂÉú³ÉminidumpµÄ¿Í»§»úÒì³£, Èç¹û¸Ã²ÎÊıµÄÖµÎªNULL£¬ÔòÔÚĞ¡ÎÄ¼şÖĞ²»°üº¬Òì³£ĞÅÏ¢;
+    // æè¿°å¯¼è‡´ç”Ÿæˆminidumpçš„å®¢æˆ·æœºå¼‚å¸¸, å¦‚æœè¯¥å‚æ•°çš„å€¼ä¸ºNULLï¼Œåˆ™åœ¨å°æ–‡ä»¶ä¸­ä¸åŒ…å«å¼‚å¸¸ä¿¡æ¯;
     MINIDUMP_EXCEPTION_INFORMATION exceptionParam = {
         ::GetCurrentThreadId(),
         excptionPtr,
@@ -91,15 +93,15 @@ inline DWORD CreateMiniDump(
         0,
     };
 
-    // ×ª´¢ĞÅÏ¢µÄÀàĞÍ
-    // MiniDumpWithIndirectlyReferencedMemory °üÀ¨¾ßÓĞ±¾µØ±äÁ¿»òÆäËû¶ÑÕ»ÄÚ´æÒıÓÃµÄÊı¾İµÄÒ³Ãæ, ´ËÑ¡Ïî¿ÉÒÔÏÔÖøÔö¼ÓÎÄ¼ş´óĞ¡¡£
-    // MiniDumpScanMemory ÓëMiniDumpCallback¹²Í¬Ê¹ÓÃÀ´È·¶¨ÊÇ·ñ½«Ä³Ò»ÌØ¶¨Ä£¿éÒÔ¼°¸ÃÄ£¿éµÄĞÅÏ¢Ğ´Èëµ½ËùÉú³ÉµÄDMPÎÄ¼şÖĞ¡£
+    // è½¬å‚¨ä¿¡æ¯çš„ç±»å‹
+    // MiniDumpWithIndirectlyReferencedMemory åŒ…æ‹¬å…·æœ‰æœ¬åœ°å˜é‡æˆ–å…¶ä»–å †æ ˆå†…å­˜å¼•ç”¨çš„æ•°æ®çš„é¡µé¢, æ­¤é€‰é¡¹å¯ä»¥æ˜¾è‘—å¢åŠ æ–‡ä»¶å¤§å°ã€‚
+    // MiniDumpScanMemory ä¸MiniDumpCallbackå…±åŒä½¿ç”¨æ¥ç¡®å®šæ˜¯å¦å°†æŸä¸€ç‰¹å®šæ¨¡å—ä»¥åŠè¯¥æ¨¡å—çš„ä¿¡æ¯å†™å…¥åˆ°æ‰€ç”Ÿæˆçš„DMPæ–‡ä»¶ä¸­ã€‚
     // 
     // https://docs.microsoft.com/en-us/windows/win32/api/minidumpapiset/ne-minidumpapiset-minidump_type
 
     MINIDUMP_TYPE dumpType = (MINIDUMP_TYPE)(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory); 
 
-    // ½ø³Ì¾ä±ú±ØĞë¾ßÓĞPROCESS_QUERY_INFORMATION, PROCESS_VM_READÈ¨ÏŞ, PROCESS_DUP_HANDLEÊÇ¿ÉÑ¡µÄÓÃÓÚÊÕ¼¯Ä³Ğ©ĞÅÏ¢.
+    // è¿›ç¨‹å¥æŸ„å¿…é¡»å…·æœ‰PROCESS_QUERY_INFORMATION, PROCESS_VM_READæƒé™, PROCESS_DUP_HANDLEæ˜¯å¯é€‰çš„ç”¨äºæ”¶é›†æŸäº›ä¿¡æ¯.
     if (!::MiniDumpWriteDump(
         GetCurrentProcess(),
         GetCurrentProcessId(),
@@ -117,7 +119,7 @@ inline DWORD CreateMiniDump(
     return S_OK;
 }
 
-// ½á¹¹»¯Òì³£¹ıÂËÆ÷, ÓÃÒÔÔÚ±ÀÀ£Ê±µÃµ½»ú»á´¦Àí
+// ç»“æ„åŒ–å¼‚å¸¸è¿‡æ»¤å™¨, ç”¨ä»¥åœ¨å´©æºƒæ—¶å¾—åˆ°æœºä¼šå¤„ç†
 inline LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* exp)
 {
     util::ferror ferr;
@@ -190,3 +192,5 @@ void mini_dump::init()
 
 } // win
 } // util
+
+#endif // OS_WIN

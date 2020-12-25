@@ -1,11 +1,15 @@
-#ifndef mini_dump_h__
-#define mini_dump_h__
+#ifndef mini_dump_win_h__
+#define mini_dump_win_h__
 
-/*!
- *  mini_dump.hpp 
- * 
- *  v0.1 2019-02 By GuoJH
- */
+/*
+*  mini_dump_win.hpp  
+* 
+*  v0.1 2019-02 By GuoJH
+*/
+
+#include <utility.hpp>
+
+#if OS_WIN
 
 #include <functional>
 #include <platform/platform_cfg.hpp>
@@ -23,15 +27,15 @@ class mini_dump
 public:
     typedef std::function<void()> closure_type;
 
-    /// »ñµÃ¶ÔÏóÊµÀı
+    /// è·å¾—å¯¹è±¡å®ä¾‹
     static mini_dump& instance();
 
-    /// ´´½¨×îĞ¡×ª´¢ÎÄ¼ş
+    /// åˆ›å»ºæœ€å°è½¬å‚¨æ–‡ä»¶
     static void create_dump(const std::wstring file);
     static void create_dump(const std::wstring file, platform_error& error);
 
-    /// ³õÊ¼»¯²¢ÏòÏµÍ³×¢²á½á¹¹»¯Òì³£¹ıÂËÆ÷, ÓÃÒÔÔÚ±ÀÀ£Ê±µÃµ½»ú»á´´½¨×îĞ¡×ª´¢ÎÄ¼ş;
-    /// ĞèÒª×¢ÒâµÄÊÇ: ÔÚ³ÌĞòÖĞµ÷ÓÃSetUnhandledExceptionFilter()»áÈÃ¸ÃÁ÷³ÌÊ§Ğ§;
+    /// åˆå§‹åŒ–å¹¶å‘ç³»ç»Ÿæ³¨å†Œç»“æ„åŒ–å¼‚å¸¸è¿‡æ»¤å™¨, ç”¨ä»¥åœ¨å´©æºƒæ—¶å¾—åˆ°æœºä¼šåˆ›å»ºæœ€å°è½¬å‚¨æ–‡ä»¶;
+    /// éœ€è¦æ³¨æ„çš„æ˜¯: åœ¨ç¨‹åºä¸­è°ƒç”¨SetUnhandledExceptionFilter()ä¼šè®©è¯¥æµç¨‹å¤±æ•ˆ;
     void init();
 
     void set_crash_handler(const closure_type& crash_call)
@@ -53,8 +57,10 @@ protected:
 } // win
 } // util
 
+#endif // OS_WIN
+
 #ifndef UTILITY_DISABLE_HEADONLY
-#   include "impl/mini_dump.ipp "
+#   include "impl/mini_dump_win.ipp "
 #endif
 
-#endif // mini_dump_h__
+#endif // mini_dump_win_h__

@@ -2,19 +2,19 @@ cmake_minimum_required(VERSION 3.10)
 
 project(utility VERSION 0.2.1 LANGUAGES CXX)
 
-# ÊÇ·ñ±àÒëµ¥Ôª²âÊÔ
+# æ˜¯å¦ç¼–è¯‘å•å…ƒæµ‹è¯•
 option(UTILITY_BUILD_TEST "Enable build unit test" ON)
 
-# ÊÇ·ñÖ§³ÖBoost
+# æ˜¯å¦æ”¯æŒBoost
 option(UTILITY_SUPPORT_BOOST "Enable Boost support" ON)
 
-# ÊÇ·ñÖ§³ÖQt
+# æ˜¯å¦æ”¯æŒQt
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 
-# ÊÇ·ñ±àÒë¶¯Ì¬¿â
+# æ˜¯å¦ç¼–è¯‘åŠ¨æ€åº“
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
-# ÊÇ·ñÆôÓÃ¾²Ì¬ÔËĞĞÊ±
+# æ˜¯å¦å¯ç”¨é™æ€è¿è¡Œæ—¶
 option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
 
 if(WIN32)
@@ -35,28 +35,28 @@ else()
 	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_BUILD_STATIC_LIB)
 endif()
 
-# ¾²Ì¬ÔËĞĞÊ±
+# é™æ€è¿è¡Œæ—¶
 if(MSVC AND UTILITY_ENABLE_STATIC_RUNTIME)
 	foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 		string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
 	endforeach(flag_var)
 endif()
 
-# ÖØ¶¨ÏòÉú³ÉÄ¿Â¼
+# é‡å®šå‘ç”Ÿæˆç›®å½•
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_BINARY_DIR}/lib")
 
-# ÉèÖÃutf-8±àÒë
+# è®¾ç½®utf-8ç¼–è¯‘
 if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
-# ÉèÖÃÎª¸ùÄ¿Â¼
+# è®¾ç½®ä¸ºæ ¹ç›®å½•
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# Ìí¼ÓÎªÁ¬½ÓÄ¿Â¼
+# æ·»åŠ ä¸ºè¿æ¥ç›®å½•
 link_directories("${CMAKE_BINARY_DIR}/lib")
 
 # cmake modules
@@ -76,24 +76,24 @@ endif()
 include(internal_util)
 include(library_regular_naming)
 
-# Ìî³äÅäÖÃ
+# å¡«å……é…ç½®
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/utility.hpp.in" 
                "${CMAKE_CURRENT_SOURCE_DIR}/utility.hpp")
 
-# ×ÓÄ¿Â¼
+# å­ç›®å½•
 add_subdirectory(string)
 # add_subdirectory(process)
-# add_subdirectory(platform)
+add_subdirectory(platform)
 # add_subdirectory(filesystem)
 # add_subdirectory(common)
 
-# µ¥Ôª²âÊÔ
+# å•å…ƒæµ‹è¯•
 if(UTILITY_BUILD_TEST)
 	enable_testing()
 	add_subdirectory(test)
 endif()
 
-# °²×°¹«¹²Í·ÎÄ¼ş
+# å®‰è£…å…¬å…±å¤´æ–‡ä»¶
 install(
   FILES
     config.h
@@ -112,7 +112,7 @@ install(
   DESTINATION
     include/msinttypes)
 
-# °²×°CMakeÅäÖÃÎÄ¼ş
+# å®‰è£…CMakeé…ç½®æ–‡ä»¶
 install(
   FILES
     cmake/utilityConfig.cmake
@@ -121,14 +121,14 @@ install(
   COMPONENT
     Devel)
 
-# Éú³É°æ±¾ÎÄ¼ş
+# ç”Ÿæˆç‰ˆæœ¬æ–‡ä»¶
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake"
   VERSION ${utility_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
-# °²×°°æ±¾ÎÄ¼ş
+# å®‰è£…ç‰ˆæœ¬æ–‡ä»¶
 install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake"

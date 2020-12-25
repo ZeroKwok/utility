@@ -84,7 +84,7 @@
 // Defined WINNT version.
 #if defined(WIN32) || defined(_WIN32)
 #   ifndef _WIN32_WINNT
-#       define _WIN32_WINNT 0x0501 // Windows XP
+#       define _WIN32_WINNT _WIN32_WINNT_VISTA // Windows Vista
 #   endif
 #endif
 

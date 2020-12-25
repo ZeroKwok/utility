@@ -8,7 +8,7 @@ namespace util {
 
 platform_error::msgs_type platform_error::error_message() const
 {
-    return util::win::format_error(_code);
+    return util::format_error(_code);
 }
 
 platform_error::msgs_type platform_error::print() const

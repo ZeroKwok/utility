@@ -1,42 +1,49 @@
 cmake_minimum_required(VERSION 3.10)
 
-# ÊÇ·ñÖ§³Ö×Ô¶¯Á¬½Ó
+# æ˜¯å¦æ”¯æŒè‡ªåŠ¨è¿æ¥
 option(UTILITY_ENABLE_AUTO_LINK "Enable auto link utility library support" OFF)
 
 project(utility_test)
 
-# Ìí¼ÓGoogleTestÖ§³Ö
+# æ·»åŠ GoogleTestæ”¯æŒ
 include(GoogleTest)
 
-# ²éÕÒgoogletest
+# æŸ¥æ‰¾googletest
 find_package(GTest 1.10.0)
 
-# ÕÒ²»µ½³¢ÊÔ±àÒë
+# æ‰¾ä¸åˆ°å°è¯•ç¼–è¯‘
 if(NOT GTest_NOTFOUND)
 	add_subdirectory(googletest-1.10.0)
 endif()
 
-# ²âÊÔÏîÄ¿
-add_executable(${PROJECT_NAME} 
+set(TEST_SOUCES
 	string.cpp
 	string_util.cpp
+	platform_cpu.cpp 
+	platform_util.cpp
 	# filesystem.cpp 
-	# platform_cpu.cpp 
 	# platform_registry.cpp
 	# common_unit.cpp 
 	# common_math.cpp
 	# common_encryption.cpp
 	# process.cpp 
 	# mini_dump.cpp
-	 )
+					)
 
-# Á¬½Ó²âÊÔ¿â
+if(MSVC)
+	list(APPEND TEST_SOUCES platform_registry.cpp)
+endif()
+
+# æµ‹è¯•é¡¹ç›®
+add_executable(${PROJECT_NAME} ${TEST_SOUCES})
+
+# è¿æ¥æµ‹è¯•åº“
 target_link_libraries(${PROJECT_NAME} gtest_main)
 
-# ÈôÃ»ÓĞÆô¶¯×Ô¶¯Á¬½ÓÖ§³Ö
+# è‹¥æ²¡æœ‰å¯åŠ¨è‡ªåŠ¨è¿æ¥æ”¯æŒ
 if(NOT UTILITY_ENABLE_AUTO_LINK)
-	# ³¢ÊÔ²éÕÒÊÇ·ñ°²×°utility, ÓÅÏÈÊ¹ÓÃ°²×°µÄutility
-	# Òò°²×°°æ±¾²ÉÓÃÁËÃû³Æ¿Õ¼ä¹ÊÕâÀïĞèÒªÇø·Ö
+	# å°è¯•æŸ¥æ‰¾æ˜¯å¦å®‰è£…utility, ä¼˜å…ˆä½¿ç”¨å®‰è£…çš„utility
+	# å› å®‰è£…ç‰ˆæœ¬é‡‡ç”¨äº†åç§°ç©ºé—´æ•…è¿™é‡Œéœ€è¦åŒºåˆ†
 	find_package(utility)
 
 	if(utility_FOUND)
@@ -49,8 +56,8 @@ if(NOT UTILITY_ENABLE_AUTO_LINK)
 	else()
 		target_link_libraries(${PROJECT_NAME} 
 			string 
+			platform 
 			# filesystem 
-			# platform 
 			# process 
 			# common
 			)
@@ -58,5 +65,5 @@ if(NOT UTILITY_ENABLE_AUTO_LINK)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE UTILITY_DISABLE_AUTO_LINK)
 endif()
 
-# Ìí¼Óµ½²âÊÔ
+# æ·»åŠ åˆ°æµ‹è¯•
 gtest_discover_tests(${PROJECT_NAME})

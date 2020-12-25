@@ -1,21 +1,26 @@
-#ifndef service_util_h__
-#define service_util_h__
+#ifndef service_win_h__
+#define service_win_h__
 
 /*
-*   service_util.hpp 
+*   service_win.hpp 
 *
 *   v0.1 2018-04 By GuoJH
 *   v0.2 2020-10 By GuoJH
 */
 
+#include <utility.hpp>
+
+#if OS_WIN
+
 #include <string/tstring.hpp>
 #include <platform/platform_cfg.hpp>
+#include <platform/platform_error.hpp>
 
 namespace util{
 namespace win {
 
 /*!
- *  /brief  安装windows服务
+ *  /brief  瀹夎windows鏈嶅姟
  */
 bool service_install(
     const util::tstring& name, 
@@ -57,8 +62,10 @@ bool service_running(
 } // win
 } // util
 
+#endif // OS_WIN
+
 #ifndef UTILITY_DISABLE_HEADONLY
-#   include "impl/service_util.ipp "
+#   include "impl/service_win.ipp "
 #endif
 
-#endif // service_util_h__
+#endif // service_win_h__

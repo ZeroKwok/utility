@@ -1,6 +1,8 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../registry_util.hpp"
+#   include "../registry_win.hpp"
 #endif
+
+#if OS_WIN
 
 #include <windows.h>
 #include <platform/platform_error.hpp>
@@ -30,7 +32,7 @@ public:
     }
 };
 
-/// ´Ó×Ö·û´®½âÎökey
+/// ä»å­—ç¬¦ä¸²è§£ækey
 inline bool _parse_key(HKEY& key, const tstring& target)
 {
     // Predefined keys
@@ -60,7 +62,7 @@ inline bool _parse_key(HKEY& key, const tstring& target)
     return true;
 }
 
-/// ´Ó×Ö·û´®½âÎösubkey
+/// ä»å­—ç¬¦ä¸²è§£æsubkey
 inline void _parse_subkey(HKEY& key, tstring& subkey, const tstring& path)
 {
     auto pos = std::min(path.find(L"\\"), path.find(L"/"));
@@ -75,7 +77,7 @@ inline void _parse_subkey(HKEY& key, tstring& subkey, const tstring& path)
     }
 }
 
-/// RegOpenKeyExW °ü×°
+/// RegOpenKeyExW åŒ…è£…
 inline HKEY _open_key(
     const tstring& path, REGSAM desiredAccess, platform_error& error)
 {
@@ -1109,3 +1111,5 @@ std::vector<std::pair<std::wstring, registry_value_types>>
 
 } // win
 } // util
+
+#endif // OS_WIN

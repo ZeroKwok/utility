@@ -8,14 +8,15 @@
 */
 
 #include <string>
+#include <exception>
 #include <platform/platform_cfg.hpp>
 
 namespace util {
 
 /*!
-*   Ìá¹©Ò»¸öÓëÆ½Ì¨Ïà¹ØµÄ´íÎó
-*/
-class platform_error
+ *   \brief æä¾›ä¸€ä¸ªå¹³å°ç›¸å…³çš„é”™è¯¯
+ */
+class platform_error : public std::exception
 {
 public:
     typedef int             code_type;
@@ -32,10 +33,10 @@ public:
         _desc = msgs_type();
     }
 
-    /*
-    *	·µ»ØÊÇ·ñ·¢ÉúÁË´íÎó
-    *   ÕâÀï¼ÙÉèËùÓĞÆ½Ì¨µÄ´íÎó´úÂë0, ¾ù±íÊ¾Ã»ÓĞ·¢Éú´íÎó
-    */
+    /*!
+     *  \brief è¿”å›æ˜¯å¦å‘ç”Ÿäº†é”™è¯¯
+     *  \note  è¿™é‡Œå‡è®¾æ‰€æœ‰å¹³å°çš„é”™è¯¯ä»£ç 0, å‡è¡¨ç¤ºæ²¡æœ‰å‘ç”Ÿé”™è¯¯.
+     */
     operator bool() const
     {
         return _code != 0;
@@ -51,17 +52,31 @@ public:
         return _desc;
     }
 
-    /*
-    *	·µ»Ø´íÎó´úÂëµÄÏêÏ¸ĞÅÏ¢
-    *   ¸ù¾İµ±Ç°Æ½Ì¨»·¾³Êä³ö´íÎó´úÂë´ú±íµÄÒâÒå
-    */
+#if OS_WIN
+    char const* what() const
+#else
+    char const* what() const noexcept
+#endif
+    {
+        return _desc.c_str();
+    }
+
+    /*!
+     *  \brief è¿”å›é”™è¯¯ä»£ç çš„è¯¦ç»†ä¿¡æ¯
+     *         æ ¹æ®å½“å‰å¹³å°ç¯å¢ƒè¾“å‡ºé”™è¯¯ä»£ç ä»£è¡¨çš„æ„ä¹‰.
+     */
     msgs_type error_message() const; // Different implementations
 
+    /*!
+     *  \brief è¿”å›é”™è¯¯ç›¸å…³çš„è¯¦ç»†ä¿¡æ¯
+     *  \note  ä¸error_message()ä¸åŒçš„æ˜¯è¯¥å‡½æ•°å°†è¿”å›åŒ…æ‹¬é”™è¯¯çš„æè¿°åœ¨å†…çš„å°½å¯èƒ½å¤šçš„ä¿¡æ¯. 
+     */
     msgs_type print() const;
 
+
 private:
-    code_type _code;     //ÏµÍ³´íÎó´úÂë
-    msgs_type _desc;     //´íÎóÃèÊöĞÅÏ¢, ²»ÊÇ´íÎó´úÂëµÄÒâÒå
+    code_type _code;     //!< ç³»ç»Ÿé”™è¯¯ä»£ç 
+    msgs_type _desc;     //!< é”™è¯¯æè¿°ä¿¡æ¯, ä¸æ˜¯é”™è¯¯ä»£ç çš„æ„ä¹‰
 };
 
 } // util

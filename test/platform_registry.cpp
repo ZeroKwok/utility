@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <platform/registry_util.hpp>
+#include <platform/registry_win.hpp>
 #include <windows.h>
 
 TEST(platform, registry)

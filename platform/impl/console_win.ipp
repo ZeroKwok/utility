@@ -1,6 +1,8 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../console_util.hpp"
+#   include "../console_win.hpp"
 #endif
+
+#if OS_WIN
 
 #include <windows.h>
 #include <algorithm>
@@ -80,3 +82,5 @@ void output_progress(
 
 } // console
 } // util
+
+#endif // OS_WIN

@@ -105,11 +105,7 @@ void cpu::initialize()
 
 std::string cpu::id_string() const
 {
-#ifdef OS_WIN
-    return util::sformat("%016I64X", _cpu_id);
-#else
-    return util::sformat("%016llX", _cpu_id);
-#endif
+    return util::sformat("%016" PRIX64, _cpu_id);
 }
 
 } // util

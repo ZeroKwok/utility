@@ -1,5 +1,5 @@
-#ifndef console_util_h__
-#define console_util_h__
+#ifndef console_win_h__
+#define console_win_h__
 
 /*
 *	console_util.hpp 
@@ -7,25 +7,29 @@
 *   v0.1 2018-11 By GuoJH
 */
 
+#include <utility.hpp>
+
+#if OS_WIN
+
 #include <string>
 #include <platform/platform_cfg.hpp>
 
 namespace util {
 namespace win  {
 
-// Ö¸¶¨Á÷
+// æŒ‡å®šæµ
 static const uint32_t STD_INPUT       = ((uint32_t)-10);       // STD_INPUT_HANDLE
 static const uint32_t STD_OUTPUT      = ((uint32_t)-11);       // STD_OUTPUT_HANDLE
 static const uint32_t STD_ERROR       = ((uint32_t)-12);       // STD_ERROR_HANDLE
 
-// ÑÕÉ«´òÓ¡
+// é¢œè‰²æ‰“å°
 static const uint16_t COLOR_DEF       = 0;
 static const uint16_t COLOR_RED       = 0x0004; // FOREGROUND_RED       text color contains red.
 static const uint16_t COLOR_GREEN     = 0x0002; // FOREGROUND_GREEN     text color contains green.
 static const uint16_t COLOR_BLUE      = 0x0001; // FOREGROUND_BLUE      text color contains blue.
 static const uint16_t COLOR_INTENSITY = 0x0008; // FOREGROUND_INTENSITY text color is intensified.
 
-// ×ø±ê
+// åæ ‡
 struct coord
 {
     short x;
@@ -33,7 +37,7 @@ struct coord
 };
 
 /*
-*	Ö¸¶¨ÑÕÉ«, Ö¸¶¨Á÷, Êä³ö
+*	æŒ‡å®šé¢œè‰², æŒ‡å®šæµ, è¾“å‡º
 */
 UTILITY_FUNCT_DECL void output(
     const std::string& text, 
@@ -41,24 +45,24 @@ UTILITY_FUNCT_DECL void output(
     const uint16_t color  = COLOR_DEF);
 
 /*
-*	Çå³ýÆÁÄ»
+*	æ¸…é™¤å±å¹•
 */
 UTILITY_FUNCT_DECL void clear();
 
 /*
-*	ÒÆ¶¯´òÓ¡¹â±êµ½Ö¸¶¨Î»ÖÃ
+*	ç§»åŠ¨æ‰“å°å…‰æ ‡åˆ°æŒ‡å®šä½ç½®
 */
 UTILITY_FUNCT_DECL void cursor_goto(const coord& pos);
 UTILITY_FUNCT_DECL void cursor_goto(short x, short y);
 
 /*
-*	·µ»Ø¹â±êÎ»ÖÃ
+*	è¿”å›žå…‰æ ‡ä½ç½®
 */
 UTILITY_FUNCT_DECL coord cursor_pos();
 
 /*
-*	´òÓ¡½ø¶ÈÌõ
-*   Àý×Ó:
+*	æ‰“å°è¿›åº¦æ¡
+*   ä¾‹å­:
 *   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>=================== 20%
 */
 UTILITY_FUNCT_DECL void output_progress(
@@ -67,8 +71,10 @@ UTILITY_FUNCT_DECL void output_progress(
 } // console
 } // util
 
+#endif // OS_WIN
+
 #ifndef UTILITY_DISABLE_HEADONLY
-#   include "impl/console_util.ipp"
+#   include "impl/console_win.ipp"
 #endif
 
-#endif // console_util_h__
+#endif // console_win_h__
