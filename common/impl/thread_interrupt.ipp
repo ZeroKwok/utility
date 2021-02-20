@@ -98,7 +98,7 @@ void thread_interrupt_point(
     {
         int32_t intflags = thread_interrupt_flags(-1);
 #if defined(_DEBUG) && (NTDDI_VERSION > NTDDI_WINXP)
-        util::win::output_debug_string(
+        util::output_debug_string(
             util::sformat(
                 L"thread_interrupt_point(%08x)\n"
                 L"\tthrow thread_interrupted(%08x, %08x) at:\n",
@@ -114,7 +114,7 @@ void thread_interrupt_trigger(
     const boost::any& param/* = boost::any()*/)
 {
 #if defined(_DEBUG) && (NTDDI_VERSION > NTDDI_WINXP)
-    util::win::output_debug_string(
+    util::output_debug_string(
         util::sformat(
             L"throw thread_interrupted(%08x, %08x) at:\n",
             flags, param) +

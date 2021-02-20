@@ -103,17 +103,17 @@ inline std::string _2utf8(const QString& string)
 inline QString _2qstr(const std::wstring& string)
 {
 #if OS_WIN
-    /*
-    *  在Qt lib中未将wchar_t视为内置类型, 而是作为了unsigned short
-    *  所以在使用包含wchar_t的接口时将出现error 2019, 通常, Qt默认
-    *  将工程配置修改为不将wchar_t视为内置类型, 但是在使用第三方库时
-    *  (默认工程配置, 且带wchar_t的接口)也会出现error 2019错误.
-    *
-    *  一个折中的办法是, 修改工程设置将wchar_t作为内置类型, 且避免
-    *  使用Qt中带有wchar_t的接口. (幸运的是Qt中几乎所有的宽字符接口
-    *  都显示声明为 unsigned short*)
-    *  _2018-5-11 By GuoJH
-    */
+    //
+    // 在Qt lib中未将wchar_t视为内置类型, 而是作为了unsigned short
+    // 所以在使用包含wchar_t的接口时将出现error 2019, 通常, Qt默认
+    // 将工程配置修改为不将wchar_t视为内置类型, 但是在使用第三方库时
+    // (默认工程配置, 且带wchar_t的接口)也会出现error 2019错误.
+    //
+    // 一个折中的办法是, 修改工程设置将wchar_t作为内置类型, 且避免
+    // 使用Qt中带有wchar_t的接口. (幸运的是Qt中几乎所有的宽字符接口
+    // 都显示声明为 unsigned short*)
+    // 2018-5-11 By GuoJH
+    //
 
     return QString::fromUtf16((const ushort *)string.c_str(), string.size());
 #else

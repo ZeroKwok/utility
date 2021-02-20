@@ -12,6 +12,10 @@
 #include <platform/platform_cfg.hpp>
 #include <platform/platform_error.hpp>
 
+#ifndef OS_WIN
+#   error mini_dump_win.hpp only supports Windows.
+#endif
+
 namespace util{
 namespace win {
 

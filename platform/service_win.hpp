@@ -10,7 +10,9 @@
 
 #include <utility.hpp>
 
-#if OS_WIN
+#ifndef OS_WIN
+#   error service_win.hpp only supports Windows.
+#endif
 
 #include <string/tstring.hpp>
 #include <platform/platform_cfg.hpp>
@@ -61,8 +63,6 @@ bool service_running(
 
 } // win
 } // util
-
-#endif // OS_WIN
 
 #ifndef UTILITY_DISABLE_HEADONLY
 #   include "impl/service_win.ipp "

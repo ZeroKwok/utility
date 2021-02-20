@@ -134,7 +134,7 @@ void output_debug_string(const std::string& message)
 void output_debug_string(const std::wstring& message)
 {
 #if OS_WIN
-    ::OutputDebugStringW((msg + L"\r\n").c_str());
+    ::OutputDebugStringW((message + L"\r\n").c_str());
 #endif
 
     std::wcout << message << std::endl;

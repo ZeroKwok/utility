@@ -2,7 +2,7 @@
 #define registry_win_h__
 
 /*
-*   registry_win.hpp  
+*   registry_win.hpp
 *
 *   v0.1 2018-08 by GuoJH
 *   v0.2 2020-11 by GuoJH
@@ -14,6 +14,10 @@
 #include <common/bytedata.hpp>
 #include <platform/platform_cfg.hpp>
 #include <platform/platform_error.hpp>
+
+#ifndef OS_WIN
+#   error registry_win.hpp  only supports Windows.
+#endif
 
 namespace util {
 namespace win {
