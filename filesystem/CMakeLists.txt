@@ -3,9 +3,14 @@ cmake_minimum_required(VERSION 3.10)
 project(filesystem CXX)
 
 if(UTILITY_BUILD_SHARED_LIB)
-	add_library(${PROJECT_NAME} SHARED impl/filesystem.cpp)
+    add_library(${PROJECT_NAME} SHARED impl/filesystem.cpp)
 else()
-	add_library(${PROJECT_NAME} STATIC impl/filesystem.cpp)
+    add_library(${PROJECT_NAME} STATIC impl/filesystem.cpp)
+endif()
+
+# 某些跨平台实现暂时依赖 Boost::filesystem
+if(UNIX OR NOT UTILITY_BOOST_SUPPORT_AUTOLINK)
+    target_link_libraries(${PROJECT_NAME} Boost::filesystem)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE 

@@ -5,20 +5,20 @@
 *   string_conv_easy.hpp 
 *   
 *   v0.1  2018-04 By GuoJH
-*   v0.2  2020-08 By GuoJH
+*   v0.2  2020-12 By GuoJH
 */
+
+#include <string/string_cfg.hpp>
+#include <string/string_conv.hpp>
 
 #ifdef UTILITY_SUPPORT_QT
 #   include <QString>
 #endif
 
-#ifdef UTILITY_SUPPORT_BSTR
+#if defined(UTILITY_SUPPORT_BSTR) && defined(OS_WIN)
 #   include <comutil.h>
 #   pragma comment(lib, "comsupp.lib")
 #endif
-
-#include <string/string_cfg.hpp>
-#include <string/string_conv.hpp>
 
 namespace util {
 namespace conv {

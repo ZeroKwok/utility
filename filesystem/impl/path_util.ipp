@@ -3,7 +3,27 @@
 #endif
 
 #include <algorithm>
+#include <string/string_util.hpp>
 #include <filesystem/path_util.hpp>
+#include <platform/platform_util.hpp>
+
+#if OS_POSIX
+#   include <pwd.h>
+#   include <errno.h>
+#   include <unistd.h>
+#   include <sys/types.h>
+
+#   ifndef PATH_MAX
+#       define PATH_MAX 4080
+#   endif
+
+#elif OS_WIN
+#   include <wctype.h>
+#   include <shlobj.h>
+#   include <windows.h>
+#   include <shellapi.h>
+#endif
+
 
 namespace util {
 namespace detail {
@@ -13,7 +33,7 @@ namespace detail {
     static const char preferred_separator = '\\';
     static const char dot = '.';
 
-#else // Linux & Mac OS
+#else // Unix-Like & Mac OS
 
     static const char separator = '/';
     static const char preferred_separator = '/';
@@ -21,15 +41,23 @@ namespace detail {
 #endif
 
     // Windows style
-    static const char win_style_separator = '\\';
+    static const char win_style_preferred_separator = '\\';
+    static const char win_style_secondary_separator = '/';
 
-    // Linux style
-    static const char linux_style_root = '/';
-    static const char linux_style_separator = '/';
+    // Windows style long path
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
+    static const char win_style_long_path_prefix[] = "\\\\?\\";
+
+    // Unix-Like style
+    static const char unix_style_root = '/';
+    static const char unix_style_separator = '/';
 
     // UNC（Universal Naming Convention）
+    // https://en.wikipedia.org/wiki/Path_(computing)#Universal_Naming_Convention
+    // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/62e862f4-2a51-452e-8eeb-dc4ff5ee33cc
     static const char unc_prefix = '\\';
     static const char unc_separator = '\\';
+    static const char unc_long_path_prefix[] = "\\\\?\\UNC\\";
 
     // URL (Uniform Resource Locator)
     static const char url_separator = '/';
@@ -68,31 +96,48 @@ namespace detail {
     }
 
     template<class _TChar>
+    inline bool is_win_separator(const _TChar& c)
+    {
+        return c == win_style_preferred_separator ||
+               c == win_style_secondary_separator;
+    }
+
+    template<class _TChar>
     inline std::basic_string<_TChar> _path_append(
         const std::basic_string<_TChar>& path,
         const std::basic_string<_TChar>& stem_1)
     {
-        typedef std::basic_string<_TChar>::value_type char_type;
+        typedef typename std::basic_string<_TChar>::value_type char_type;
         if (path.empty())
             return stem_1;
 
         if (stem_1.empty())
             return path;
 
-        if (detail::is_separator(path.at(path.length() - 1)))
-            return path + stem_1;
+        if (detail::is_separator(stem_1[0]))
+            return _path_append(path, stem_1.substr(1));
 
+        if (detail::is_separator(path.at(path.length() - 1)))
+        {
+            if (path.size() >= 2 && detail::is_separator(path.at(path.length() - 2)))
+                return _path_append(path.substr(0, path.size() - 1), stem_1);
+            else
+                return path + stem_1;
+        }
+
+#if OS_WIN
         if (path_is_unc(path))
             return path + char_type(detail::unc_separator) + stem_1;
+
+        if (path_is_win_style(path))
+            return path + char_type(detail::win_style_preferred_separator) + stem_1;
+#endif
 
         if (path_is_url(path))
             return path + char_type(detail::url_separator) + stem_1;
 
-        if (path_is_win_style(path))
-            return path + char_type(detail::win_style_separator) + stem_1;
-
-        if (path_is_linux_style(path))
-            return path + char_type(detail::linux_style_separator) + stem_1;
+        if (path_is_unix_style(path))
+            return path + char_type(detail::unix_style_separator) + stem_1;
 
         return path + char_type(detail::preferred_separator) + stem_1;
     }
@@ -101,20 +146,29 @@ namespace detail {
     inline std::basic_string<_TChar> _path_find_root(
         const std::basic_string<_TChar>& path)
     {
+        bool is_long = path_is_win_long_path(path);
+
         if (path_is_unc_style(path))
         {
             size_t pos = 2;
+            if (is_long)
+                pos = strlen(detail::unc_long_path_prefix) + 1;
+
             pos = path.find(detail::unc_separator, pos);
             pos = path.find(detail::unc_separator, std::min(pos + 1, path.size()));
 
             if (pos == std::basic_string<_TChar>::npos)
                 return path;
 
-            return path.substr(0, pos);
+            return path.substr(0, pos); 
         }
         else
         {
-            size_t pos = detail::find_separator(path, 0);
+            size_t off = 0;
+            if (is_long)
+                off = strlen(detail::win_style_long_path_prefix) + 1;
+
+            size_t pos = detail::find_separator(path, off);
             return path.substr(0, std::min(pos + 1, path.size()));
         }
     }
@@ -124,7 +178,7 @@ namespace detail {
         const std::basic_string<_TChar>& path)
     {
         size_t pos = path.length() - 1;
-        while (pos >= 0 && detail::is_separator(path.at(pos)))
+        while (pos > 0 && detail::is_separator(path.at(pos)))
             --pos;
 
         std::basic_string<_TChar> root = _path_find_root(path);
@@ -149,23 +203,39 @@ namespace detail {
     }
 
     template<class _TChar>
-    inline std::basic_string<_TChar> _path_find_extension(
-        const std::basic_string<_TChar>& path,
-        bool hasdot = true,
-        bool lower = true)
+    inline std::basic_string<_TChar> _path_find_basename(
+        const std::basic_string<_TChar>& path)
     {
-        size_t pos = path.rfind(detail::dot);
+        auto filename = _path_find_filename(path);
 
-        if (pos != fpath::npos)
+        auto dot = filename.find(detail::dot);
+        if (dot != filename.npos)
+            return filename.substr(0, dot);
+
+        return filename;
+    }
+
+    template<class _TChar>
+    inline std::basic_string<_TChar> _path_find_extension(
+        const std::basic_string<_TChar>& path, int flags)
+    {
+        size_t pos = 0; 
+        if (flags & find_complete)
+            pos = path.find(detail::dot);
+        else
+            pos = path.rfind(detail::dot);
+
+        if (pos != path.npos)
         {
-            if (!hasdot)
+            if (!(flags & find_with_dot))
                 ++pos;
 
-            if (lower)
-                return to_lower(path.substr(pos));
-            else
+            if (flags & find_upper_case)
                 return to_upper(path.substr(pos));
+            else
+                return to_lower(path.substr(pos));
         }
+
         return std::basic_string<_TChar>();
     }
 
@@ -173,6 +243,9 @@ namespace detail {
     inline std::basic_string<_TChar> _path_filename_trim(
         const std::basic_string<_TChar>& filename)
     {
+        // POSIX 中对文件名的约束相对与Windows来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
+        // 但考虑到文件的跨平台存储(短板效应), 这里采用同windows一样的限制.
+
         const char   illegal_char[] = "\\/:*?\"<>|";
         const char * illegal_name[] = {
             "con", "prn", "aux", "nul", "com1", "com2",
@@ -273,7 +346,7 @@ namespace detail {
                 size_t pos = leftPos + 1;
 
                 // 判断'(' 至 ')' 全部都是数字, 或空格
-                while (pos < rightPos && (std::isdigit(unsigned char(filename[pos])) || std::isspace(unsigned char(filename[pos]))))
+                while (pos < rightPos && (std::isdigit((unsigned char)filename[pos]) || std::isspace((unsigned char)filename[pos])))
                     pos++;
 
                 if (pos == rightPos)
@@ -329,26 +402,64 @@ namespace detail {
 
 } // detail
 
-fpath path_from_module(intptr_t module/* = 0*/) 
+fpath path_from_module(intptr_t instance/* = 0*/) 
 {
     ferror ferr;
-    fpath result = path_from_module(module, ferr);
+    fpath result = path_from_module(instance, ferr);
 
     if (ferr)
         throw ferr;
     return result;
 }
 
-fpath path_from_module(intptr_t module, ferror& ferr)
+fpath path_from_module(intptr_t instance, ferror& ferr) noexcept
 {
     ferr.clear();
-    wchar_t buffer[MAX_PATH] = { 0 };
 
-    if (::GetModuleFileNameW(reinterpret_cast<HMODULE>(module), buffer, sizeof buffer) == 0)
+#if OS_WIN
+    wchar_t buffer[MAX_PATH + 1] = { 0 };
+
+    //
+    // https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamew
+
+    if (::GetModuleFileNameW(reinterpret_cast<HMODULE>(instance), buffer, sizeof buffer) == 0)
     {
         ferr = ferror(::GetLastError(), "Can't get module path");
     }
     return buffer;
+
+#elif OS_LINUX || OS_ANDROID
+    char arg[30] = "/proc/self/exe";
+    char buffer[PATH_MAX + 1] = { 0 };
+
+    if (instance != 0)
+        sprintf(arg, "/proc/%d/exe", pid_t(instance));
+
+    //
+    // https://linux.die.net/man/2/readlink
+
+    if (::readlink(arg, buffer, sizeof buffer) == -1)
+    {
+        ferr = ferror(errno, "Can't get module path, readlink() failed");
+    }
+
+    return buffer;
+#else
+
+    // 不支持 /proc 文件系统的平台上返回程序当前路径
+
+    char buffer[PATH_MAX + 1] = { 0 };
+
+    //
+    // https://linux.die.net/man/3/getcwd
+
+    if (::getcwd(buffer, sizeof buffer) == nullptr)
+    {
+        ferr = ferror(errno, "Can't get module (current work) path, getcwd() failed");
+    }
+
+    return buffer;
+#endif
 }
 
 fpath path_from_module_dir(intptr_t module/* = 0*/)
@@ -361,7 +472,7 @@ fpath path_from_module_dir(intptr_t module/* = 0*/)
     return result;
 }
 
-fpath path_from_module_dir(intptr_t module, ferror& ferr)
+fpath path_from_module_dir(intptr_t module, ferror& ferr) noexcept
 {
     return path_find_parent(path_from_module(module, ferr));
 }
@@ -377,7 +488,7 @@ fpath path_from_module_dir(const fpath& stem)
     return path_append(result, stem);
 }
 
-fpath path_from_module_dir(const fpath& stem, ferror& ferr)
+fpath path_from_module_dir(const fpath& stem, ferror& ferr) noexcept
 {
     return path_append(
         path_find_parent(path_from_module(0, ferr)), stem);
@@ -393,9 +504,11 @@ fpath path_from_temp()
     return result;
 }
 
-fpath path_from_temp(ferror& ferr)
+fpath path_from_temp(ferror& ferr) noexcept
 {
     ferr.clear();
+
+#if OS_WIN
     wchar_t buffer[MAX_PATH] = { 0 };
 
     if (::GetTempPathW(MAX_PATH, buffer) == 0)
@@ -403,7 +516,454 @@ fpath path_from_temp(ferror& ferr)
         ferr = ferror(::GetLastError(), "Can't get module path");
     }
     return buffer;
+#else
+
+    std::string buffer = environment_variable("TMPDIR");
+    if (!buffer.empty())
+        return buffer;
+
+#ifdef P_tmpdir
+    // 
+    // http://www.gnu.org/software/libc/manual/html_node/Temporary-Files.html#index-P_005ftmpdir-1608
+
+    return P_tmpdir;
+#endif
+
+    return "/tmp";
+#endif
 }
+
+fpath path_from_temp(const fpath& stem)
+{
+    ferror ferr;
+    fpath result = path_from_temp(ferr);
+
+    if (ferr)
+        throw ferr;
+
+    return path_append(result, stem);
+}
+
+fpath path_from_temp(const fpath& stem, ferror& ferr) noexcept
+{
+    return path_append(path_from_temp(ferr), stem);
+}
+
+fpath path_from_home()
+{
+    ferror ferr;
+    fpath result = path_from_home(ferr);
+
+    if (ferr)
+        throw ferr;
+    return result;
+}
+
+fpath path_from_home(ferror& ferr) noexcept
+{
+    ferr.clear();
+
+#if OS_WIN
+    return path_from_sysdir(CSIDL_PROFILE, ferr);
+
+#else
+    // 优先采用 HOME 环境变量, 再从/etc/passwd中读取
+    std::string buffer = environment_variable("HOME");
+    if (!buffer.empty())
+        return buffer;
+
+    //
+    // https://linux.die.net/man/3/getpwuid_r
+
+    size_t bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
+    if (bufsize == -1)          /* Value was indeterminate */
+        bufsize = 16384;        /* Should be more than enough */
+
+    buffer.resize(bufsize);
+
+    struct passwd pwd = {0};
+    struct passwd *result = nullptr;
+
+    // On success return zero, and set *result to pwd. 
+    // If no matching password record was found, 
+    // these functions return 0 and store NULL in *result. In case of error, 
+    // an error number is returned, and NULL is stored in *result.
+
+    int s = getpwuid_r(getuid(), &pwd, &buffer[0], buffer.size(), &result);
+    if (result == nullptr)
+    {
+        if (s == 0) // Not found
+            ferr = ferror(-1, "Can't read home directory, getpwuid_r() not content found.");
+        else
+            ferr = ferror(errno = s, "Can't read home directory, getpwuid_r() failed.");
+
+        return fpath();
+    }
+
+    return pwd.pw_dir;
+#endif
+}
+
+fpath path_from_home(const fpath& stem)
+{
+    ferror ferr;
+    fpath result = path_from_home(ferr);
+
+    if (ferr)
+        throw ferr;
+
+    return path_append(result, stem);
+}
+
+fpath path_from_home(const fpath& stem, ferror& ferr) noexcept
+{
+    return path_append(path_from_home(ferr), stem);
+}
+
+bool path_is_root(const fpath& path) noexcept
+{
+    if (path_is_unc(path))
+    {
+        // 1. \\servername\share
+        // 2. \\servername\share\
+        // 3. \\?\UNC\servername\share
+
+        size_t separator = 0;
+
+        if (path_is_win_long_path(path))
+            separator = path.find(detail::unc_separator, strlen(detail::unc_long_path_prefix));
+        else
+            separator = path.find(detail::unc_separator, 2);
+
+        if (separator != path.npos)
+        {
+            size_t next_separator = path.find(detail::unc_separator, separator + 1);
+            if (next_separator != path.npos)
+                return next_separator + 1 == path.size();
+
+            return separator + 1 < path.size();
+        }
+    }
+    else if (path_is_win_style(path) && path.size() >= 2)
+    {
+        // 1. C:
+        // 2. C:\
+        // 3. C:/
+        // 4. \\?\C:
+
+        auto colon = path.find(':');
+        if (colon != path.npos)
+        {
+            if ((colon + 1) == path.size())
+                return true;
+
+            return detail::is_win_separator(path[colon + 1]) && (colon + 2) == path.size();
+        }
+    }
+    else if (path.size() == 1)
+    {
+        return path[0] == detail::unix_style_root;
+    }
+
+    return false;
+}
+
+bool path_is_unc(const fpath& path) noexcept
+{
+    // 1. \\server\share
+    // 2. \\?\UNC\server\share
+
+    if (path_is_win_long_path(path))
+    {
+        if (path.index_of(detail::unc_long_path_prefix) != 0)
+            return false;
+
+        auto begin = strlen(detail::unc_long_path_prefix);
+
+        if (path.find(':', begin) != path.npos)
+            return false;
+
+        auto separator = path.find(detail::unc_separator, begin);
+        if (separator == path.npos)
+            return false;
+
+        return separator < path.size();
+    }
+    else
+    {
+        // 最短unc路径应该是: \\a\b
+        if (path.length() > 5)
+        {
+            // 以\\打头
+            if (path.at(0) == detail::unc_prefix &&
+                path.at(1) == detail::unc_prefix)
+            {
+                auto separator = path.find(detail::unc_separator, 2);
+                if (separator == path.npos)
+                    return false;
+
+                return (separator + 1) < path.size();
+            }
+        }
+    }
+
+    return false;
+}
+
+bool path_is_url(const fpath& path) noexcept
+{
+    if (path.length() > 4)
+    {
+        if (path.index_of("://") != fpath::npos)
+            return true;
+    }
+
+    return false;
+}
+
+bool path_is_win_style(const fpath& path) noexcept
+{
+    auto colon = path.find(':');
+
+    if (colon != path.npos)
+    {
+        // 不能以冒号开头
+        if (colon == 0)
+            return false;
+
+        // 冒号前必须是字母(盘符)
+        if (!std::isalpha(static_cast<char>(path[colon - 1])))
+            return false;
+
+        // 盘符只能为1个字母， 且盘符前只能为分割符 （windows驱动器号只有26个）
+        if (colon - 1 > 0 && !detail::is_win_separator(path[colon - 2]))
+            return false;
+
+        return true;
+    }
+
+    return path.find(detail::win_style_preferred_separator) != path.npos;
+}
+
+bool path_is_win_long_path(const fpath& path) noexcept
+{
+    return path.index_of(detail::win_style_long_path_prefix) == 0;
+}
+
+bool path_is_unix_style(const fpath& path) noexcept
+{
+    if (!path.empty() && 
+         path.at(0) == detail::unix_style_separator &&
+         path.find(detail::win_style_preferred_separator) == path.npos)
+    {
+        return true;
+    }
+
+    if (!path_is_win_style(path))
+    {
+        if (path.find(detail::unix_style_separator) != fpath::npos)
+            return true;
+    }
+
+    return false;
+}
+
+bool path_is_unc_style(const fpath& path) noexcept
+{
+    if (path.length() > 3)
+    {
+        if (path.at(0) == detail::unc_prefix && 
+            path.at(1) == detail::unc_prefix)
+        {
+            if (path_is_win_long_path(path))
+                return path.index_of(detail::unc_long_path_prefix) != path.npos;
+            else
+                return path.find(detail::unix_style_separator) == path.npos;
+        }
+    }
+
+    return false;
+}
+
+bool path_is_remote(const fpath& path) noexcept
+{
+#if OS_WIN
+    if (path.length() < 3)
+        return false;
+
+    if (path_is_unc(path))
+        return true;
+
+    if (iswalpha(path.at(0)))
+    {
+        int result = ::GetDriveTypeW(path_find_root(path).c_str());
+        if (result == DRIVE_REMOTE)
+            return true;
+    }
+#endif
+
+    return false;
+}
+
+bool path_is_writable(const fpath& path)
+{
+    ferror ferr;
+    bool result = path_is_writable(path, ferr);
+
+    if (ferr)
+        throw ferr;
+
+    return result;
+}
+
+bool path_is_writable(const fpath& path, ferror& ferr) noexcept
+{
+    ferr.clear();
+
+    fpath dir  = path;
+    fpath root = path_find_root(dir);
+
+    if (!file_exist(root, ferr))
+        return false;
+
+    while (!file_exist(dir, ferr))
+        dir = path_find_parent(dir);
+
+    fpath file = path_append(dir, L".2bcb023e-23f9-42f4-87f7-90d94005accb");
+    do
+    {
+        file_open(file, O_WRONLY | O_CREAT, ferr);
+        if (ferr) 
+            break;
+
+        file_remove(file, ferr);
+        if (ferr) 
+            break;
+
+        return true;
+    } while (false);
+
+    if (ferr)
+    {
+        switch (ferr.code())
+        {
+#if OS_POSIX
+        case EACCES:
+#else
+        case ERROR_ACCESS_DENIED:
+#endif
+            ferr.clear();
+            break;
+        }
+    }
+
+    return false;
+}
+
+std::string  path_append(
+    const std::string& path, const std::string& stem_1) noexcept
+{
+    return detail::_path_append(path, stem_1);
+}
+
+std::wstring path_append(
+    const std::wstring& path, const std::wstring& stem_1) noexcept
+{
+    return detail::_path_append(path, stem_1);
+}
+
+std::string  path_append(
+    const std::string& path, 
+    const std::string& stem_1, 
+    const std::string& stem_2) noexcept
+{
+    return detail::_path_append(detail::_path_append(path, stem_1), stem_2);
+}
+
+std::wstring path_append(
+    const std::wstring& path, 
+    const std::wstring& stem_1, 
+    const std::wstring& stem_2) noexcept
+{
+    return detail::_path_append(detail::_path_append(path, stem_1), stem_2);
+}
+
+std::string  path_find_root(const std::string& path) noexcept
+{
+    return detail::_path_find_root(path);
+}
+
+std::wstring path_find_root(const std::wstring& path) noexcept
+{
+    return detail::_path_find_root(path);
+}
+
+std::string  path_find_parent(const std::string& path) noexcept
+{
+    return detail::_path_find_parent(path);
+}
+
+std::wstring path_find_parent(const std::wstring& path) noexcept
+{
+    return detail::_path_find_parent(path);
+}
+
+std::string  path_find_filename(const std::string& path) noexcept
+{
+    return detail::_path_find_filename(path);
+}
+
+std::wstring path_find_filename(const std::wstring& path) noexcept
+{
+    return detail::_path_find_filename(path);
+}
+
+std::string  path_find_basename(const std::string& path) noexcept
+{
+    return detail::_path_find_basename(path);
+}
+
+std::wstring path_find_basename(const std::wstring& path) noexcept
+{
+    return detail::_path_find_basename(path);
+}
+
+std::string  path_find_extension(
+    const std::string& path, int flags /*= find_default*/) noexcept
+{
+    return detail::_path_find_extension(path, flags);
+}
+
+std::wstring path_find_extension(
+    const std::wstring& path, int flags /*= find_default*/) noexcept
+{
+    return detail::_path_find_extension(path, flags);
+}
+
+std::string  path_filename_trim(const std::string& filename) noexcept
+{
+    return detail::_path_filename_trim(filename);
+}
+
+std::wstring path_filename_trim(const std::wstring& filename) noexcept
+{
+    return detail::_path_filename_trim(filename);
+}
+
+std::string  path_filename_increment(const std::string& filename) noexcept
+{
+    return detail::_path_filename_increment(filename);
+}
+
+std::wstring path_filename_increment(const std::wstring& filename) noexcept
+{
+    return detail::_path_filename_increment(filename);
+}
+
+//! 
+//! windows 方面的扩展
+//! 
+#if OS_WIN
 
 fpath path_from_sysdir(int flag/* = 0*/)
 {
@@ -415,13 +975,13 @@ fpath path_from_sysdir(int flag/* = 0*/)
     return result;
 }
 
-fpath path_from_sysdir(int flag, ferror& ferr)
+fpath path_from_sysdir(int flag, ferror& ferr) noexcept
 {
     ferr.clear();
 
     // reference to shlobj.h line 1204
     int     csidl = (flag == 0 ? CSIDL_DESKTOP : flag);
-    wchar_t buffer[MAX_PATH] = { 0 };
+    wchar_t buffer[MAX_PATH + 1] = { 0 };
 
     if (!::SHGetSpecialFolderPathW(0, buffer, csidl, true))
         ferr = ferror(::GetLastError(), "Can't get special folder path");
@@ -438,7 +998,7 @@ void path_open_with_explorer(const fpath& path, bool select/* = true*/)
         throw ferr;
 }
 
-void path_open_with_explorer(const fpath& path, bool select, ferror& ferr)
+void path_open_with_explorer(const fpath& path, bool select, ferror& ferr) noexcept
 {
     ferr.clear();
     fpath param = L"/select, " + path;
@@ -452,251 +1012,6 @@ void path_open_with_explorer(const fpath& path, bool select, ferror& ferr)
     }
 }
 
-bool path_is_root(const fpath& path)
-{
-    if (path_is_unc_style(path))
-    {
-        // R"(\\servername\share)"
-        // R"(\\servername\share\)"
-
-        size_t pos = 2;
-        if ((pos = path.find(detail::unc_separator, pos)) != fpath::npos)
-        {
-            size_t next_pos = path.find(detail::unc_separator, std::min(pos + 1, path.size()));
-            if (next_pos != fpath::npos)
-                return next_pos + 1 == path.size();
-
-            return pos + 1 < path.size();
-        }
-    }
-    else if (path_is_win_style(path) && path.size() >= 3)
-    {
-        // R"(C:\)"
-        // R"(C:/)"
-        size_t pos = 0;
-        if ((pos = path.find(':', pos)) != fpath::npos)
-        {
-            return detail::is_separator(path[pos + 1]) && (pos + 2) == path.size();
-        }
-    }
-    else if (path.size() == 1)
-    {
-        return path[0] == detail::linux_style_root;
-    }
-
-    return false;
-}
-
-bool path_is_unc(const fpath& path)
-{
-    // Universal Naming Convention (UNC)
-    // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsc/149a3039-98ce-491a-9268-2f5ddef08192
-
-    if (path.length() > 5)
-    {
-        if (path.at(0) == detail::unc_prefix && path.at(1) == detail::unc_prefix)
-        {
-            size_t pos = path.find(detail::unc_separator, 2);
-            if (pos != fpath::npos && pos != path.size())
-                return true;
-        }
-    }
-
-    return false;
-}
-
-bool path_is_url(const fpath& path)
-{
-    if (path.length() > 4)
-    {
-        if (path.find(L"://") != fpath::npos)
-            return true;
-    }
-
-    return false;
-}
-
-bool path_is_win_style(const fpath& path)
-{
-    return path.find(':') != fpath::npos || 
-           path.find(detail::win_style_separator) != fpath::npos;
-}
-
-bool path_is_linux_style(const fpath& path)
-{
-    if (!path.empty() && path.at(0) == detail::linux_style_separator)
-        return true;
-
-    if (!path_is_win_style(path))
-    {
-        if (path.find(detail::linux_style_separator) != fpath::npos)
-            return true;
-    }
-
-    return false;
-}
-
-bool path_is_unc_style(const fpath& path)
-{
-    if(path.length() > 3)
-    {
-        if(path.at(0) == detail::unc_prefix && path.at(1) == detail::unc_prefix)
-            return path.find(detail::linux_style_separator) == fpath::npos;
-    }
-
-    return false;
-}
-
-bool path_is_remote(const fpath& path)
-{
-    if (path.length() < 3)
-        return false;
-
-    if (path_is_unc(path))
-        return true;
-
-    if (std::iswalpha(path.at(0)))
-    {
-        int result = ::GetDriveTypeW(path_find_root(path).c_str());
-        if (result == DRIVE_REMOTE)
-            return true;
-    }
-
-    return false;
-}
-
-bool path_is_writable(const fpath& path)
-{
-    ferror ferr;
-    bool result = path_is_writable(path, ferr);
-
-    if (ferr)
-        throw ferr;
-
-    return result;
-}
-
-bool path_is_writable(const fpath& path, ferror& ferr)
-{
-    ferr.clear();
-
-    fpath dir = path;
-    fpath root = path_find_root(dir);
-
-    if (!file_exist(root, ferr))
-        return false;
-
-    while (!file_exist(dir, ferr))
-        dir = path_find_parent(dir);
-
-    fpath file = path_append(dir, L"2BCB023E-23F9-42F4-87F7-90D94005ACCB");
-    do
-    {
-        file_open(file, O_WRONLY | O_CREAT, ferr);
-        if (ferr) 
-            break;
-
-        file_remove(file, ferr);
-        if (ferr) 
-            break;
-
-        return true;
-    } while (false);
-
-    if (ferr && ferr.code() == ERROR_ACCESS_DENIED)
-        ferr.clear();
-
-    return false;
-}
-
-std::string  path_append(
-    const std::string& path, const std::string& stem_1)
-{
-    return detail::_path_append(path, stem_1);
-}
-
-std::wstring path_append(
-    const std::wstring& path, const std::wstring& stem_1)
-{
-    return detail::_path_append(path, stem_1);
-}
-
-std::string  path_append(
-    const std::string& path, 
-    const std::string& stem_1, 
-    const std::string& stem_2)
-{
-    return detail::_path_append(detail::_path_append(path, stem_1), stem_2);
-}
-
-std::wstring path_append(
-    const std::wstring& path, 
-    const std::wstring& stem_1, 
-    const std::wstring& stem_2)
-{
-    return detail::_path_append(detail::_path_append(path, stem_1), stem_2);
-}
-
-std::string  path_find_root(const std::string& path)
-{
-    return detail::_path_find_root(path);
-}
-
-std::wstring path_find_root(const std::wstring& path)
-{
-    return detail::_path_find_root(path);
-}
-
-std::string  path_find_parent(const std::string& path)
-{
-    return detail::_path_find_parent(path);
-}
-
-std::wstring path_find_parent(const std::wstring& path)
-{
-    return detail::_path_find_parent(path);
-}
-
-std::string  path_find_filename(const std::string& path)
-{
-    return detail::_path_find_filename(path);
-}
-
-std::wstring path_find_filename(const std::wstring& path)
-{
-    return detail::_path_find_filename(path);
-}
-
-std::string  path_find_extension(
-    const std::string& path, bool hasdot/* = true*/, bool lower/* = true*/)
-{
-    return detail::_path_find_extension(path, hasdot, lower);
-}
-
-std::wstring path_find_extension(
-    const std::wstring& path, bool hasdot/* = true*/, bool lower/*  = true*/)
-{
-    return detail::_path_find_extension(path, hasdot, lower);
-}
-
-std::string  path_filename_trim(const std::string& filename)
-{
-    return detail::_path_filename_trim(filename);
-}
-
-std::wstring path_filename_trim(const std::wstring& filename)
-{
-    return detail::_path_filename_trim(filename);
-}
-
-std::string  path_filename_increment(const std::string& filename)
-{
-    return detail::_path_filename_increment(filename);
-}
-
-std::wstring path_filename_increment(const std::wstring& filename)
-{
-    return detail::_path_filename_increment(filename);
-}
+#endif // OS_WIN
 
 } // util

@@ -22,24 +22,33 @@ if(WIN32)
 endif()
 
 if(UTILITY_SUPPORT_BOOST)
-	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BOOST)
+    list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BOOST)
 endif()
 
 if(UTILITY_SUPPORT_QT)
-	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_QT)
+    list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_QT)
 endif()
 
 if(UTILITY_BUILD_SHARED_LIB)
-	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_BUILD_SHARED_LIB)
+    list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_BUILD_SHARED_LIB)
 else()
-	list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_BUILD_STATIC_LIB)
+    list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_BUILD_STATIC_LIB)
 endif()
 
 # 静态运行时
 if(MSVC AND UTILITY_ENABLE_STATIC_RUNTIME)
-	foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-		string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-	endforeach(flag_var)
+    foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endforeach(flag_var)
+endif()
+
+# 如果编译器支持则启用c++最新特性
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_17_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++17")
+    endif()
 endif()
 
 # 重定向生成目录
@@ -63,9 +72,13 @@ link_directories("${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 if(UTILITY_SUPPORT_BOOST)
-    find_package(Boost REQUIRED thread serialization)
+    set(UTILITY_BOOST_SUPPORT_AUTOLINK ON)
+    set(Boost_USE_STATIC_LIBS ON)
+    set(Boost_USE_STATIC_RUNTIME ${UTILITY_ENABLE_STATIC_RUNTIME})
+    find_package(Boost REQUIRED filesystem thread serialization)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
+    add_compile_definitions(BOOST_LIB_DIAGNOSTIC=1)
 endif()
 
 if(UTILITY_SUPPORT_QT)
@@ -82,15 +95,15 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/utility.hpp.in"
 
 # 子目录
 add_subdirectory(string)
-# add_subdirectory(process)
 add_subdirectory(platform)
-# add_subdirectory(filesystem)
-# add_subdirectory(common)
+add_subdirectory(filesystem)
+add_subdirectory(common)
+add_subdirectory(process)
 
 # 单元测试
 if(UTILITY_BUILD_TEST)
-	enable_testing()
-	add_subdirectory(test)
+    # enable_testing()
+    add_subdirectory(test)
 endif()
 
 # 安装公共头文件

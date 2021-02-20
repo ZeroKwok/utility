@@ -14,13 +14,13 @@
 namespace util {
 
 /*!
- *  /brief  Ìá¹©Óë½ø³ÌÏà¹ØµÄÀ©Õ¹²Ù×÷:
+ *  /brief  æä¾›ä¸Žè¿›ç¨‹ç›¸å…³çš„æ‰©å±•æ“ä½œ:
  *  <ul>
- *      <li> Í¨¹ý´«µÝhide_window²ßÂÔ, ¾ö¶¨½ø³ÌÊÇ·ñÏÔÊ¾´°¿ÚÆô¶¯;
- *      <li> Í¨¹ý´«µÝelevate_privileges²ßÂÔ, ¾ö¶¨½ø³ÌÊÇ·ñÒÔ¹ÜÀíÔ±ÌØÈ¨Ä£Ê½Æô¶¯;
- *      <li> Í¨¹ý´«µÝdepress_privileges²ßÂÔ, ¾ö¶¨½ø³ÌÊÇ·ñÒÔ±ê×¼ÌØÈ¨Ä£Ê½Æô¶¯;
+ *      <li> é€šè¿‡ä¼ é€’hide_windowç­–ç•¥, å†³å®šè¿›ç¨‹æ˜¯å¦æ˜¾ç¤ºçª—å£å¯åŠ¨;
+ *      <li> é€šè¿‡ä¼ é€’elevate_privilegesç­–ç•¥, å†³å®šè¿›ç¨‹æ˜¯å¦ä»¥ç®¡ç†å‘˜ç‰¹æƒæ¨¡å¼å¯åŠ¨;
+ *      <li> é€šè¿‡ä¼ é€’depress_privilegesç­–ç•¥, å†³å®šè¿›ç¨‹æ˜¯å¦ä»¥æ ‡å‡†ç‰¹æƒæ¨¡å¼å¯åŠ¨;
  *  <ul>
- *  /note   ´ËÀàÉè¼ÆµÄÄ¿ÊÇ²¹³äboost::process¶ø·Ç´úÌæ, ¹ÊÔÚÓ¦ÓÃÊ±ÓÅÏÈ¿¼ÂÇboost;
+ *  /note   æ­¤ç±»è®¾è®¡çš„ç›®æ˜¯è¡¥å……boost::processè€Œéžä»£æ›¿, æ•…åœ¨åº”ç”¨æ—¶ä¼˜å…ˆè€ƒè™‘boost;
  */
 class process
 {
@@ -32,36 +32,36 @@ public:
 
     enum launch_policy
     {
-        defaulted           = 0x00,     ///< Ä¬ÈÏ
-        hide_window         = 0x01,     ///< Òþ²Ø´°¿Ú
+        defaulted           = 0x00,     ///< é»˜è®¤
+        hide_window         = 0x01,     ///< éšè—çª—å£
         with_shell          = 0x02,     ///< shell
 
-        elevate_privileges  = 0x04,     ///< ÌáÉýÈ¨ÏÞ
-        depress_privileges  = 0x08,     ///< ½µµÍÈ¨ÏÞ
+        elevate_privileges  = 0x04,     ///< æå‡æƒé™
+        depress_privileges  = 0x08,     ///< é™ä½Žæƒé™
     };
     typedef int launch_policys;
 
-    /// ÊµÀý»¯ÎÞÐ§µÄ¶ÔÏó, ¼´vaild() == false;
+    /// å®žä¾‹åŒ–æ— æ•ˆçš„å¯¹è±¡, å³vaild() == false;
     process();
 
     /*!
-     *  /brief  ´ÓpidÊµÀý»¯¶ÔÏó;
-     *  /note   Í¬boost.processÏàÍ¬, Õâ²»±£Ö¤³É¹¦, ÒòÎªÐèÒªÕýÈ·µÄ·ÃÎÊÈ¨ÏÞ, 
-     *          ¿ÉÒÔÍ¨¹ýerror, vaild()ÑéÖ¤ÊÇ·ñ³É¹¦;
+     *  /brief  ä»Žpidå®žä¾‹åŒ–å¯¹è±¡;
+     *  /note   åŒboost.processç›¸åŒ, è¿™ä¸ä¿è¯æˆåŠŸ, å› ä¸ºéœ€è¦æ­£ç¡®çš„è®¿é—®æƒé™, 
+     *          å¯ä»¥é€šè¿‡error, vaild()éªŒè¯æ˜¯å¦æˆåŠŸ;
      */
     explicit process(pid_t pid, platform_error& error);
 
      /*!
-      *  /brief  Í¨¹ý´´½¨½ø³ÌµÄ·½Ê½ÊµÀý»¯¶ÔÏó;
-      *  /param  app  ÎÄ¼þÃû, µ±²»°üº¬ÎÄ¼þÃûÊ±, ²»»á¼ìË÷ËÑË÷Â·¾¶, »á¼ìË÷µ±Ç°Ä¿Â¼, 
-      *               ±ØÐë°üº¬À©Õ¹Ãû. ¸Ã²ÎÊý¿ÉÒÔÎª¿Õ, ´ËÊ±½«´Ócmd²ÎÊýÑ°ÕÒ¿ÉÖ´ÐÐÎÄ¼þ;
+      *  /brief  é€šè¿‡åˆ›å»ºè¿›ç¨‹çš„æ–¹å¼å®žä¾‹åŒ–å¯¹è±¡;
+      *  /param  app  æ–‡ä»¶å, å½“ä¸åŒ…å«æ–‡ä»¶åæ—¶, ä¸ä¼šæ£€ç´¢æœç´¢è·¯å¾„, ä¼šæ£€ç´¢å½“å‰ç›®å½•, 
+      *               å¿…é¡»åŒ…å«æ‰©å±•å. è¯¥å‚æ•°å¯ä»¥ä¸ºç©º, æ­¤æ—¶å°†ä»Žcmdå‚æ•°å¯»æ‰¾å¯æ‰§è¡Œæ–‡ä»¶;
       * 
-      *  /param  cmd  ÃüÁîÐÐ²ÎÊý, ÈôappÎª¿Õ, ÔòÐèÒª°üº¬¿ÉÖ´ÐÐÎÄ¼þ, ÕâÀï»á´ÓÏµÍ³ËÑË÷Ä¿Â¼²éÕÒ¿ÉÖ´ÐÐÎÄ¼þ,
-      *               Èç¹û²»°üº¬À©Õ¹ÃûÔò¼Ù¶¨.exe;
-      *  /param  policy Æô¶¯²ßÂÔ, ²Î¼ûlaunch_policy;
-      *  /param  error  Èô·¢Éú´íÎó, ¸Ã²ÎÊý½«±»ÉèÖÃ;
+      *  /param  cmd  å‘½ä»¤è¡Œå‚æ•°, è‹¥appä¸ºç©º, åˆ™éœ€è¦åŒ…å«å¯æ‰§è¡Œæ–‡ä»¶, è¿™é‡Œä¼šä»Žç³»ç»Ÿæœç´¢ç›®å½•æŸ¥æ‰¾å¯æ‰§è¡Œæ–‡ä»¶,
+      *               å¦‚æžœä¸åŒ…å«æ‰©å±•ååˆ™å‡å®š.exe;
+      *  /param  policy å¯åŠ¨ç­–ç•¥, å‚è§launch_policy;
+      *  /param  error  è‹¥å‘ç”Ÿé”™è¯¯, è¯¥å‚æ•°å°†è¢«è®¾ç½®;
       * 
-      *  /note   Í¬boost.processÏàÍ¬, Õâ²»±£Ö¤³É¹¦, ¿ÉÒÔÍ¨¹ýerror, vaild()ÑéÖ¤ÊÇ·ñ³É¹¦;
+      *  /note   åŒboost.processç›¸åŒ, è¿™ä¸ä¿è¯æˆåŠŸ, å¯ä»¥é€šè¿‡error, vaild()éªŒè¯æ˜¯å¦æˆåŠŸ;
       */
     explicit process(
         const util::tstring& app, 
@@ -70,9 +70,9 @@ public:
         platform_error& error);
 
     /*!
-     *  /brief  Ïú»Ù¶ÔÏó
-     *  /note   Èç¹û¶ÔÏóÓÐÐ§vaild() == true, ½«Í¨¹ýstd::terminate()ÖÕÖ¹½ø³Ì.
-     *          ¼´, ÔÚ¶ÔÏóÏú»ÙÇ°, ±ØÐëµ÷ÓÃJoin()»òÕßdetach(), ÆäÄ¿µÄÔÚÓÚ·À´ô;
+     *  /brief  é”€æ¯å¯¹è±¡
+     *  /note   å¦‚æžœå¯¹è±¡æœ‰æ•ˆvaild() == true, å°†é€šè¿‡std::terminate()ç»ˆæ­¢è¿›ç¨‹.
+     *          å³, åœ¨å¯¹è±¡é”€æ¯å‰, å¿…é¡»è°ƒç”¨Join()æˆ–è€…detach(), å…¶ç›®çš„åœ¨äºŽé˜²å‘†;
      */
     ~process();
 
@@ -88,18 +88,18 @@ public:
     bool running();
 
      /*!
-     *  /brief  µÈ´ý½ø³Ì½áÊø»òÕß³¬Ê±
-     *  /param millisec -1 ±íÊ¾ÎÞÏÞµÈ´ý, Ö±µ½Ä¿±ê½ø³ÌÖÕÖ¹, ·ñÔòÊÇÒ»¸öÒÔºÁÃë¼ÆµÄÊ±¼ä;
-     *  /param error       Èô¸Ã²Ù×÷·¢ÉúÁË´íÎó, ½«»áÉèÖÃµ½¸Ã²ÎÊý;
+     *  /brief  ç­‰å¾…è¿›ç¨‹ç»“æŸæˆ–è€…è¶…æ—¶
+     *  /param millisec -1 è¡¨ç¤ºæ— é™ç­‰å¾…, ç›´åˆ°ç›®æ ‡è¿›ç¨‹ç»ˆæ­¢, å¦åˆ™æ˜¯ä¸€ä¸ªä»¥æ¯«ç§’è®¡çš„æ—¶é—´;
+     *  /param error       è‹¥è¯¥æ“ä½œå‘ç”Ÿäº†é”™è¯¯, å°†ä¼šè®¾ç½®åˆ°è¯¥å‚æ•°;
      * 
-     *  /note   ²»ÄÜµÈ´ý×ÔÉí, ·ñÔò½«µÃµ½Ò»¸ö´íÎó, ¼ì²éerror;
+     *  /note   ä¸èƒ½ç­‰å¾…è‡ªèº«, å¦åˆ™å°†å¾—åˆ°ä¸€ä¸ªé”™è¯¯, æ£€æŸ¥error;
      */
     bool wait_until(int millisec, platform_error& error);
 
     /*!
-     *  /brief  ÎÞÌõ¼þÖÕÖ¹½ø³Ì
-     *  /note   ¸Ã²Ù×÷ÊÇÒì²½µÄ, Ò²¾ÍÊÇËµµ±¸Ã·½·¨·µ»Øºó, Ä¿±ê½ø³Ì¿ÉÄÜÈÔÈ»ÔÚÔËÐÐ, 
-     *          ÈôÒªÈ·±£Ä¿±ê½ø³ÌÒÑ¾­½áÊø, ¿ÉÒÔµ÷ÓÃjoin()»òÕßwait_until();
+     *  /brief  æ— æ¡ä»¶ç»ˆæ­¢è¿›ç¨‹
+     *  /note   è¯¥æ“ä½œæ˜¯å¼‚æ­¥çš„, ä¹Ÿå°±æ˜¯è¯´å½“è¯¥æ–¹æ³•è¿”å›žåŽ, ç›®æ ‡è¿›ç¨‹å¯èƒ½ä»ç„¶åœ¨è¿è¡Œ, 
+     *          è‹¥è¦ç¡®ä¿ç›®æ ‡è¿›ç¨‹å·²ç»ç»“æŸ, å¯ä»¥è°ƒç”¨join()æˆ–è€…wait_until();
      */
     void terminate(platform_error& error);
 

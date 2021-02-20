@@ -2,8 +2,6 @@
 #   include "../registry_win.hpp"
 #endif
 
-#if OS_WIN
-
 #include <windows.h>
 #include <platform/platform_error.hpp>
 
@@ -1111,5 +1109,3 @@ std::vector<std::pair<std::wstring, registry_value_types>>
 
 } // win
 } // util
-
-#endif // OS_WIN

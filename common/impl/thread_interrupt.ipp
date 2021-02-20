@@ -2,16 +2,19 @@
 #   include "../thread_interrupt.hpp"
 #endif
 
-#if UTILITY_SUPPORT_BOOST
+#ifndef UTILITY_SUPPORT_BOOST
+#   error thread_interrupt.ipp needs Boost support
+#endif
 
 #include <boost/atomic.hpp>
 #include <boost/thread/tss.hpp>
+#include <platform/platform_util.hpp>
 
 namespace util {
 namespace interrupt {
 namespace detail {
 
-/* 线程本地存储 */
+/* 绾跨▼鏈湴瀛樺偍 */
 boost::thread_specific_ptr<boost::atomic_int32_t> __threadlocal;
 
 } // detail
@@ -95,12 +98,12 @@ void thread_interrupt_point(
     {
         int32_t intflags = thread_interrupt_flags(-1);
 #if defined(_DEBUG) && (NTDDI_VERSION > NTDDI_WINXP)
-        util::output_debug_string(
+        util::win::output_debug_string(
             util::sformat(
                 L"thread_interrupt_point(%08x)\n"
                 L"\tthrow thread_interrupted(%08x, %08x) at:\n",
                 flags, intflags, param) +
-            util::stack_trace(1));
+            util::win::stack_trace(1));
 #endif
         throw thread_interrupted(intflags, param);
     }
@@ -111,16 +114,14 @@ void thread_interrupt_trigger(
     const boost::any& param/* = boost::any()*/)
 {
 #if defined(_DEBUG) && (NTDDI_VERSION > NTDDI_WINXP)
-    util::output_debug_string(
+    util::win::output_debug_string(
         util::sformat(
             L"throw thread_interrupted(%08x, %08x) at:\n",
             flags, param) +
-        util::stack_trace(1));
+        util::win::stack_trace(1));
 #endif
     throw thread_interrupted(flags, param);
 }
 
 } // interrupt
 } // util
-
-#endif // UTILITY_SUPPORT_BOOST

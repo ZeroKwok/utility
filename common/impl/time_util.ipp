@@ -3,14 +3,19 @@
 #endif
 
 #include <time.h>
-#include <windows.h>
-#include <common/simple_lock.hpp>
 #include <string/string_util.hpp>
 #include <string/string_conv_easy.hpp>
+#include <platform/platform_util.hpp>
 
-#ifdef OS_WIN
-#   pragma comment(lib, "Winmm.lib")
+#if UTILITY_SUPPORT_BOOST
+#   include <boost/date_time.hpp>
+#   include <boost/date_time/c_local_time_adjustor.hpp>
 #endif
+
+#if OS_WIN
+#   include <windows.h>
+#   include <common/simple_lock.hpp>
+#   pragma comment(lib, "Winmm.lib")
 
 namespace util {
 namespace detail {
@@ -57,6 +62,27 @@ int64_t time_ticks_now()
     return detail::rollover_protected_now();
 }
 
+int64_t epoch_from_filetime(FILETIME ft)
+{
+    // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME
+    ULARGE_INTEGER  epoch;
+    epoch.LowPart = 0xD53E8000;
+    epoch.HighPart = 0x019DB1DE;
+
+    ULARGE_INTEGER ts;
+    ts.LowPart = ft.dwLowDateTime;
+    ts.HighPart = ft.dwHighDateTime;
+    ts.QuadPart -= epoch.QuadPart;
+
+    return ts.QuadPart / 10; // microsecond
+}
+
+} // util
+
+#endif // OS_WIN
+
+namespace util {
+
 void timezone_information(timezone_t& zone)
 {
     time_t time_utc;
@@ -74,7 +100,7 @@ void timezone_information(timezone_t& zone)
 #endif
 
     // Change it to Greenwich Mean Time(GMT) tm
-#ifdef OS_LINUX
+#ifdef OS_POSIX
     gmtime_r(&time_utc, &tm_gmt);
 #else
     gmtime_s(&tm_gmt, &time_utc);
@@ -92,8 +118,12 @@ std::string time_gmt()
 {
     struct tm tm_local = { 0 };
     time_t time_utc = time(0);
-
+    
+#if OS_POSIX
+    localtime_r(&time_utc, &tm_local);
+#else
     localtime_s(&tm_local, &time_utc);
+#endif
 
     char strTime[20] = { 0 };
     strftime(&strTime[0], sizeof strTime, "%Y-%m-%d %H:%M:%S", &tm_local);
@@ -102,8 +132,13 @@ std::string time_gmt()
     timezone_information(zone);
 
     char strZone[30] = { 0 };
+#if OS_POSIX
+    sprintf(&strZone[0], " %s%02d%02d",
+        zone.duration < 0 ? "-" : "+", zone.hours, zone.minutes);
+#else
     sprintf_s(&strZone[0], sizeof strZone, " %s%02d%02d", 
         zone.duration < 0 ? "-" : "+", zone.hours, zone.minutes);
+#endif
 
     return std::string(strTime) + strZone;
 }
@@ -113,17 +148,17 @@ std::wstring wtime_gmt()
     return conv::easy::_2wstr(time_gmt());
 }
 
-// localtime_s°æ±¾time ²»ÄÜÎª¸ºÊý, ¼´²»ÄÜ¸ñÊ½»¯epoch¼ÍÔªÖ®Ç°µÄÊ±¼ä;
-// boost      °æ±¾time ²»ÄÜÎª¸ºÊý, ÊÜµ¼ÖÂutc_to_local;
+// localtime_sç‰ˆæœ¬time ä¸èƒ½ä¸ºè´Ÿæ•°, å³ä¸èƒ½æ ¼å¼åŒ–epochçºªå…ƒä¹‹å‰çš„æ—¶é—´;
+// boost      ç‰ˆæœ¬time ä¸èƒ½ä¸ºè´Ÿæ•°, å—å¯¼è‡´utc_to_local;
 std::string format_epoch(
     time_t time, const char* format/* = "%d-%m-%Y %H:%M, %a"*/)
 {
     tm localtime = {0, 0, 0, 1, 0, 70,};
 
-#ifdef CONFIG_SUPPORT_BOOST
+#if UTILITY_SUPPORT_BOOST
     try
     {
-        //                                                 from_time_t ²»Ö§³Ö64Î»Ê±¼ä´Á
+        //                                                 from_time_t ä¸æ”¯æŒ64ä½æ—¶é—´æˆ³
         //boost::posix_time::ptime pt = boost::posix_time::from_time_t(time);
         boost::posix_time::ptime pt(boost::gregorian::date(1970, 1, 1));
                                  pt += boost::posix_time::time_duration(0, 0, time);
@@ -149,24 +184,8 @@ std::string format_epoch(
 std::wstring wformat_epoch(
     time_t time, const wchar_t* format/* = L"%d-%m-%Y %H:%M, %a"*/)
 {
-    return conv::easy::_2wstr(format_epoch(time, conv::easy::_2str(format).data()));
+    using namespace conv::easy;
+    return _2wstr(format_epoch(time, _2str(format).data()));
 }
-
-#ifdef OS_WIN
-int64_t epoch_from_filetime(FILETIME ft)
-{
-    // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME
-    ULARGE_INTEGER  epoch;
-    epoch.LowPart = 0xD53E8000;
-    epoch.HighPart = 0x019DB1DE;
-
-    ULARGE_INTEGER ts;
-    ts.LowPart = ft.dwLowDateTime;
-    ts.HighPart = ft.dwHighDateTime;
-    ts.QuadPart -= epoch.QuadPart;
-
-    return ts.QuadPart / 10; // microsecond
-}
-#endif
 
 } // util

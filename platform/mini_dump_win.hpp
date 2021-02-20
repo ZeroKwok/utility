@@ -7,11 +7,8 @@
 *  v0.1 2019-02 By GuoJH
 */
 
-#include <utility.hpp>
-
-#if OS_WIN
-
 #include <functional>
+#include <utility.hpp>
 #include <platform/platform_cfg.hpp>
 #include <platform/platform_error.hpp>
 
@@ -56,8 +53,6 @@ protected:
 
 } // win
 } // util
-
-#endif // OS_WIN
 
 #ifndef UTILITY_DISABLE_HEADONLY
 #   include "impl/mini_dump_win.ipp "

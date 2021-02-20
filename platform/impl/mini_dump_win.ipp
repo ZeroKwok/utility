@@ -2,8 +2,6 @@
 #   include "../mini_dump_win.hpp"
 #endif
 
-#if OS_WIN
-
 #include <ctime>
 #include <windows.h>
 #include <DbgHelp.h>
@@ -186,11 +184,12 @@ void mini_dump::init()
     if(!__inited)
     {
         __inited = true;
+
+        // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setunhandledexceptionfilter
+        // 
         ::SetUnhandledExceptionFilter(detail::UnhandledExceptionFilter);
     }
 }
 
 } // win
 } // util
-
-#endif // OS_WIN

@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 project(string CXX)
 
 if(UTILITY_BUILD_SHARED_LIB)
-	add_library(${PROJECT_NAME} SHARED impl/string.cpp)
+    add_library(${PROJECT_NAME} SHARED impl/string.cpp)
 else()
-	add_library(${PROJECT_NAME} STATIC impl/string.cpp)
+    add_library(${PROJECT_NAME} STATIC impl/string.cpp)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE 

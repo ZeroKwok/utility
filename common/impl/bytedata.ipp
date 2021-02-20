@@ -8,7 +8,7 @@
 namespace util {
 namespace detail {
 
-// charÄÚÈİ×ªÎª16½øÖÆ×Ö·û
+// charå†…å®¹è½¬ä¸º16è¿›åˆ¶å­—ç¬¦
 inline bool _hex_from_character(char ch, char& hex)
 {
     // is the ch a number(0~9)?
@@ -24,14 +24,18 @@ inline bool _hex_from_character(char ch, char& hex)
     return true;
 }
 
-// base64 Ö§³Ö
+// base64 æ”¯æŒ
 #include "base64.hpp"
 
 } // detail
 
 void bytes_into_memory(void* address, int length, const bytedata& bytes)
 {
+#if OS_WIN
     ::memcpy_s(address, length, &bytes[0], bytes.size());
+#else
+    memcpy(address, &bytes[0], bytes.size());
+#endif
 }
 
 std::string bytes_into_hex(
@@ -58,7 +62,7 @@ bytedata bytes_from_hex(const std::string& hex)
 {
     std::vector<char> hex_array;
 
-    // Èô´æÔÚ0x, ÔòÌø¹ı
+    // è‹¥å­˜åœ¨0x, åˆ™è·³è¿‡
     int pos = 0;
     if (hex.size() > 2)
     {

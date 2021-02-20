@@ -7,12 +7,9 @@
 *   v0.1 2020-12 By GuoJH
 */
 
-#include <utility.hpp>
-
-#if OS_POSIX
-
-#include <string>
-#include <platform/platform_cfg.hpp>
+#ifndef platform_util_h__
+#   include <platform/platform_util.hpp>
+#endif
 
 namespace util{
 namespace posix{
@@ -23,8 +20,6 @@ UTILITY_FUNCT_DECL std::wstring wformat_error(int error_code);
 
 } // posix
 } // util
-
-#endif // OS_POSIX
 
 #ifndef UTILITY_DISABLE_HEADONLY
 #   include "impl/platform_unix.ipp"

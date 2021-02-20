@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <platform/mini_dump.hpp>
 #include <filesystem/path_util.hpp>
+#include <platform/mini_dump_win.hpp>
 
 TEST(platform, mini_dump)
 {
@@ -18,6 +18,12 @@ TEST(platform, mini_dump)
 
     EXPECT_TRUE(util::file_exist(file));
     
+    // 这里触发的异常会被gtest的__try拦截，故崩溃处理将无法响应
+    // 2021-2-18
+
     // 触发异常
-    *((int*)0) = 3;
+    // *((int*)0) = 3;
+
+    util::file_remove(file);
+    util::directories_remove("dump");
 }

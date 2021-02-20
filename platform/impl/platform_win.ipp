@@ -2,15 +2,99 @@
 #   include "../platform_win.hpp"
 #endif
 
-#if OS_WIN
-
 #include <windows.h>
 #include <string/string_util.hpp>
 #include <string/string_conv_easy.hpp>
 #include <platform/registry_win.hpp>
 
+#include "dbghelp_api.hpp"
+
 namespace util{
 namespace win {
+
+// Determine the mandatory level of a SID
+HRESULT get_sid_integrity_level(PSID sid, MANDATORY_LEVEL* level)
+{
+    static SID_IDENTIFIER_AUTHORITY mandatory_label_auth =
+        SECURITY_MANDATORY_LABEL_AUTHORITY;
+
+    if (!IsValidSid(sid))
+        return E_FAIL;
+
+    SID_IDENTIFIER_AUTHORITY* authority = ::GetSidIdentifierAuthority(sid);
+    if (!authority)
+        return E_FAIL;
+
+    if (memcmp(authority, &mandatory_label_auth, sizeof(SID_IDENTIFIER_AUTHORITY)))
+        return E_FAIL;
+
+    PUCHAR count = ::GetSidSubAuthorityCount(sid);
+    if (!count || *count != 1)
+        return E_FAIL;
+
+    DWORD* rid = ::GetSidSubAuthority(sid, 0);
+    if (!rid)
+        return E_FAIL;
+
+    if ((*rid & 0xFFF) != 0 || *rid > SECURITY_MANDATORY_PROTECTED_PROCESS_RID)
+        return E_FAIL;
+
+    *level = static_cast<MANDATORY_LEVEL>(*rid >> 12);
+    return S_OK;
+}
+
+// Determine the mandatory level of a process
+// processID, the process to query, or (0) to use the current process
+// On Vista, level should always be filled in with either
+//     MandatoryLevelLow (IE)
+//     MandatoryLevelMedium(user), or
+//     MandatoryLevelHigh( Elevated Admin)
+// On error, level remains unchanged
+HRESULT get_process_integrity_level(DWORD process_id, MANDATORY_LEVEL* level)
+{
+    if (!is_running_on_vista_or_higher())
+        return E_NOTIMPL;
+
+    if (process_id == 0)
+        process_id = ::GetCurrentProcessId();
+
+    HRESULT result = E_FAIL;
+    HANDLE process = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process_id);
+
+    if (process != NULL)
+    {
+        HANDLE current_token;
+        if (::OpenProcessToken(process,
+            TOKEN_QUERY | TOKEN_QUERY_SOURCE,
+            &current_token))
+        {
+            DWORD label_size = 0;
+            TOKEN_MANDATORY_LABEL* label;
+            ::GetTokenInformation(current_token,
+                TokenIntegrityLevel,
+                NULL,
+                0,
+                &label_size);
+            if (label_size && (label = reinterpret_cast<TOKEN_MANDATORY_LABEL*>
+                (::LocalAlloc(LPTR, label_size))) != NULL)
+            {
+                if (::GetTokenInformation(current_token,
+                    TokenIntegrityLevel,
+                    label,
+                    label_size,
+                    &label_size))
+                {
+                    result = get_sid_integrity_level(label->Label.Sid, level);
+                }
+                ::LocalFree(label);
+            }
+            ::CloseHandle(current_token);
+        }
+        ::CloseHandle(process);
+    }
+
+    return result;
+}
 
 // Returns true, if this program running on Wow64.
 // That is, 32-bit programs run on 64-bit systems.
@@ -98,21 +182,21 @@ bool is_running_on_win7_sp1_or_higher()
 // Vista, it only returns true if the admin is running elevated.
 bool is_user_admin()
 {
-	SID_IDENTIFIER_AUTHORITY nt_authority = SECURITY_NT_AUTHORITY;
-	PSID administrators_group = NULL;
-	BOOL result = ::AllocateAndInitializeSid(&nt_authority,
-											 2,
-											 SECURITY_BUILTIN_DOMAIN_RID,
-											 DOMAIN_ALIAS_RID_ADMINS,
-											 0, 0, 0, 0, 0, 0,
-											 &administrators_group);
-	if (result)
-	{
-		if (!::CheckTokenMembership(NULL, administrators_group, &result))
-			result = false;
-		::FreeSid(administrators_group);
-	}
-	return !!result;
+    SID_IDENTIFIER_AUTHORITY nt_authority = SECURITY_NT_AUTHORITY;
+    PSID administrators_group = NULL;
+    BOOL result = ::AllocateAndInitializeSid(&nt_authority,
+                                             2,
+                                             SECURITY_BUILTIN_DOMAIN_RID,
+                                             DOMAIN_ALIAS_RID_ADMINS,
+                                             0, 0, 0, 0, 0, 0,
+                                             &administrators_group);
+    if (result)
+    {
+        if (!::CheckTokenMembership(NULL, administrators_group, &result))
+            result = false;
+        ::FreeSid(administrators_group);
+    }
+    return !!result;
 }
 
 // Returns true if the user is running as a non-elevated admin in case of
@@ -222,11 +306,11 @@ bool set_thread_name(const std::string& name, int thread_id/* = -1*/)
     } THREADNAME_INFO;
 #pragma pack(pop)
 
-	THREADNAME_INFO info;
-	info.dwType     = 0x1000;
-	info.szName     = name.c_str();
-	info.dwThreadID = thread_id;
-	info.dwFlags    = 0;
+    THREADNAME_INFO info;
+    info.dwType     = 0x1000;
+    info.szName     = name.c_str();
+    info.dwThreadID = thread_id;
+    info.dwFlags    = 0;
 
     __try
     {
@@ -440,91 +524,153 @@ bool is_network_error(int error_code)
     return false;
 }
 
-// Determine the mandatory level of a SID
-HRESULT get_sid_integrity_level(PSID sid, MANDATORY_LEVEL* level)
+bool is_supported_stack_trace()
 {
-    static SID_IDENTIFIER_AUTHORITY mandatory_label_auth =
-        SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-    if (!IsValidSid(sid))
-        return E_FAIL;
-
-    SID_IDENTIFIER_AUTHORITY* authority = ::GetSidIdentifierAuthority(sid);
-    if (!authority)
-        return E_FAIL;
-
-    if (memcmp(authority, &mandatory_label_auth, sizeof(SID_IDENTIFIER_AUTHORITY)))
-        return E_FAIL;
-
-    PUCHAR count = ::GetSidSubAuthorityCount(sid);
-    if (!count || *count != 1)
-        return E_FAIL;
-
-    DWORD* rid = ::GetSidSubAuthority(sid, 0);
-    if (!rid)
-        return E_FAIL;
-
-    if ((*rid & 0xFFF) != 0 || *rid > SECURITY_MANDATORY_PROTECTED_PROCESS_RID)
-        return E_FAIL;
-
-    *level = static_cast<MANDATORY_LEVEL>(*rid >> 12);
-    return S_OK;
+#if (NTDDI_VERSION > NTDDI_WINXP)
+    return winapi::init_dbghelp_api();
+#else
+    return false;
+#endif
 }
 
-// Determine the mandatory level of a process
-// processID, the process to query, or (0) to use the current process
-// On Vista, level should always be filled in with either
-//     MandatoryLevelLow (IE)
-//     MandatoryLevelMedium(user), or
-//     MandatoryLevelHigh( Elevated Admin)
-// On error, level remains unchanged
-HRESULT get_process_integrity_level(DWORD process_id, MANDATORY_LEVEL* level)
+bool get_stack_frame(call_stack_t& frames, int skip/* = 0*/, int capture/* = 5*/)
 {
-    if (!is_running_on_vista_or_higher())
-        return E_NOTIMPL;
+    if (!is_supported_stack_trace())
+        return false;
 
-    if (process_id == 0)
-        process_id = ::GetCurrentProcessId();
+#if (NTDDI_VERSION > NTDDI_WINXP)
+    HANDLE hProcess = ::GetCurrentProcess();
 
-    HRESULT result = E_FAIL;
-    HANDLE process = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process_id);
+    //
+    // https://docs.microsoft.com/zh-cn/windows/win32/api/dbghelp/nf-dbghelp-syminitializew
 
-    if (process != NULL)
+    winapi::fnSymInitializeW(hProcess, NULL, TRUE);
+
+    intptr_t* traces = new intptr_t[capture];
+    WORD frameCount = ::CaptureStackBackTrace(skip + 1, capture, (PVOID*)traces, NULL);
+
+    for (WORD i = 0; i < frameCount; ++i)
     {
-        HANDLE current_token;
-        if (::OpenProcessToken(process,
-            TOKEN_QUERY | TOKEN_QUERY_SOURCE,
-            &current_token))
+        //stack frame
+        stack_frame_t sf = {};
+
+        //module
         {
-            DWORD label_size = 0;
-            TOKEN_MANDATORY_LABEL* label;
-            ::GetTokenInformation(current_token,
-                TokenIntegrityLevel,
-                NULL,
-                0,
-                &label_size);
-            if (label_size && (label = reinterpret_cast<TOKEN_MANDATORY_LABEL*>
-                (::LocalAlloc(LPTR, label_size))) != NULL)
+            IMAGEHLP_MODULEW64 moduleInfo = {};
+            moduleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULEW64);
+
+            //
+            // https://docs.microsoft.com/zh-cn/windows/win32/api/dbghelp/nf-dbghelp-symgetmoduleinfow64
+
+            if (winapi::fnSymGetModuleInfoW64(hProcess, (DWORD64)traces[i], &moduleInfo))
             {
-                if (::GetTokenInformation(current_token,
-                    TokenIntegrityLevel,
-                    label,
-                    label_size,
-                    &label_size))
-                {
-                    result = get_sid_integrity_level(label->Label.Sid, level);
-                }
-                ::LocalFree(label);
+                sf.module_name = moduleInfo.ImageName;
             }
-            ::CloseHandle(current_token);
         }
-        ::CloseHandle(process);
+
+        //symbol
+        {
+            DWORD64 displacementSym = 0;
+            char buffer[sizeof(SYMBOL_INFOW) + MAX_SYM_NAME * sizeof(wchar_t)] = { 0 };
+
+            PSYMBOL_INFOW symbol = (PSYMBOL_INFOW)buffer;
+            symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
+            symbol->MaxNameLen = MAX_SYM_NAME;
+
+            //
+            // https://docs.microsoft.com/zh-cn/windows/win32/api/dbghelp/nf-dbghelp-symfromaddrw
+
+            if (winapi::fnSymFromAddrW(hProcess, (DWORD64)traces[i], &displacementSym, symbol))
+            {
+                sf.symbol_name = symbol->Name;
+                sf.symbol_address = symbol->Address;
+            }
+        }
+
+        //line
+        {
+            DWORD displacementLine = 0;
+
+            IMAGEHLP_LINEW64 line = {};
+            line.SizeOfStruct = sizeof(IMAGEHLP_LINEW64);
+
+            // 
+            // https://docs.microsoft.com/zh-cn/windows/win32/api/dbghelp/nf-dbghelp-symgetlinefromaddrw64
+
+            if (winapi::fnSymGetLineFromAddrW64(hProcess, (DWORD64)traces[i], &displacementLine, &line))
+            {
+                sf.file_name = line.FileName;
+                sf.line_number = line.LineNumber;
+            }
+        }
+
+        frames.push_back(sf);
     }
 
-    return result;
+    ::CloseHandle(hProcess);
+
+    delete[] traces;
+
+    return frameCount > 0;
+#endif
+}
+
+// Returns the filename part of the path
+// From file_util.hpp
+template<class _TChar>
+inline std::basic_string<_TChar> get_filename(const std::basic_string<_TChar>& path)
+{
+    size_t pos = path.npos;
+    size_t pos1 = path.rfind('\\');
+    size_t pos2 = path.rfind('/');
+
+    if (pos1 == path.npos)
+        pos = pos2;
+    else if (pos2 == path.npos)
+        pos = pos1;
+    else
+        pos = std::max(pos1, pos2);
+
+    return path.substr(pos + 1);
+}
+
+std::wstring& format_stack_trace(const call_stack_t& frames, std::wstring& trace/* = std::wstring()*/)
+{
+    // Define a maximum number of blank
+    static const int max_space = 45;
+
+    // Print header information
+    trace += util::sformat(L"Thread[%x] stack tracebacks:\n", ::GetCurrentThreadId());
+
+    for (call_stack_t::const_iterator f = frames.begin(); f != frames.end(); ++f)
+    {
+        std::wstring symbol = f->symbol_name.empty() ? util::sformat(L"%x", f->symbol_address)
+            : f->symbol_name;
+
+        symbol = get_filename(f->module_name) + L"!" + symbol;
+        trace += symbol;
+
+        if (!f->file_name.empty())
+        {
+            trace += std::wstring(std::max<int>(max_space - int(symbol.size()), 1), L' ');
+            trace += util::sformat(L"at %s:%d", get_filename(f->file_name).data(), f->line_number);
+        }
+
+        trace += '\n';
+    }
+
+    return trace;
+}
+
+std::wstring stack_trace(int skip/* = 0*/, int capture/* = 5*/)
+{
+    call_stack_t frames;
+    if (!get_stack_frame(frames, skip + 1, capture))
+        return L"Cannot read stack tracebacks";
+
+    std::wstring result;
+    return format_stack_trace(frames, result);
 }
 
 } // win
 } // util
-
-#endif // OS_WIN

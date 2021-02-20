@@ -1,2 +1,5 @@
 #include "utility.hpp"
-#include "process.ipp"
+
+#if OS_WIN
+#   include "process.ipp"
+#endif

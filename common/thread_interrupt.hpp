@@ -1,3 +1,8 @@
+#ifndef UTILITY_SUPPORT_BOOST
+#   define thread_interrupt_h__
+#   error thread_interrupt.hpp needs Boost support // éœ€è¦Boostæ”¯æŒ
+#endif
+
 #ifndef thread_interrupt_h__
 #define thread_interrupt_h__
 
@@ -7,19 +12,14 @@
 *   v0.1 2019-06 by GuoJH
 */
 
-#if UTILITY_SUPPORT_BOOST
-#   include <boost/any.hpp>
-#endif
+#include <boost/any.hpp>
 #include <common/common_cfg.hpp>
 
 namespace util {
 namespace interrupt {
 
-// need boost support 
-#if UTILITY_SUPPORT_BOOST
-
 /*! 
- *   Ïß³ÌÖĞ¶ÏÒì³£ 
+ *   çº¿ç¨‹ä¸­æ–­å¼‚å¸¸ 
  */
 class thread_interrupted
 {
@@ -41,60 +41,58 @@ public:
 };
 
 /*!
- *  /brief  Ïß³ÌÖĞ¶Ï³õÊ¼»¯
- *  /return ½«·µ»ØÒ»¸ö¾ä±ú, ¿ÉÒÔ±»task_request_interrupt()Ê¹ÓÃ.
+ *  /brief  çº¿ç¨‹ä¸­æ–­åˆå§‹åŒ–
+ *  /return å°†è¿”å›ä¸€ä¸ªå¥æŸ„, å¯ä»¥è¢«task_request_interrupt()ä½¿ç”¨.
  */
 UTILITY_FUNCT_DECL intptr_t thread_interrupt_init();
 
 /*!
- *  /brief  ÖØÖÃÏß³ÌÖĞ¶ÏÇëÇó
- *  /return ·µ»Øtrue³É¹¦, ·ñÔòÊ§°Ü.
+ *  /brief  é‡ç½®çº¿ç¨‹ä¸­æ–­è¯·æ±‚
+ *  /return è¿”å›trueæˆåŠŸ, å¦åˆ™å¤±è´¥.
  */
 UTILITY_FUNCT_DECL bool thread_interrupt_reset(intptr_t handle = -1);
 
 /*!
- *  /brief ·µ»ØÖ¸¶¨Ïß³ÌflagsµÄÖµ.
- *  /param handle Ö¸¶¨Ïß³ÌµÄÖĞ¶Ï¾ä±ú, -1 Ö¸Ïòµ±Ç°Ïß³Ì.
+ *  /brief è¿”å›æŒ‡å®šçº¿ç¨‹flagsçš„å€¼.
+ *  /param handle æŒ‡å®šçº¿ç¨‹çš„ä¸­æ–­å¥æŸ„, -1 æŒ‡å‘å½“å‰çº¿ç¨‹.
  */
 UTILITY_FUNCT_DECL int thread_interrupt_flags(intptr_t handle = -1);
 
 /*!
- *  /brief ÇëÇóÖ¸¶¨Ïß³ÌÖĞ¶Ï
- *  /param handle Ö¸¶¨Ïß³ÌµÄÖĞ¶Ï¾ä±ú, -1 Ö¸Ïòµ±Ç°Ïß³Ì
- *  /param flags  ÅĞ¶ÏÖ¸¶¨µÄÖĞ¶ÏÀàĞÍ, -1 ´ú±íËùÓĞÖĞ¶Ï(ÆäÒâÒåÓÉÓ¦ÓÃ³ÌĞò¶¨Òå).
+ *  /brief è¯·æ±‚æŒ‡å®šçº¿ç¨‹ä¸­æ–­
+ *  /param handle æŒ‡å®šçº¿ç¨‹çš„ä¸­æ–­å¥æŸ„, -1 æŒ‡å‘å½“å‰çº¿ç¨‹
+ *  /param flags  åˆ¤æ–­æŒ‡å®šçš„ä¸­æ–­ç±»å‹, -1 ä»£è¡¨æ‰€æœ‰ä¸­æ–­(å…¶æ„ä¹‰ç”±åº”ç”¨ç¨‹åºå®šä¹‰).
  */
 UTILITY_FUNCT_DECL void thread_interrupt_request(
     intptr_t handle = -1, int flags = -1);
 
 /*
- *  /brief ·µ»ØÖ¸¶¨Ïß³ÌÊÇ·ñ±»ÇëÇóÖĞ¶Ï
- *  /param handle Ö¸¶¨Ïß³ÌµÄÖĞ¶Ï¾ä±ú, -1 Ö¸Ïòµ±Ç°Ïß³Ì
- *  /param flags  ÅĞ¶ÏÖ¸¶¨µÄÖĞ¶ÏÀàĞÍ, -1 ´ú±íËùÓĞÖĞ¶Ï(ÆäÒâÒåÓÉÓ¦ÓÃ³ÌĞò¶¨Òå).
+ *  /brief è¿”å›æŒ‡å®šçº¿ç¨‹æ˜¯å¦è¢«è¯·æ±‚ä¸­æ–­
+ *  /param handle æŒ‡å®šçº¿ç¨‹çš„ä¸­æ–­å¥æŸ„, -1 æŒ‡å‘å½“å‰çº¿ç¨‹
+ *  /param flags  åˆ¤æ–­æŒ‡å®šçš„ä¸­æ–­ç±»å‹, -1 ä»£è¡¨æ‰€æœ‰ä¸­æ–­(å…¶æ„ä¹‰ç”±åº”ç”¨ç¨‹åºå®šä¹‰).
  */
 UTILITY_FUNCT_DECL bool thread_interrupt_requested(
     intptr_t handle = -1, int flags = -1);
 
 /*!
- *  /brief Ïß³ÌÖĞ¶Ïµã
- *  /param flags ´ú±í¿É½ÓÊÜµÄÖĞ¶ÏÀàĞÍ, Èôµ±Ç°ÖĞ¶ÏÀàĞÍÓë¿É½ÓÊÜÀàĞÍ²»Æ¥ÅäÔò²»»á´¥·¢ÖĞ¶Ï.
- *  /param param ÓÃ»§²ÎÊı
+ *  /brief çº¿ç¨‹ä¸­æ–­ç‚¹
+ *  /param flags ä»£è¡¨å¯æ¥å—çš„ä¸­æ–­ç±»å‹, è‹¥å½“å‰ä¸­æ–­ç±»å‹ä¸å¯æ¥å—ç±»å‹ä¸åŒ¹é…åˆ™ä¸ä¼šè§¦å‘ä¸­æ–­.
+ *  /param param ç”¨æˆ·å‚æ•°
  * 
- *  /note  ÅĞ¶Ïµ±Ç°Ïß³ÌÊÇ·ñ±»´¥·¢ÖĞ¶Ï, ÈôÊÇÔòÅ×³öÖĞ¶ÏÒì³£;
+ *  /note  åˆ¤æ–­å½“å‰çº¿ç¨‹æ˜¯å¦è¢«è§¦å‘ä¸­æ–­, è‹¥æ˜¯åˆ™æŠ›å‡ºä¸­æ–­å¼‚å¸¸;
  */
 UTILITY_FUNCT_DECL void thread_interrupt_point(
     int flags = -1,
     const boost::any& param = boost::any());
 
 /*!
- *  /brief Ö÷¶¯´¥·¢Ò»¸öÏß³ÌÖĞ¶Ï
- *  /param flags ´ú±í¿É½ÓÊÜµÄÖĞ¶ÏÀàĞÍ
- *  /param param ÓÃ»§²ÎÊı
+ *  /brief ä¸»åŠ¨è§¦å‘ä¸€ä¸ªçº¿ç¨‹ä¸­æ–­
+ *  /param flags ä»£è¡¨å¯æ¥å—çš„ä¸­æ–­ç±»å‹
+ *  /param param ç”¨æˆ·å‚æ•°
  */
 UTILITY_FUNCT_DECL void thread_interrupt_trigger(
     int flags = -1,
     const boost::any& param = boost::any());
-
-#endif // UTILITY_SUPPORT_BOOST
 
 } // interrupt
 } // util

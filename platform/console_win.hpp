@@ -2,7 +2,7 @@
 #define console_win_h__
 
 /*
-*	console_util.hpp 
+*    console_util.hpp 
 *
 *   v0.1 2018-11 By GuoJH
 */
@@ -37,7 +37,7 @@ struct coord
 };
 
 /*
-*	指定颜色, 指定流, 输出
+*    指定颜色, 指定流, 输出
 */
 UTILITY_FUNCT_DECL void output(
     const std::string& text, 
@@ -45,23 +45,23 @@ UTILITY_FUNCT_DECL void output(
     const uint16_t color  = COLOR_DEF);
 
 /*
-*	清除屏幕
+*    清除屏幕
 */
 UTILITY_FUNCT_DECL void clear();
 
 /*
-*	移动打印光标到指定位置
+*    移动打印光标到指定位置
 */
 UTILITY_FUNCT_DECL void cursor_goto(const coord& pos);
 UTILITY_FUNCT_DECL void cursor_goto(short x, short y);
 
 /*
-*	返回光标位置
+*    返回光标位置
 */
 UTILITY_FUNCT_DECL coord cursor_pos();
 
 /*
-*	打印进度条
+*    打印进度条
 *   例子:
 *   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>=================== 20%
 */

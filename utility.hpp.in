@@ -82,6 +82,7 @@
         = (*reinterpret_cast<privately::type##_private *>(right.__##type##_private))
 
 // Defined WINNT version.
+// https://docs.microsoft.com/zh-cn/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160&viewFallbackFrom=vs-2017
 #if defined(WIN32) || defined(_WIN32)
 #   ifndef _WIN32_WINNT
 #       define _WIN32_WINNT _WIN32_WINNT_VISTA // Windows Vista

@@ -2,8 +2,6 @@
 #   include "../service_win.hpp"
 #endif
 
-#if OS_WIN
-
 #include <windows.h>
 #include <platform/platform_error.hpp>
 
@@ -12,7 +10,7 @@ namespace win {
 namespace detail {
 
 /*
-*	以指定权限打开服务控制管理器(service control manager)
+*    以指定权限打开服务控制管理器(service control manager)
 *   SC_MANAGER_ALL_ACCESS   所有权限
 */
 inline SC_HANDLE InitSCManager(DWORD dwAccess, platform_error& error)
@@ -35,7 +33,7 @@ inline SC_HANDLE InitSCManager(DWORD dwAccess, platform_error& error)
 }
 
 /*
-*	以指定的服务名称及权限打开服务
+*    以指定的服务名称及权限打开服务
 *   SERVICE_ALL_ACCESS  所有权限
 */
 inline SC_HANDLE OpenServiceWithName(
@@ -60,7 +58,7 @@ inline SC_HANDLE OpenServiceWithName(
 }
 
 /*
-*	查询服务状态
+*    查询服务状态
 */
 inline bool QueryServiceStatusWithHandle(
     SC_HANDLE hService, SERVICE_STATUS_PROCESS& status, platform_error& error)
@@ -84,7 +82,7 @@ inline bool QueryServiceStatusWithHandle(
 }
 
 /*
-*	等待服务从某个状态过渡某个状态
+*    等待服务从某个状态过渡某个状态
 */
 inline bool WaitServiceChangeToSomeState(
     SC_HANDLE hService, SERVICE_STATUS_PROCESS& status, DWORD state, platform_error& error)
@@ -133,7 +131,7 @@ inline bool WaitServiceChangeToSomeState(
 }
 
 /*
-*	启动服务
+*    启动服务
 */
 inline bool StartServiceWithHandle(SC_HANDLE hService, platform_error& error)
 {
@@ -176,12 +174,12 @@ inline bool StartServiceWithHandle(SC_HANDLE hService, platform_error& error)
 // 用于规避__try的错误: error C2712:  __try
 struct error_struct
 {
-    int     code;
-    char*   message;
+    int         code;
+    const char* message;
 };
 
 /*
-*	停止所有此服务的依赖
+*    停止所有此服务的依赖
 */
 inline bool _StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, error_struct& error)
 {
@@ -324,7 +322,7 @@ inline bool StopServiceAllDependent(SC_HANDLE hSCManager, SC_HANDLE hService, pl
 }
 
 /*
-*	停止服务
+*    停止服务
 */
 inline bool StopServiceeWithHandle(
     SC_HANDLE hSCManager, SC_HANDLE hService, platform_error& error)
@@ -611,5 +609,3 @@ bool service_running(
 
 } // win
 } // util
-
-#endif // OS_WIN

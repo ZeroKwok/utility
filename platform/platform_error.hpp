@@ -42,6 +42,15 @@ public:
         return _code != 0;
     }
 
+#if COMPILER_MSVC
+    char const* what() const
+#else
+    char const* what() const noexcept
+#endif
+    {
+        return _desc.c_str();
+    }
+
     code_type code() const
     {
         return _code;
@@ -50,15 +59,6 @@ public:
     msgs_type error_description() const
     {
         return _desc;
-    }
-
-#if OS_WIN
-    char const* what() const
-#else
-    char const* what() const noexcept
-#endif
-    {
-        return _desc.c_str();
     }
 
     /*!

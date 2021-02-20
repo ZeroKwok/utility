@@ -25,7 +25,7 @@
 namespace util {
 
 /*!
- *  /brief  字节数据, 通过std::string作为底层实现;
+ *  /brief  瀛楄妭鏁版嵁, 閫氳繃std::string浣滀负搴曞眰瀹炵幇;
  */
 class bytedata : public std::string
 {
@@ -130,7 +130,7 @@ inline _Type bytes_cast(const bytedata& bytes)
 template<class _Type>
 inline _Type bytes_cast(const bytedata& bytes, size_t offset)
 {
-    return bytes_cast<_Type>(bytes_range(bytes, offset, sizeof _Type));
+    return bytes_cast<_Type>(bytes_range(bytes, offset, sizeof(_Type)));
 }
 
 /*!
@@ -187,7 +187,7 @@ inline bytedata& bytes_serialize(bytedata& bytesRef, const _Type& type)
 
     return bytesRef = os.str();
 }
-	
+    
 /*!
  *  Deserialize from the byte data to objects.
  *  throw: boost::archive::archive_exception.
@@ -201,7 +201,7 @@ inline _Type& bytes_deserialize(_Type& typeRef, const bytedata& bytes)
     
     return typeRef;
 }
-	
+    
 #endif
 
 /*!
@@ -223,19 +223,19 @@ UTILITY_FUNCT_DECL bytedata bytes_from_hex(const std::string& hex);
 /*!
  *  /brief  Read bytes from the file.
  *
- *  /param name     目标文件名称
- *  /param bytes    输出字节数据
- *  /param offset   读取偏移地址
- *  /param length   读取数据长度
+ *  /param name     鐩爣鏂囦欢鍚嶇О
+ *  /param bytes    杈撳嚭瀛楄妭鏁版嵁
+ *  /param offset   璇诲彇鍋忕Щ鍦板潃
+ *  /param length   璇诲彇鏁版嵁闀垮害
  */
 UTILITY_FUNCT_DECL bytedata& bytes_from_file(
     bytedata& bytes, const util::fpath& name, int offset = 0, int length = -1);
 
 /*!
- *  /brief  Writes byte data into the file and returns the number of bytes written.
+ *  /brief  Writes byte data into the file.
  * 
- *  /return If return -1 or less than bytes.size(), Indicates that an error occurred.
  *  /note   If the directory does not exist, try creating it.
+ *          The util::ferror exception is thrown when an error occurs.
  */
 UTILITY_FUNCT_DECL void bytes_into_file(const util::fpath& name, const bytedata& bytes);
 

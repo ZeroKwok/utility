@@ -13,7 +13,7 @@
 namespace util {
 
 /*!
- *	×ª»»×Ö½ÚÊıµ½ºÏÊÊµÄµ¥Î», ²¢Ìí¼ÓÏÂ±ê
+ *    è½¬æ¢å­—èŠ‚æ•°åˆ°åˆé€‚çš„å•ä½, å¹¶æ·»åŠ ä¸‹æ ‡
  */
 UTILITY_FUNCT_DECL std::string bytes_add_suffix(
     double bytes, int base = 1024, const std::string suffix = "");
@@ -21,7 +21,7 @@ UTILITY_FUNCT_DECL std::wstring wbytes_add_suffix(
     double bytes, int base = 1024, const std::wstring suffix = L"");
 
 /*!
- *   ×ª»»ÃëÊıµ½ºÏÊÊµÄµ¥Î», ²¢Ìí¼ÓÏÂ±ê
+ *   è½¬æ¢ç§’æ•°åˆ°åˆé€‚çš„å•ä½, å¹¶æ·»åŠ ä¸‹æ ‡
  */
 UTILITY_FUNCT_DECL std::string seconds_add_suffix(
     int sec, const std::string suffix = "");
@@ -29,7 +29,7 @@ UTILITY_FUNCT_DECL std::wstring wseconds_add_suffix(
     int sec, const std::wstring suffix = L"");
 
 /*!
- *	×ª»»Ê±³¤µ½ºÏÊÊµÄµ¥Î», ²¢Ìí¼ÓÏÂ±ê
+ *    è½¬æ¢æ—¶é•¿åˆ°åˆé€‚çš„å•ä½, å¹¶æ·»åŠ ä¸‹æ ‡
  */
 UTILITY_FUNCT_DECL std::string duration_format(
     int sec, const std::string separator = ":");

@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 project(common CXX)
 
 if(UTILITY_BUILD_SHARED_LIB)
-	add_library(${PROJECT_NAME} SHARED impl/common.cpp)
+    add_library(${PROJECT_NAME} SHARED impl/common.cpp)
 else()
-	add_library(${PROJECT_NAME} STATIC impl/common.cpp)
+    add_library(${PROJECT_NAME} STATIC impl/common.cpp)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
@@ -15,25 +15,31 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>)
 
+if(UTILITY_SUPPORT_BOOST)
+    if(UNIX OR NOT UTILITY_BOOST_SUPPORT_AUTOLINK)
+        target_link_libraries(${PROJECT_NAME} Boost::thread)
+    endif()
+endif()
+
 library_regular_naming(${PROJECT_NAME})
 
-# Ìí¼Ó¹«¹²Í·ÎÄ¼ş
+# æ·»åŠ å…¬å…±å¤´æ–‡ä»¶
 file(GLOB INCLUDE_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${INCLUDE_FILES}")
 
-# ÉèÖÃ°²×°Ä¿±ê
+# è®¾ç½®å®‰è£…ç›®æ ‡
 install(TARGETS ${PROJECT_NAME}
     EXPORT utility-common
-    ARCHIVE DESTINATION lib                   # ¾²Ì¬¿â°²×°Â·¾¶
-    LIBRARY DESTINATION lib                   # ¶¯Ì¬¿â°²×°Â·¾¶
-    PUBLIC_HEADER DESTINATION include/common) # Í·ÎÄ¼ş°²×°Â·¾¶(ĞèÒªÔÚÄ¿±êÊôĞÔÀïÃæÉèÖÃPUBLIC_HEADER)
+    ARCHIVE DESTINATION lib                   # é™æ€åº“å®‰è£…è·¯å¾„
+    LIBRARY DESTINATION lib                   # åŠ¨æ€åº“å®‰è£…è·¯å¾„
+    PUBLIC_HEADER DESTINATION include/common) # å¤´æ–‡ä»¶å®‰è£…è·¯å¾„(éœ€è¦åœ¨ç›®æ ‡å±æ€§é‡Œé¢è®¾ç½®PUBLIC_HEADER)
 
 install(EXPORT utility-common
-    FILE utility-commonConfig.cmake           # °üÅäÖÃÎÄ¼şÃû
-    NAMESPACE utility::                       # Ãû³Æ¿Õ¼ä
-    DESTINATION cmake)                        # ÎÄ¼ş´æ´¢Ä¿Â¼
+    FILE utility-commonConfig.cmake           # åŒ…é…ç½®æ–‡ä»¶å
+    NAMESPACE utility::                       # åç§°ç©ºé—´
+    DESTINATION cmake)                        # æ–‡ä»¶å­˜å‚¨ç›®å½•
 
-# °²×°pdb
+# å®‰è£…pdb
 install_pdb(${PROJECT_NAME})

@@ -14,18 +14,18 @@ namespace util {
 namespace encryption {
 
 /*!
- *  /brief  ²ÉÓÃTEA-32(Tiny Encryption Algorithm)µÄ·½Ê½¼ÓÃÜÊı¾İ.
- *  /param  keyÎª128Î»ÃÜÔ¿, Ğ¡ÓÚ128Î»½«»áÒÔ0Ìî³ä.
+ *  /brief  é‡‡ç”¨TEA-32(Tiny Encryption Algorithm)çš„æ–¹å¼åŠ å¯†æ•°æ®.
+ *  /param  keyä¸º128ä½å¯†é’¥, å°äº128ä½å°†ä¼šä»¥0å¡«å…….
  * 
- *  /note   ÃÜÎÄÓëÃ÷ÎÄ²»µÈ³¤, ¿ÉÄÜ»áÅ×³östd::runtime_errorÒì³£.
+ *  /note   å¯†æ–‡ä¸æ˜æ–‡ä¸ç­‰é•¿, å¯èƒ½ä¼šæŠ›å‡ºstd::runtime_errorå¼‚å¸¸.
  */
 UTILITY_FUNCT_DECL bytedata& encrypt_with_tea32(bytedata& bytes, const bytedata& key);
 
 /*!
- *  /brief  ²ÉÓÃTEA-32µÄ·½Ê½½âÃÜÊı¾İ.
- *  /param  bytes ±ØĞëÎª8µÄÕû±¶Êı.
+ *  /brief  é‡‡ç”¨TEA-32çš„æ–¹å¼è§£å¯†æ•°æ®.
+ *  /param  bytes å¿…é¡»ä¸º8çš„æ•´å€æ•°.
  * 
- *  /note   ¿ÉÄÜ»áÅ×³östd::runtime_errorÒì³£.
+ *  /note   å¯èƒ½ä¼šæŠ›å‡ºstd::runtime_errorå¼‚å¸¸.
  */
 UTILITY_FUNCT_DECL bytedata& decrypt_with_tea32(bytedata& bytes, const bytedata& key);
 

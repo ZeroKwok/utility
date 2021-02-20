@@ -1,6 +1,6 @@
 #include "utility.hpp"
 
-// VS2010ÖĞ»á³öÏÖ timeGetTime ÕÒ²»µ½±êÊ¶·ûµÄÇé¿ö
+// VS2010ä¸­ä¼šå‡ºç° timeGetTime æ‰¾ä¸åˆ°æ ‡è¯†ç¬¦çš„æƒ…å†µ
 #ifdef WIN32_LEAN_AND_MEAN
 #   undef  WIN32_LEAN_AND_MEAN 
 #endif
@@ -15,4 +15,7 @@
 #include "bytedata.ipp"
 #include "math_util.ipp"
 #include "encryption.ipp"
-#include "thread_interrupt.ipp"
+
+#if UTILITY_SUPPORT_BOOST
+#   include "thread_interrupt.ipp"
+#endif

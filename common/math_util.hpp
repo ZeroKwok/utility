@@ -13,13 +13,13 @@ namespace util {
 namespace math {
 
 /*!
- *  ·µ»ØÁ½¸ö¸¡µãÊıÊÇ·ñÏàµÈ.
+ *  è¿”å›ä¸¤ä¸ªæµ®ç‚¹æ•°æ˜¯å¦ç›¸ç­‰.
  */
 UTILITY_FUNCT_DECL bool is_float32_equal(float left, float right);
 UTILITY_FUNCT_DECL bool is_float64_equal(double left, double right);
 
 /*!
- *  ¼ÆËã×î´ó¹«Ô¼Êı.
+ *  è®¡ç®—æœ€å¤§å…¬çº¦æ•°.
  * 
  *  assert(gcd(27, 15) == 3);
  *  assert(gcd(12, 16) == 4);
@@ -28,7 +28,7 @@ UTILITY_FUNCT_DECL float gcd(float a, float b);
 UTILITY_FUNCT_DECL double gcd(double a, double b);
 
 /*!
- *  ¼ÆËã×îĞ¡¹«±¶Êı.
+ *  è®¡ç®—æœ€å°å…¬å€æ•°.
  *
  *  assert(lcm(18, 20) == 120);
  */

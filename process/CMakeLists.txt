@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 project(process CXX)
 
 if(UTILITY_BUILD_SHARED_LIB)
-	add_library(${PROJECT_NAME} SHARED impl/process.cpp)
+    add_library(${PROJECT_NAME} SHARED impl/process.cpp)
 else()
-	add_library(${PROJECT_NAME} STATIC impl/process.cpp)
+    add_library(${PROJECT_NAME} STATIC impl/process.cpp)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE 

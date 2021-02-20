@@ -2,6 +2,10 @@
 #   include "../process.hpp"
 #endif
 
+#ifndef OS_WIN
+#   error the process.hpp is only supports Windows.
+#endif
+
 #include <windows.h>
 #include <shellapi.h>
 #include <string/string_util.hpp>
@@ -10,9 +14,9 @@
 namespace util {
 namespace detail {
   
-// Ö±½ÓÔËĞĞ
-// app  ²»»á¼ìË÷ÏµÍ³ËÑË÷Ä¿Â¼, »áÊ¹ÓÃµ±Ç°Çı¶¯Æ÷ºÍµ±Ç°Ä¿Â¼, ±ØĞë°üº¬À©Õ¹Ãû, ¿ÉÒÔÎª¿Õ, 
-// cmd  »á¼ìË÷ÏµÍ³ËÑË÷Ä¿Â¼, »á¼Ù¶¨.exe, ¿ÉÒÔÎª¿Õ
+// ç›´æ¥è¿è¡Œ
+// app  ä¸ä¼šæ£€ç´¢ç³»ç»Ÿæœç´¢ç›®å½•, ä¼šä½¿ç”¨å½“å‰é©±åŠ¨å™¨å’Œå½“å‰ç›®å½•, å¿…é¡»åŒ…å«æ‰©å±•å, å¯ä»¥ä¸ºç©º, 
+// cmd  ä¼šæ£€ç´¢ç³»ç»Ÿæœç´¢ç›®å½•, ä¼šå‡å®š.exe, å¯ä»¥ä¸ºç©º
 inline HANDLE runapp_with_redirection(
     const util::tstring& app,
     const util::tstring& cmd,
@@ -28,10 +32,10 @@ inline HANDLE runapp_with_redirection(
     if (!!input || !!output || !!error)
         si.dwFlags = STARTF_USESTDHANDLES;
 
-    si.cb			= sizeof(si);
-    si.hStdInput	= input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
-    si.hStdOutput	= output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
-    si.hStdError	= error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
+    si.cb            = sizeof(si);
+    si.hStdInput    = input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdOutput    = output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
+    si.hStdError    = error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
 
     if (policy & process::hide_window)
     {
@@ -45,8 +49,8 @@ inline HANDLE runapp_with_redirection(
     std::wstring cmd_dup(cmd);
 
     // CREATE_NO_WINDOW
-    // Èç¹û½ø³ÌÊÇ¿ØÖÆÌ¨³ÌĞò, ÔòÒÔ²»ÏÔÊ¾¿ØÖÆÌ¨µÄ·½Ê½ÔËĞĞ. Èç¹ûÓ¦ÓÃ³ÌĞò²»ÊÇ¿ØÖÆÌ¨³ÌĞò»òÕß
-    // Ê¹ÓÃCREATE_NEW_CONSOLE, DETACHED_PROCESS¸Ã±êÖ¾½«±»ºöÂÔ;
+    // å¦‚æœè¿›ç¨‹æ˜¯æ§åˆ¶å°ç¨‹åº, åˆ™ä»¥ä¸æ˜¾ç¤ºæ§åˆ¶å°çš„æ–¹å¼è¿è¡Œ. å¦‚æœåº”ç”¨ç¨‹åºä¸æ˜¯æ§åˆ¶å°ç¨‹åºæˆ–è€…
+    // ä½¿ç”¨CREATE_NEW_CONSOLE, DETACHED_PROCESSè¯¥æ ‡å¿—å°†è¢«å¿½ç•¥;
     // See:
     // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
 
@@ -75,9 +79,9 @@ inline HANDLE runapp_with_redirection(
     return pi.hProcess;
 }
 
-// Í¨¹ıshellÔËĞĞ, Ö÷ÒªÓÃÓÚÌáÈ¨
-// app Ã»ÓĞ°üº¬Â·¾¶, ÔòÊ¹ÓÃµ±Ç°Ä¿Â¼, ²»ÄÜÎª¿Õ;
-// cmd ÃüÁîĞĞ²ÎÊı, ¿ÉÒÔÎª¿Õ;
+// é€šè¿‡shellè¿è¡Œ, ä¸»è¦ç”¨äºææƒ
+// app æ²¡æœ‰åŒ…å«è·¯å¾„, åˆ™ä½¿ç”¨å½“å‰ç›®å½•, ä¸èƒ½ä¸ºç©º;
+// cmd å‘½ä»¤è¡Œå‚æ•°, å¯ä»¥ä¸ºç©º;
 inline HANDLE runapp_shell_and_elevate_privileges(
     util::tstring app,
     util::tstring cmd,
@@ -85,20 +89,20 @@ inline HANDLE runapp_shell_and_elevate_privileges(
     platform_error& error)
 {
     /*
-    *   ShellExecuteExWÓëCreateProcessW²»Í¬µÄÊÇlpFile×Ö¶Î±ØĞëÓĞÖµ
-    *   ²»ÄÜÔÚ²ÎÊılpParametersÖĞÖ¸¶¨¿ÉÖ´ĞĞÄ£¿é
-    *   ÕâÀïÎªÁË¼æÈİRunAppWithRedirection, ĞèÒªÊÖ¶¯·Ö¸î»ìÔÚcmdÖĞµÄ
-    *   Ä£¿éÃû
+    *   ShellExecuteExWä¸CreateProcessWä¸åŒçš„æ˜¯lpFileå­—æ®µå¿…é¡»æœ‰å€¼
+    *   ä¸èƒ½åœ¨å‚æ•°lpParametersä¸­æŒ‡å®šå¯æ‰§è¡Œæ¨¡å—
+    *   è¿™é‡Œä¸ºäº†å…¼å®¹RunAppWithRedirection, éœ€è¦æ‰‹åŠ¨åˆ†å‰²æ··åœ¨cmdä¸­çš„
+    *   æ¨¡å—å
     *   2018-4-12 By GuoJH
     */
     
-    // É¾³ı¿ªÍ·¿Õ¸ñ
+    // åˆ é™¤å¼€å¤´ç©ºæ ¼
     while (!cmd.empty() && cmd[0] == L' ')
         cmd.erase(cmd.begin());
 
     if (app.empty() && !cmd.empty())
     {
-        // ¿ªÊ¼°üº¬Ë«ÒıºÅ, ËµÃ÷¿ÉÖ´ĞĞÄ£¿éÓÉÒıºÅ·Ö¸î, ·ñÔòÊÇÒÔ¿Õ¸ñ·Ö¸î
+        // å¼€å§‹åŒ…å«åŒå¼•å·, è¯´æ˜å¯æ‰§è¡Œæ¨¡å—ç”±å¼•å·åˆ†å‰², å¦åˆ™æ˜¯ä»¥ç©ºæ ¼åˆ†å‰²
         util::tstring::size_type index = 0;
 
         if (cmd[0] == L'\"')
@@ -118,7 +122,7 @@ inline HANDLE runapp_shell_and_elevate_privileges(
             }
             else
             {
-                app.swap(cmd);  // cmd ÖĞ²»°üº¬¿Õ¸ñ, ËµÃ÷½öÓĞ¿ÉÖ´ĞĞÎÄ¼ş
+                app.swap(cmd);  // cmd ä¸­ä¸åŒ…å«ç©ºæ ¼, è¯´æ˜ä»…æœ‰å¯æ‰§è¡Œæ–‡ä»¶
             }
         }
 
@@ -139,7 +143,7 @@ inline HANDLE runapp_shell_and_elevate_privileges(
     exec_info.cbSize        = sizeof SHELLEXECUTEINFOW;
     exec_info.lpFile        = app.c_str();
     exec_info.lpParameters  = cmd.empty() ? NULL : cmd.c_str();
-    exec_info.fMask         = SEE_MASK_NOCLOSEPROCESS;  // ²»¹Ø±Õ½ø³Ì¾ä±ú
+    exec_info.fMask         = SEE_MASK_NOCLOSEPROCESS;  // ä¸å…³é—­è¿›ç¨‹å¥æŸ„
     exec_info.lpVerb        = policy & process::elevate_privileges ? L"runas" : L"open";
     exec_info.nShow         = policy & process::hide_window ? SW_HIDE : SW_SHOWDEFAULT;
 
@@ -155,9 +159,9 @@ inline HANDLE runapp_shell_and_elevate_privileges(
     return exec_info.hProcess;
 }
 
-// ÒÔ·ÇÌØÈ¨µÄ·½Ê½ÔËĞĞ, Ö÷ÒªÓÃÓÚ½µµÍÈ¨ÏŞ
-// app  ²»»á¼ìË÷ÏµÍ³ËÑË÷Ä¿Â¼, »áÊ¹ÓÃµ±Ç°Çı¶¯Æ÷ºÍµ±Ç°Ä¿Â¼, ±ØĞë°üº¬À©Õ¹Ãû, ¿ÉÒÔÎª¿Õ, 
-// cmd  »á¼ìË÷ÏµÍ³ËÑË÷Ä¿Â¼, »á¼Ù¶¨.exe, ¿ÉÒÔÎª¿Õ
+// ä»¥éç‰¹æƒçš„æ–¹å¼è¿è¡Œ, ä¸»è¦ç”¨äºé™ä½æƒé™
+// app  ä¸ä¼šæ£€ç´¢ç³»ç»Ÿæœç´¢ç›®å½•, ä¼šä½¿ç”¨å½“å‰é©±åŠ¨å™¨å’Œå½“å‰ç›®å½•, å¿…é¡»åŒ…å«æ‰©å±•å, å¯ä»¥ä¸ºç©º, 
+// cmd  ä¼šæ£€ç´¢ç³»ç»Ÿæœç´¢ç›®å½•, ä¼šå‡å®š.exe, å¯ä»¥ä¸ºç©º
 inline HANDLE runapp_with_non_elevate_privileges(
     const util::tstring& app,
     const util::tstring& cmd,
@@ -167,14 +171,14 @@ inline HANDLE runapp_with_non_elevate_privileges(
     process::launch_policys policy,
     platform_error& perror)
 { 
-    // vista ¼°ÒÔÏÂ, »òÕß ·ÇÌáÉıµÄ¹ÜÀíÔ±
+    // vista åŠä»¥ä¸‹, æˆ–è€… éæå‡çš„ç®¡ç†å‘˜
     if(!win::is_running_on_vista_or_higher() || win::is_user_non_elevated_admin())
     {
         return runapp_with_redirection(app, cmd, input, output, error, policy, perror);
     }
 
-    // Í¨¹ı¶¯Ì¬¼ÓÔØµÄ·½Ê½Ê¹ÓÃ¸Ãº¯Êı, Ä¿µÄÔÚÓÚ±ÜÃâvistaÒÔÏÂÃ»ÓĞ¸Ãº¯ÊıµÄ»úÆ÷ÉÏ
-    // ÄÜÕıÈ·µÄÆô¶¯³ÌĞò;
+    // é€šè¿‡åŠ¨æ€åŠ è½½çš„æ–¹å¼ä½¿ç”¨è¯¥å‡½æ•°, ç›®çš„åœ¨äºé¿å…vistaä»¥ä¸‹æ²¡æœ‰è¯¥å‡½æ•°çš„æœºå™¨ä¸Š
+    // èƒ½æ­£ç¡®çš„å¯åŠ¨ç¨‹åº;
     typedef BOOL (WINAPI *func_CreateProcessWithTokenW)(
         __in        HANDLE hToken,
         __in        DWORD dwLogonFlags,
@@ -211,10 +215,10 @@ inline HANDLE runapp_with_non_elevate_privileges(
     if (!!input || !!output || !!error)
         si.dwFlags = STARTF_USESTDHANDLES;
 
-    si.cb			= sizeof(si);
-    si.hStdInput	= input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
-    si.hStdOutput	= output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
-    si.hStdError	= error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
+    si.cb            = sizeof(si);
+    si.hStdInput    = input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdOutput    = output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
+    si.hStdError    = error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
 
     if (policy & process::hide_window)
     {
@@ -224,7 +228,7 @@ inline HANDLE runapp_with_non_elevate_privileges(
 
     std::wstring cmd_dup(cmd);
 
-    // »ñµÃexplorer½ø³ÌPid
+    // è·å¾—explorerè¿›ç¨‹Pid
     DWORD explorerPid = 0;
 
     ::GetWindowThreadProcessId(::GetShellWindow(), &explorerPid);
@@ -237,7 +241,7 @@ inline HANDLE runapp_with_non_elevate_privileges(
     if(!hProcess)
         goto _CleanUp;
 
-    // ´ò¿ª½ø³Ìtoken, ²¢¸´ÖÆËü
+    // æ‰“å¼€è¿›ç¨‹token, å¹¶å¤åˆ¶å®ƒ
     HANDLE hToken = 0;
     HANDLE hToken2 = 0;
     if(!::OpenProcessToken(hProcess, TOKEN_DUPLICATE, &hToken))
@@ -246,7 +250,7 @@ inline HANDLE runapp_with_non_elevate_privileges(
     if (!::DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, 0, SecurityImpersonation, TokenPrimary, &hToken2))
         goto _CleanUp;
 
-    // Í¨¹ı¸´ÖÆµÄÁîÅÆÆô¶¯½ø³Ì
+    // é€šè¿‡å¤åˆ¶çš„ä»¤ç‰Œå¯åŠ¨è¿›ç¨‹
     if(pCreateProcessWithTokenW(
         /* hToken,              */ hToken2,
         /* dwLogonFlags,        */ 0, 
@@ -263,7 +267,7 @@ inline HANDLE runapp_with_non_elevate_privileges(
  
 _CleanUp:
 
-    // ¼ì²é´íÎó
+    // æ£€æŸ¥é”™è¯¯
     if (pi.hProcess == nullptr)
     {
         perror = platform_error(::GetLastError(),
@@ -375,7 +379,7 @@ int process::exit_code() const
         DWORD code = 0;
         if (GetExitCodeProcess((HANDLE)_handle, &code))
         {
-            if (code != STILL_ACTIVE) // ½ø³ÌÃ»ÓĞÖÕÖ¹, ·µ»Ø STILL_ACTIVE
+            if (code != STILL_ACTIVE) // è¿›ç¨‹æ²¡æœ‰ç»ˆæ­¢, è¿”å› STILL_ACTIVE
                 return code;
         }
     }
@@ -437,21 +441,21 @@ bool process::wait_until(int millisec, platform_error& error)
             return false;
         }
 
-        // ¸Ãº¯Êı¶ÔÓÚhandleÖ¸ÏòµÄ¶ÔÏó±ØĞë¾ßÓĞ SYNCHRONIZE È¨ÏŞ;
+        // è¯¥å‡½æ•°å¯¹äºhandleæŒ‡å‘çš„å¯¹è±¡å¿…é¡»å…·æœ‰ SYNCHRONIZE æƒé™;
         DWORD result = ::WaitForSingleObject(
             (HANDLE)_handle, 
             millisec == -1 ? INFINITE : millisec);
 
         switch (result)
         {
-        case WAIT_OBJECT_0: // ¶ÔÏó±»´¥·¢
+        case WAIT_OBJECT_0: // å¯¹è±¡è¢«è§¦å‘
             return true;
         
         case WAIT_FAILED:
             error = platform_error(::GetLastError(), "Can't wait the process");
             return false;
 
-        case WAIT_TIMEOUT:  // ³¬Ê±¼°ÆäËû
+        case WAIT_TIMEOUT:  // è¶…æ—¶åŠå…¶ä»–
         default:
             return false;
         }
@@ -466,7 +470,7 @@ void process::terminate(platform_error& error)
 
     if (valid() && running())
     {
-        // ¸Ãº¯ÊıÒªÇó, handle Ö¸ÏòµÄ¾ä±ú±ØĞë¾ßÓĞ PROCESS_TERMINATE È¨ÏŞ
+        // è¯¥å‡½æ•°è¦æ±‚, handle æŒ‡å‘çš„å¥æŸ„å¿…é¡»å…·æœ‰ PROCESS_TERMINATE æƒé™
         if (!::TerminateProcess((HANDLE)_handle, -1))
         {
             error = platform_error(::GetLastError(), "Can't terminate the process");

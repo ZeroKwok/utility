@@ -13,15 +13,15 @@
 
 namespace util {
 
-/*
-*   宽字节, 多字节字符版本的格式化
-*/
+/*!
+ *   宽字节, 多字节字符版本的格式化
+ */
 UTILITY_FUNCT_DECL std::string  sformat(const char * format, ...);
 UTILITY_FUNCT_DECL std::wstring sformat(const wchar_t * format, ...);
 
-/*
-*   字符串替换
-*/
+/*!
+ *   字符串替换
+ */
 UTILITY_FUNCT_DECL std::string& replace(
     std::string& target,
     const std::string& before,
@@ -39,9 +39,9 @@ UTILITY_FUNCT_DECL std::wstring replace_copy(
     const std::wstring& before,
     const std::wstring& after);
 
-/*
-*	大小写转换
-*/
+/*!
+ *    大小写转换
+ */
 UTILITY_FUNCT_DECL std::string  to_lower(const std::string& str);
 UTILITY_FUNCT_DECL std::wstring to_lower(const std::wstring& str);
 UTILITY_FUNCT_DECL std::string  to_upper(const std::string& str);
@@ -75,8 +75,8 @@ UTILITY_FUNCT_DECL std::wstring right(
 
 enum UTILITY_CLASS_DECL between_policy
 {
-    without_mark = 0x00, ///< between()返回的子串不包含标记内容;
-    contains_mark = 0x01, ///< between()返回的子串包含标记内容;
+    without_mark  = 0x00, //!< between()返回的子串不包含标记内容;
+    contains_mark = 0x01, //!< between()返回的子串包含标记内容;
 };
 
 /*!

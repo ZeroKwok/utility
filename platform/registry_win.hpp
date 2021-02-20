@@ -8,11 +8,8 @@
 *   v0.2 2020-11 by GuoJH
 */
 
-#include <utility.hpp>
-
-#if OS_WIN
-
 #include <vector>
+#include <utility.hpp>
 #include <string/tstring.hpp>
 #include <common/bytedata.hpp>
 #include <platform/platform_cfg.hpp>
@@ -176,8 +173,6 @@ UTILITY_FUNCT_DECL std::vector<std::pair<std::wstring, registry_value_types>>
 
 } // win
 } // util
-
-#endif // OS_WIN
 
 #ifndef UTILITY_DISABLE_HEADONLY
 #   include "impl/registry_win.ipp"
