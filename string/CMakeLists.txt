@@ -8,6 +8,9 @@ else()
     add_library(${PROJECT_NAME} STATIC impl/string.cpp)
 endif()
 
+# 定义目标别名
+add_library(utility::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
     ${UTILITY_TARGET_COMPILE_DEFINITIONS})
 

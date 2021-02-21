@@ -42,31 +42,20 @@ target_link_libraries(${PROJECT_NAME} gtest_main)
 
 # 若没有启动自动连接支持
 if(NOT UTILITY_ENABLE_AUTO_LINK)
+
     # 尝试查找是否安装utility, 优先使用安装的utility
-    # 因安装版本采用了名称空间故这里需要区分
     find_package(utility)
 
-    if(utility_FOUND)
-        target_link_libraries(${PROJECT_NAME} 
-            utility::string 
-            utility::filesystem 
-            utility::platform 
-            utility::common)
+    target_link_libraries(${PROJECT_NAME} 
+        utility::string 
+        utility::filesystem 
+        utility::platform 
+        utility::common)
 
-        if(MSVC)
-            target_link_libraries(${PROJECT_NAME} utility::process)
-        endif()
-    else()
-        target_link_libraries(${PROJECT_NAME} 
-            string 
-            platform 
-            filesystem 
-            common)
-
-        if(MSVC)
-            target_link_libraries(${PROJECT_NAME} process)
-        endif()
+    if(MSVC)
+        target_link_libraries(${PROJECT_NAME} utility::process)
     endif()
+
     target_compile_definitions(${PROJECT_NAME} PRIVATE UTILITY_DISABLE_AUTO_LINK)
 endif()
 

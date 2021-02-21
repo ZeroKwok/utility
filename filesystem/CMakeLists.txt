@@ -8,6 +8,9 @@ else()
     add_library(${PROJECT_NAME} STATIC impl/filesystem.cpp)
 endif()
 
+# 定义目标别名
+add_library(utility::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 # 某些跨平台实现暂时依赖 Boost::filesystem
 if(UNIX OR NOT UTILITY_BOOST_SUPPORT_AUTOLINK)
     target_link_libraries(${PROJECT_NAME} Boost::filesystem)
