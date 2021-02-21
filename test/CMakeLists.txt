@@ -13,6 +13,13 @@ find_package(GTest 1.10.0)
 
 # 找不到尝试编译
 if(NOT GTest_NOTFOUND)
+    if(UTILITY_ENABLE_STATIC_RUNTIME)
+        set(gtest_force_shared_crt OFF)
+    else()
+        set(gtest_force_shared_crt ON)
+    endif()
+    message("gtest_force_shared_crt=${gtest_force_shared_crt}")
+
     add_subdirectory(googletest-1.10.0)
 endif()
 
