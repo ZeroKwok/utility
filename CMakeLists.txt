@@ -131,11 +131,12 @@ install(
 install(
   FILES
     cmake/utilityConfig.cmake
+	cmake/library_regular_naming.cmake
   DESTINATION
     cmake
   COMPONENT
     Devel)
-
+	
 # 生成版本文件
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
