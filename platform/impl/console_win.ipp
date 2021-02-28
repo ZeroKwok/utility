@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../console_win.hpp"
+#   include "../console_win.h"
 #endif
 
 #include <windows.h>

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <string/tstring.hpp>
+#include <string/tstring.h>
 #include <string/string_conv_easy.hpp>
 
 //

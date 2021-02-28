@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../file_win.hpp"
+#   include "../file_win.h"
 #endif
 
 #include <list>
@@ -9,9 +9,9 @@
 #include <shlobj.h>
 #include <windows.h>
 #include <shellapi.h>
-#include <string/string_util.hpp>
-#include <filesystem/path_util.hpp>
-#include <platform/platform_util.hpp>
+#include <string/string_util.h>
+#include <filesystem/path_util.h>
+#include <platform/platform_util.h>
 
 #include <boost/filesystem.hpp>
 

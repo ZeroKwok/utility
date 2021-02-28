@@ -1,6 +1,6 @@
 #include <utility.hpp>
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../string_conv.hpp"
+#   include "../string_conv.h"
 #endif
 
 #if OS_WIN

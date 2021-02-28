@@ -2,7 +2,7 @@
 #define file_win_h__
 
 /*
-*   file_win.hpp 
+*   file_win.h
 *
 *   v0.1 2018-03 by GuoJH
 *   v0.2 2019-07 by GuoJH
@@ -10,7 +10,7 @@
 */
 
 #ifndef file_util_h__
-#   include <filesystem/file_util.hpp>
+#   include <filesystem/file_util.h>
 #endif
 
 namespace util {

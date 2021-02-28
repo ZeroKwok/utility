@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../string_util.hpp"
+#   include "../string_util.h"
 #endif
 
 #include <stdarg.h>

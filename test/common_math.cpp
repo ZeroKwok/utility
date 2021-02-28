@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <common/math_util.hpp>
+#include <common/math_util.h>
 
 TEST(common_math, is_float_equal)
 {

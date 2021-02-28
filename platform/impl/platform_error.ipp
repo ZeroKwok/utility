@@ -1,8 +1,8 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../platform_error.hpp"
+#   include "../platform_error.h"
 #endif
 
-#include <platform/platform_util.hpp>
+#include <platform/platform_util.h>
 
 namespace util {
 

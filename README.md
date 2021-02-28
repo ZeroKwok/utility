@@ -2,7 +2,7 @@
 
 2020-12 By GuoJH
 
-## 提供c++以及boost中经常用到但并未提供的功能, 或者依赖于具体平台的扩展:
+该库来自于日常开发中常用功能的沉淀，提供c++以及boost中经常用到但并未提供的功能，或者依赖于具体平台的扩展。
 
 ### platform(提供依赖于平台的扩展功能)
 - windows 小型转储文件, 崩溃事件处理;
@@ -25,4 +25,13 @@
 - windows/unix-like 文件, 文件夹, 路径处理的便捷api;
 - windows 提供创建快捷方式, 读取文件版本, 通过shell打开, 目录授权等扩展功能;
 
-### common 一些常用而杂乱的功能, 略~
+### common 一些常用而杂乱的功能
+- unit.h             单位转换
+- assert.hpp         自定义断言
+- digest.hpp         信息摘要
+- math_util.h        浮点处理方面的沉淀
+- time_util.h        时间处理方面的沉淀
+- encryption.h       数据加密(目前仅tea32算法)
+- bytedata.hpp       字节数据(二进制)处理
+- simple_lock.hpp    Windows 方面的自动锁
+- thread_interrupt.h 线程中断扩展功能

@@ -1,10 +1,10 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../unit.hpp"
+#   include "../unit.h"
 #endif
 
 #include <cmath>
 #include <vector>
-#include <string/string_util.hpp>
+#include <string/string_util.h>
 #include <string/string_conv_easy.hpp>
 
 namespace util {

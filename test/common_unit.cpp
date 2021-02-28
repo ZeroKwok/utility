@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <common/unit.hpp>
+#include <common/unit.h>
 
 TEST(common_unit, bytes_add_suffix)
 {

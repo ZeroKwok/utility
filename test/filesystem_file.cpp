@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <filesystem/file_util.hpp>
-#include <filesystem/path_util.hpp>
+#include <filesystem/file_util.h>
+#include <filesystem/path_util.h>
 
 #if OS_POSIX
 static const char exist_root[]                  = R"(/)";

@@ -1,13 +1,13 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../mini_dump_win.hpp"
+#   include "../mini_dump_win.h"
 #endif
 
 #include <ctime>
 #include <windows.h>
 #include <DbgHelp.h>
-#include <common/time_util.hpp>
-#include <string/string_util.hpp>
-#include <filesystem/path_util.hpp>
+#include <common/time_util.h>
+#include <string/string_util.h>
+#include <filesystem/path_util.h>
 
 #pragma comment(lib, "Dbghelp.lib")
 

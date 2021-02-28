@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../platform_util.hpp"
+#   include "../platform_util.h"
 #endif
 
 #include <stdint.h>

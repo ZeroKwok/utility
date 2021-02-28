@@ -1,11 +1,11 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../platform_win.hpp"
+#   include "../platform_win.h"
 #endif
 
 #include <windows.h>
-#include <string/string_util.hpp>
+#include <string/string_util.h>
 #include <string/string_conv_easy.hpp>
-#include <platform/registry_win.hpp>
+#include <platform/registry_win.h>
 
 #include "dbghelp_api.hpp"
 

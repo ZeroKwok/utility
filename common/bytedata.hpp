@@ -9,8 +9,8 @@
 */
 
 #include <string>
-#include <common/common_cfg.hpp>
-#include <filesystem/path_util.hpp>
+#include <common/common_cfg.h>
+#include <filesystem/path_util.h>
 
 #ifdef UTILITY_SUPPORT_BOOST
 #   include <boost/archive/binary_oarchive.hpp>

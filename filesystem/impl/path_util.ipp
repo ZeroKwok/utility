@@ -1,11 +1,11 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../path_util.hpp"
+#   include "../path_util.h"
 #endif
 
 #include <algorithm>
-#include <string/string_util.hpp>
-#include <filesystem/path_util.hpp>
-#include <platform/platform_util.hpp>
+#include <string/string_util.h>
+#include <filesystem/path_util.h>
+#include <platform/platform_util.h>
 
 #if OS_POSIX
 #   include <pwd.h>

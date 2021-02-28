@@ -13,7 +13,7 @@
 #endif
 
 #include <common/bytedata.hpp>
-#include <common/common_cfg.hpp>
+#include <common/common_cfg.h>
 
 namespace util {
 

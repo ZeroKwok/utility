@@ -31,9 +31,9 @@ public:
     // held by something else, immediately return false.
     bool try_lock()
     {
-        if (::TryEnterCriticalSection(&__cs) != FALSE) {
+        if (::TryEnterCriticalSection(&__cs) != FALSE)
             return true;
-        }
+
         return false;
     }
 

@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../math_util.hpp"
+#   include "../math_util.h"
 #endif
 
 #include <math.h>

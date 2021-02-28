@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <gtest/gtest.h>
-#include <process/process.hpp>
+#include <process/process.h>
 #include <string/string_conv_easy.hpp>
 
 TEST(process, default_constructor)

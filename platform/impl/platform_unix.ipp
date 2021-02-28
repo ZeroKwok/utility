@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../platform_unix.hpp"
+#   include "../platform_unix.h"
 #endif
 
 #if OS_POSIX

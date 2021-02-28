@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../process.hpp"
+#   include "../process.h"
 #endif
 
 #ifndef OS_WIN
@@ -8,8 +8,8 @@
 
 #include <windows.h>
 #include <shellapi.h>
-#include <string/string_util.hpp>
-#include <platform/platform_util.hpp>
+#include <string/string_util.h>
+#include <platform/platform_util.h>
 
 namespace util {
 namespace detail {

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <platform/platform_util.hpp>
+#include <platform/platform_util.h>
 
 using namespace util;
 

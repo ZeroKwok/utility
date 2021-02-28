@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <filesystem/path_util.hpp>
+#include <filesystem/path_util.h>
 
 #if OS_WIN
 #   include <shlobj.h>

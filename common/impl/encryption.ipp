@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../encryption.hpp"
+#   include "../encryption.h"
 #endif
 
 namespace util {

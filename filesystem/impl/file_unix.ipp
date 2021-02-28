@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../file_unix.hpp"
+#   include "../file_unix.h"
 #endif
 
 #include <ftw.h>
@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include <platform/platform_util.hpp>
+#include <platform/platform_util.h>
 
 namespace util {
 

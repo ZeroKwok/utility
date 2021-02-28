@@ -1,11 +1,11 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../time_util.hpp"
+#   include "../time_util.h"
 #endif
 
 #include <time.h>
-#include <string/string_util.hpp>
+#include <string/string_util.h>
 #include <string/string_conv_easy.hpp>
-#include <platform/platform_util.hpp>
+#include <platform/platform_util.h>
 
 #if UTILITY_SUPPORT_BOOST
 #   include <boost/date_time.hpp>

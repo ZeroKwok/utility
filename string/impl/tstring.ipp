@@ -1,9 +1,9 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../tstring.hpp"
+#   include "../tstring.h"
 #endif
 
-#include <string/string_util.hpp>
-#include <string/string_conv.hpp>
+#include <string/string_util.h>
+#include <string/string_conv.h>
 #include <string/string_conv_easy.hpp>
 
 using namespace util::conv::easy;

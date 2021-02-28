@@ -1,8 +1,8 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../cpu.hpp"
+#   include "../cpu.h"
 #endif
 
-#include <string/string_util.hpp>
+#include <string/string_util.h>
 
 #if defined(ARCH_CPU_X86_FAMILY)
 #   if defined(COMPILER_MSVC)

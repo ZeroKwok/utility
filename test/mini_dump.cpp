@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <filesystem/path_util.hpp>
-#include <platform/mini_dump_win.hpp>
+#include <filesystem/path_util.h>
+#include <platform/mini_dump_win.h>
 
 TEST(platform, mini_dump)
 {

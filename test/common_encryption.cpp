@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <common/encryption.hpp>
+#include <common/encryption.h>
 
 TEST(common_encryption, tea32)
 {

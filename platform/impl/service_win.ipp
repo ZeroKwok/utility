@@ -1,9 +1,9 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../service_win.hpp"
+#   include "../service_win.h"
 #endif
 
 #include <windows.h>
-#include <platform/platform_error.hpp>
+#include <platform/platform_error.h>
 
 namespace util{
 namespace win {

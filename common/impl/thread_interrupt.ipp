@@ -1,5 +1,5 @@
 #ifdef UTILITY_DISABLE_HEADONLY
-#   include "../thread_interrupt.hpp"
+#   include "../thread_interrupt.h"
 #endif
 
 #ifndef UTILITY_SUPPORT_BOOST
@@ -8,7 +8,7 @@
 
 #include <boost/atomic.hpp>
 #include <boost/thread/tss.hpp>
-#include <platform/platform_util.hpp>
+#include <platform/platform_util.h>
 
 namespace util {
 namespace interrupt {
