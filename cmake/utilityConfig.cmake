@@ -14,3 +14,5 @@ set(utility_INCLUDE_DIRS "${UTILITY_PREFIX}/include")
 set(utility_LIBRARY_DIRS "${UTILITY_PREFIX}/lib")
 set(utility_SOURCE_DIR   "${UTILITY_PREFIX}")
 unset(UTILITY_PREFIX)
+
+link_directories(${utility_LIBRARY_DIRS})
