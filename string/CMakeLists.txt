@@ -8,6 +8,10 @@ else()
     add_library(${PROJECT_NAME} STATIC impl/string.cpp)
 endif()
 
+if(UTILITY_SUPPORT_QT)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Qt5::Core)
+endif()
+
 # 定义目标别名
 add_library(utility::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

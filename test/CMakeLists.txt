@@ -67,4 +67,4 @@ if(NOT UTILITY_ENABLE_AUTO_LINK)
 endif()
 
 # 添加到测试
-gtest_discover_tests(${PROJECT_NAME})
+# gtest_discover_tests(${PROJECT_NAME})

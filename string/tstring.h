@@ -14,6 +14,7 @@
 #include <string/string_conv.h>
 
 #ifdef UTILITY_SUPPORT_QT
+#   include <string/string_conv_easy.hpp>
 #   include <QString>
 #endif
 
@@ -68,8 +69,8 @@ public:
     UTILITY_MEMBER_DECL ~tstring();
 
 #ifdef UTILITY_SUPPORT_QT
-    UTILITY_MEMBER_DECL tstring(const QString& right);
-    UTILITY_MEMBER_DECL operator QString() const;
+    inline tstring(const QString& right);
+    inline operator QString() const;
 #endif
 
 #ifdef UTILITY_SUPPORT_BOOST
@@ -102,6 +103,9 @@ public:
     //! 返回指定字符串的索引, 若找不到则返回npos.
     //! 类似于std::string::find()方法
     UTILITY_MEMBER_DECL tstring::size_type index_of(const tstring& arg, tstring::size_type off = 0) const;
+
+private:
+    int m_index;
 };
 
 template<class _Type>
@@ -111,6 +115,25 @@ tstring& util::tstring::operator%(const _Type& arg)
     stream << arg;
     return (*this) % stream.str();
 }
+
+//!
+//! 为了避免库产生Qt Core 的依赖, 这在编写非Qt应用程序时非常重要
+//! 
+#ifdef UTILITY_SUPPORT_QT
+inline tstring::tstring(const QString& right)
+#if OS_WIN
+    : supper_type(conv::easy::_2wstr(right))
+#else
+    : supper_type(conv::easy::_2str(right))
+#endif
+    , m_index(0)
+{}
+
+inline tstring::operator QString() const
+{
+    return conv::easy::_2qstr(*this);
+}
+#endif // UTILITY_SUPPORT_QT
 
 } // util
 

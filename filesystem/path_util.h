@@ -12,6 +12,13 @@
 #include <filesystem/file_util.h>
 #include <filesystem/filesystem_cfg.h>
 
+#if OS_WIN
+#   include <shlobj.h>
+#   ifdef MessageBox
+#       undef MessageBox
+#   endif
+#endif
+
 namespace util {
 
 /*!

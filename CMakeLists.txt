@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+cmake_policy(SET CMP0074 NEW)
+
 project(utility VERSION 0.2.1 LANGUAGES CXX)
 
 # 是否编译单元测试
@@ -84,10 +86,11 @@ if(UTILITY_SUPPORT_BOOST)
 endif()
 
 if(UTILITY_SUPPORT_QT)
-    find_package(Qt5 REQUIRED Widgets)
+    find_package(Qt5 REQUIRED Core)
 endif()
 
 # regular naming
+include(cmake_debug)
 include(internal_util)
 include(library_regular_naming)
 

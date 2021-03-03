@@ -54,9 +54,35 @@ inline std::string _2str(
     return string;
 }
 
+//! 提供const char* 版本以解决QString, std::string的冲突.
+inline std::string _2str(
+    const char* string, coded_format format = format_local)
+{
+    if (format == format_utf8)
+    {
+        std::string result;
+
+        return util::conv::utf8_to_string(string, result);
+    }
+
+    return string;
+}
+
 //! 提供多字节到宽字节转换的便捷API
 inline std::wstring _2wstr(
     const std::string& string, coded_format format = format_local)
+{
+    std::wstring result;
+
+    if (format == format_utf8)
+        return util::conv::utf8_to_wstring(string, result);
+
+    return util::conv::string_to_wstring(string, result);
+}
+
+//! 提供const char* 版本以解决QString, std::string的冲突.
+inline std::wstring _2wstr(
+    const char* string, coded_format format = format_local)
 {
     std::wstring result;
 
@@ -84,6 +110,18 @@ inline std::string _2utf8(const std::wstring& string)
 //! 提供宽字节到utf-8转换的便捷API
 inline std::string _2utf8(
     const std::string& string, coded_format format = format_local)
+{
+    if (format == format_utf8)
+        return string;
+
+    std::string result;
+
+    return util::conv::string_to_utf8(string, result);
+}
+
+//! 提供const char* 版本以解决QString, std::string的冲突.
+inline std::string _2utf8(
+    const char* string, coded_format format = format_local)
 {
     if (format == format_utf8)
         return string;

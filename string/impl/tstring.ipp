@@ -15,60 +15,30 @@ using namespace util::conv::easy;
 #endif
 
 namespace util {
-namespace privately {
-
-//  privately
-struct tstring_private
-{
-    int index;
-
-    tstring_private() : index(0)
-    {}
-};
-
-} // privately
 
 tstring::tstring()
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
+    : m_index(0)
+{}
 
 tstring::tstring(const char* right, coded_format format/* = ansi*/)
     : supper_type(_2tstr(right ? right : "", coded_format(format)))
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
+    , m_index(0)
+{}
 
 tstring::tstring(const wchar_t* right)
     : supper_type(_2tstr(right ? right : L""))
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
+    , m_index(0)
+{}
 
 tstring::tstring(const std::string& right, coded_format format/* = ansi*/)
     : supper_type(_2tstr(right, coded_format(format)))
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
+    , m_index(0)
+{}
 
 tstring::tstring(const std::wstring& right)
     : supper_type(_2tstr(right))
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
-
-#ifdef UTILITY_SUPPORT_QT
-tstring::tstring(const QString& right)
-    : supper_type(_2tstr(right))
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
-
-tstring::operator QString() const
-{
-    return _2qstr(*this);
-}
-#endif // UTILITY_SUPPORT_QT
+    , m_index(0)
+{}
 
 #ifdef UTILITY_SUPPORT_BOOST
 tstring::tstring(const boost::filesystem::path& right)
@@ -77,9 +47,8 @@ tstring::tstring(const boost::filesystem::path& right)
 #else
     : supper_type(right.wstring())
 #endif 
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
+    , m_index(0)
+{}
 
 tstring::operator boost::filesystem::path() const
 {
@@ -98,9 +67,8 @@ tstring::tstring(const std::filesystem::path& right)
 #else
     : supper_type(right.wstring())
 #endif 
-{
-    UTILITY_INIT_PRIVATE(tstring);
-}
+    , m_index(0)
+{}
 
 tstring::operator std::filesystem::path() const
 {
@@ -114,19 +82,15 @@ tstring::operator std::filesystem::path() const
 
 tstring::tstring(const tstring& right)
     : supper_type(right)
-{
-    UTILITY_INIT_PRIVATE(tstring);
-    UTILITY_BOTH_PRIVATE_COPY(tstring, (*this), right);
-}
+    , m_index(right.m_index)
+{}
 
 tstring::~tstring()
-{
-    UTILITY_FREE_PRIVATE(tstring);
-}
+{}
 
 tstring& tstring::operator=(const tstring& right)
 {
-    UTILITY_BOTH_PRIVATE_COPY(tstring, (*this), right);
+    m_index = right.m_index;
 
 #if COMPILER_MSVC
     supper_type::operator=(right.wstring());
@@ -188,7 +152,7 @@ util::tstring& tstring::operator%(const std::wstring& arg)
 {
 #if COMPILER_MSVC
     std::wstring specifier =
-        util::sformat(L"{%d}", ++UTILITY_PRIVATE(tstring).index);
+        util::sformat(L"{%d}", ++m_index);
     util::replace(*this, specifier, arg);
 
     return *this;
