@@ -754,10 +754,10 @@ void directories_create(const fpath& path, ferror& ferr) noexcept
 
     fpath pdir = path;
 
-    if (!file_exist(pdir = path_find_parent(pdir), ferr))
+    if (!file_exist(pdir = path_find_parent(pdir), ferr) && pdir != path)
     {
         directories_create(pdir, ferr);
-        if (ferr) 
+        if (ferr)
             return;
     }
 

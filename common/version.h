@@ -52,6 +52,7 @@ UTILITY_FUNCT_DECL product_version version_from_value(uint32_t value);
 //! 从字符串构造版本号
 //! 
 UTILITY_FUNCT_DECL product_version version_from_string(std::string version);
+UTILITY_FUNCT_DECL product_version version_from_string(std::wstring version);
 
 //!
 //!  版本类型比较
@@ -64,6 +65,16 @@ inline bool operator>(const product_version& left, const product_version& right)
 inline bool operator<(const product_version& left, const product_version& right)
 {
     return version_into_value(left) < version_into_value(right);
+}
+
+inline bool operator==(const product_version& left, const product_version& right)
+{
+    return version_into_value(left) == version_into_value(right);
+}
+
+inline bool operator!=(const product_version& left, const product_version& right)
+{
+    return version_into_value(left) != version_into_value(right);
 }
 
 } // util

@@ -6,6 +6,7 @@
 #   error version.h needs Boost support
 #endif
 
+#include <string/string_conv_easy.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/algorithm.hpp>
 
@@ -79,7 +80,7 @@ product_version version_from_value(uint32_t value)
 //!
 //! 从字符串构造版本号
 //! 
-inline product_version version_from_string(std::string version)
+product_version version_from_string(std::string version)
 {
     product_version result = { 0 };
 
@@ -105,6 +106,11 @@ inline product_version version_from_string(std::string version)
     }
 
     return result;
+}
+
+product_version version_from_string(std::wstring version)
+{
+    return version_from_string(conv::easy::_2str(version));
 }
 
 } // util

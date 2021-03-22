@@ -2,6 +2,8 @@
 #define assert_h__
 
 #include <common/common_cfg.h>
+#include <string/string_util.h>
+#include <platform/console_win.h>
 
 // util_assert
 #ifdef _DEBUG

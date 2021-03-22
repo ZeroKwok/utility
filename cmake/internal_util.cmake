@@ -1,10 +1,15 @@
 function(install_pdb target_name)
+    
     get_target_property(target_pdb_name_debug       ${target_name} COMPILE_PDB_NAME_DEBUG)
     get_target_property(target_pdb_name_release     ${target_name} COMPILE_PDB_NAME_RELEASE)
     get_target_property(target_pdb_output_directory ${target_name} PDB_OUTPUT_DIRECTORY)
+    
+    # éœ€è¦è®¾ç½® set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    # message("target_pdb_name_debug=${target_pdb_name_debug}")
+    # message("target_pdb_output_directory=${target_pdb_output_directory}")
 
-    # ÔÚvs2019ÖĞ, ÎÄ¼şÊä³öÄ¿Â¼ÎªCMAKE_ARCHIVE_OUTPUT_DIRECTORY,
-    # ÔÚcmdÖĞÔòÊÇCMAKE_ARCHIVE_OUTPUT_DIRECTORY/CMAKE_INSTALL_CONFIG_NAME
+    # åœ¨vs2019ä¸­, æ–‡ä»¶è¾“å‡ºç›®å½•ä¸ºCMAKE_ARCHIVE_OUTPUT_DIRECTORY,
+    # åœ¨cmdä¸­åˆ™æ˜¯CMAKE_ARCHIVE_OUTPUT_DIRECTORY/CMAKE_INSTALL_CONFIG_NAME
     install(FILES
         "${target_pdb_output_directory}/\${CMAKE_INSTALL_CONFIG_NAME}/$<$<CONFIG:Debug>:${target_pdb_name_debug}>$<$<NOT:$<CONFIG:Debug>>:${target_pdb_name_release}>.pdb"
         DESTINATION lib

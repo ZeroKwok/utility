@@ -32,6 +32,7 @@ set(TEST_SOUCES
     filesystem_path.cpp 
     common_unit.cpp 
     common_math.cpp
+    common_version.cpp
     common_encryption.cpp)
 
 if(WIN32)

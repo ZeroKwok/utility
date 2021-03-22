@@ -421,6 +421,9 @@ TEST(file_util, directories_create_and_remove)
     exist1 = util::file_exist("./parent", ferr);
     EXPECT_FALSE(exist1);
     EXPECT_FALSE(ferr);
+
+    util::directories_create(L"中文", ferr);
+    EXPECT_FALSE(ferr);
 }
 
 
