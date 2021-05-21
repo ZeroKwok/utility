@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-
 cmake_policy(SET CMP0074 NEW)
+cmake_minimum_required(VERSION 3.13)
 
 project(utility VERSION 0.2.1 LANGUAGES CXX)
 

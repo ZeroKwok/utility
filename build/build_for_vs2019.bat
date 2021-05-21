@@ -12,7 +12,8 @@ REM 生成静态运行时32位版本
 echo on
 mkdir build_vs2019
 pushd build_vs2019
-cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_static_x86_%ProjectLibSufix%" -DUTILITY_SUPPORT_QT=ON  -DUTILITY_ENABLE_STATIC_RUNTIME=ON -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
+cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_static_x86_%ProjectLibSufix%" ^
+        -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_ENABLE_STATIC_RUNTIME=ON -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
 cmake --build   . --config Debug
 cmake --build   . --config RelWithDebInfo
 cmake --install . --config Debug
@@ -27,7 +28,8 @@ REM 生成动态运行时32位版本
 echo on
 mkdir build_vs2019
 pushd build_vs2019
-cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_dynamic_x86_%ProjectLibSufix%" -DUTILITY_SUPPORT_QT=ON  -DUTILITY_ENABLE_STATIC_RUNTIME=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
+cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_dynamic_x86_%ProjectLibSufix%" ^
+        -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_ENABLE_STATIC_RUNTIME=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
 cmake --build   . --config Debug
 cmake --build   . --config RelWithDebInfo
 cmake --install . --config Debug
