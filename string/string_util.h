@@ -40,7 +40,7 @@ UTILITY_FUNCT_DECL std::wstring replace_copy(
     const std::wstring& after);
 
 /*!
- *    大小写转换
+ *   大小写转换
  */
 UTILITY_FUNCT_DECL std::string  to_lower(const std::string& str);
 UTILITY_FUNCT_DECL std::wstring to_lower(const std::wstring& str);

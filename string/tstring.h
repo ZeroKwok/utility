@@ -93,6 +93,7 @@ public:
     UTILITY_MEMBER_DECL std::string string() const;
     UTILITY_MEMBER_DECL std::wstring wstring() const;
 
+    //! 以指定的内容替换字符串中的占位符, 如: {1},{2}
     template<class _Type>
     UTILITY_MEMBER_DECL tstring& operator%(const _Type& arg);
     UTILITY_MEMBER_DECL tstring& operator%(const char* arg);

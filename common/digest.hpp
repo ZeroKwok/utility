@@ -20,7 +20,7 @@ namespace util {
 // need boost support 
 #ifdef UTILITY_SUPPORT_BOOST
 
-/// 计算数据的sha1摘要
+/// 璁＄畻鏁版嵁鐨剆ha1鎽樿
 inline bytedata bytes_sha1_digest(const bytedata& bytes)
 {
     boost::uuids::detail::sha1 sha1;
@@ -36,7 +36,7 @@ inline bytedata bytes_sha1_digest(const bytedata& bytes)
     return result;
 }
 
-/// 计算文件的sha1摘要
+/// 璁＄畻鏂囦欢鐨剆ha1鎽樿
 inline bytedata file_sha1_digest(const fpath& name)
 {
     boost::uuids::detail::sha1 sha1;
@@ -66,7 +66,7 @@ inline bytedata file_sha1_digest(const fpath& name)
     return result;
 }
 
-/// 计算数据的md5摘要
+/// 璁＄畻鏁版嵁鐨刴d5鎽樿
 inline bytedata bytes_md5_digest(const bytedata& bytes)
 {
     boost::uuids::detail::md5 md5;
@@ -82,7 +82,7 @@ inline bytedata bytes_md5_digest(const bytedata& bytes)
     return result;
 }
 
-/// 计算文件的md5摘要
+/// 璁＄畻鏂囦欢鐨刴d5鎽樿
 inline bytedata file_md5_digest(const fpath& name)
 {
     boost::uuids::detail::md5 md5;

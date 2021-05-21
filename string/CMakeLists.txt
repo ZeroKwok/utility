@@ -9,7 +9,7 @@ else()
 endif()
 
 if(UTILITY_SUPPORT_QT)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Qt5::Core)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core)
 endif()
 
 # 定义目标别名

@@ -33,9 +33,9 @@ inline HANDLE runapp_with_redirection(
         si.dwFlags = STARTF_USESTDHANDLES;
 
     si.cb            = sizeof(si);
-    si.hStdInput    = input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdInput     = input  ? input  : ::GetStdHandle(STD_INPUT_HANDLE);
     si.hStdOutput    = output ? output : ::GetStdHandle(STD_OUTPUT_HANDLE);
-    si.hStdError    = error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
+    si.hStdError     = error  ? error  : ::GetStdHandle(STD_ERROR_HANDLE);
 
     if (policy & process::hide_window)
     {

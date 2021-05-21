@@ -13,7 +13,7 @@
 namespace util {
 
 /*!
- *   转换字节数到合适的单位, 并添加下标
+ *   转换字节数到合适的单位并添加后缀
  */
 UTILITY_FUNCT_DECL std::string bytes_add_suffix(
     double bytes, int base = 1024, const std::string suffix = "");
@@ -21,7 +21,7 @@ UTILITY_FUNCT_DECL std::wstring wbytes_add_suffix(
     double bytes, int base = 1024, const std::wstring suffix = L"");
 
 /*!
- *   转换秒数到合适的单位, 并添加下标
+ *   转换秒数到合适的单位并添加后缀
  */
 UTILITY_FUNCT_DECL std::string seconds_add_suffix(
     int sec, const std::string suffix = "");
@@ -29,7 +29,7 @@ UTILITY_FUNCT_DECL std::wstring wseconds_add_suffix(
     int sec, const std::wstring suffix = L"");
 
 /*!
- *   转换时长到合适的单位, 并添加下标
+ *   以指定的时长与分隔符转换到合适的单位
  */
 UTILITY_FUNCT_DECL std::string duration_format(
     int sec, const std::string separator = ":");

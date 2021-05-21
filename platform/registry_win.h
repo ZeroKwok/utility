@@ -43,13 +43,14 @@ enum registry_value_types
  *
  *  /param  path   访问的注册表路径, 可以是一个预定义的HKEY开头, 如: HKEY_CURRENT_USER\Software\Wow6432Node.
  *                 若不包含预定义KHEY则默认访问 HKEY_LOCAL_MACHINE.
- *  /param  access 表示注册表附加访问属性, 若在64位操作系统下的32位程序要访问64位的注册表可以指定KEY_WOW64_64KEY.
+ *  /param  access 表示注册表附加访问属性, 32位程序访问64位的注册表可以指定KEY_WOW64_64KEY.
+ *                 指定0表示默认行为, 64位系统下32位程序的注册表访问将被重定向到HKEY_CURRENT_USER\Software\Wow6432Node\...下面. 
  *  /param  error  若发生错误则会设置到该变量.
  * 
  *  /return true 表示指定的路径存在.
  */
 UTILITY_FUNCT_DECL bool registry_path_exist(
-    const tstring path, int access);
+    const tstring path, int access = 0);
 UTILITY_FUNCT_DECL bool registry_path_exist(
     const tstring path, int access, platform_error& error);
 

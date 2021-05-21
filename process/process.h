@@ -14,7 +14,7 @@
 namespace util {
 
 /*!
- *  /brief  提供与进程相关的扩展操作:
+ *  /brief  提供与进程相关的扩展操作, 目前仅支持windows
  *  <ul>
  *      <li> 通过传递hide_window策略, 决定进程是否显示窗口启动;
  *      <li> 通过传递elevate_privileges策略, 决定进程是否以管理员特权模式启动;

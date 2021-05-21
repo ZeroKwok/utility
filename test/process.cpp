@@ -48,33 +48,45 @@ TEST(process, pid_constructor)
 TEST(process, create_constructor)
 {
     util::platform_error error;
-    util::process process("", "notepad.exe", util::process::defaulted, error);
+    {
+        util::process process("C:\\Windows\\SysWOW64\\notepad.exe", L"G:\\自述文件.txt", util::process::defaulted, error);
 
-    EXPECT_TRUE(process.valid());
-    EXPECT_TRUE(process.joinable());
-    EXPECT_TRUE(process.running());
-    EXPECT_FALSE(process.wait_until(0, error));
-    EXPECT_TRUE(!error);
+        EXPECT_TRUE(process.valid());
+        EXPECT_TRUE(process.joinable());
+        EXPECT_TRUE(process.running());
+        EXPECT_FALSE(process.wait_until(0, error));
+        EXPECT_TRUE(!error);
+    }
 
-    EXPECT_TRUE(-1 != process.id());
-    EXPECT_TRUE(-1 != process.native_handle());
-    EXPECT_EQ(-1, process.exit_code());
+    {
+        util::process process("", "notepad.exe", util::process::defaulted, error);
 
-    ::Sleep(1000);
+        EXPECT_TRUE(process.valid());
+        EXPECT_TRUE(process.joinable());
+        EXPECT_TRUE(process.running());
+        EXPECT_FALSE(process.wait_until(0, error));
+        EXPECT_TRUE(!error);
 
-    process.terminate(error);
-    EXPECT_TRUE (process.wait_until(-1, error));
-    EXPECT_TRUE (process.valid());
-    EXPECT_TRUE (process.joinable());
-    EXPECT_FALSE(process.running());
-    EXPECT_TRUE (process.wait_until(0, error));
-    EXPECT_EQ   (-1, process.exit_code());
+        EXPECT_TRUE(-1 != process.id());
+        EXPECT_TRUE(-1 != process.native_handle());
+        EXPECT_EQ(-1, process.exit_code());
 
-    process.join();
+        ::Sleep(1000);
 
-    EXPECT_FALSE(process.valid());
-    EXPECT_EQ(-1, process.id());
-    EXPECT_EQ(-1, process.native_handle());
+        process.terminate(error);
+        EXPECT_TRUE(process.wait_until(-1, error));
+        EXPECT_TRUE(process.valid());
+        EXPECT_TRUE(process.joinable());
+        EXPECT_FALSE(process.running());
+        EXPECT_TRUE(process.wait_until(0, error));
+        EXPECT_EQ(-1, process.exit_code());
+
+        process.join();
+
+        EXPECT_FALSE(process.valid());
+        EXPECT_EQ(-1, process.id());
+        EXPECT_EQ(-1, process.native_handle());
+    }
 }
 
 TEST(process, create_constructor_launch_policy)

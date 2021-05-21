@@ -19,6 +19,10 @@ option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 # 是否启用静态运行时
 option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 if(WIN32)
     set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
 endif()
@@ -123,8 +127,7 @@ install(
     include)
 
 # msinttypes
-install(
-  FILES
+install(FILES
     msinttypes/stdint.h
     msinttypes/inttypes.h
   DESTINATION
@@ -147,21 +150,7 @@ write_basic_package_version_file(
   VERSION ${utility_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
-# 安装版本文件
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake"
-  DESTINATION
-    cmake
-  COMPONENT
-    Devel
-)
-
-install(
-  FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
-  DESTINATION
-    .
-  COMPONENT
-    Devel
-)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake" DESTINATION cmake)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/internal_util.cmake" DESTINATION cmake)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README.md" DESTINATION .)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test DESTINATION . OPTIONAL)

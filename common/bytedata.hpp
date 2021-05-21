@@ -43,7 +43,7 @@ public:
         : supper_type(reinterpret_cast<const char*>(buf), lenght) 
     {}
 
-    const supper_type& string() { 
+    supper_type& string() { 
         return *this; 
     }
  

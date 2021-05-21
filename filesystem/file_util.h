@@ -182,6 +182,7 @@ UTILITY_FUNCT_DECL void file_set_time(const fpath& name, const ftime& time, ferr
  *            而open()函数在这里将是原子的;
  *         3. 对于POSIX平台, 其直接调用open(), 默认创建权限采用666;
  *
+ *	** 以这种模式O_WRONLY | O_CREAT 打开文件, 似乎win的逻辑是追加而不是复写, 需要测试
  */
 UTILITY_FUNCT_DECL ffile file_open(const fpath& name, int oflag);
 UTILITY_FUNCT_DECL ffile file_open(const fpath& name, int oflag, ferror& ferr) noexcept;

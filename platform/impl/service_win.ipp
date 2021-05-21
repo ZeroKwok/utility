@@ -418,6 +418,11 @@ bool service_install(
     if (detail::AutoSCHandle hSCMAnager = detail::InitSCManager(
         SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE, error))
     {
+        //
+        // https://docs.microsoft.com/zh-cn/windows/win32/api/winsvc/nf-winsvc-createservicea
+        //
+        // dependencies 两个null结束, 一个null作为分隔符
+
         // Install the service into SCM by calling CreateService
         detail::AutoSCHandle hService = ::CreateServiceW(
             hSCMAnager,                  // SCManager database
@@ -575,10 +580,10 @@ bool service_exist(
     const util::tstring& name, platform_error& error)
 {
     if (detail::AutoSCHandle hSCMAnager = detail::InitSCManager(
-        SC_MANAGER_ALL_ACCESS, error))
+        SC_MANAGER_CONNECT, error))
     {
         if (detail::AutoSCHandle hService = detail::OpenServiceWithName(
-            hSCMAnager, name, SERVICE_ALL_ACCESS, error))
+            hSCMAnager, name, SERVICE_QUERY_STATUS, error))
         {
             return true;
         }
@@ -590,10 +595,10 @@ bool service_running(
     const util::tstring& name, platform_error& error)
 {
     if (detail::AutoSCHandle hSCMAnager = detail::InitSCManager(
-        SC_MANAGER_ALL_ACCESS, error))
+        SC_MANAGER_CONNECT, error))
     {
         if (detail::AutoSCHandle hService = detail::OpenServiceWithName(
-            hSCMAnager, name, SERVICE_ALL_ACCESS, error))
+            hSCMAnager, name, SERVICE_QUERY_STATUS, error))
         {
             SERVICE_STATUS_PROCESS status = { 0 };
             if (!detail::QueryServiceStatusWithHandle(hService, status, error))
