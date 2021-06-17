@@ -1036,7 +1036,6 @@ bool file_open_with_shell(const fpath& name)
 }
 
 bool file_open_with_shell(const fpath& name, ferror& ferr) noexcept
-
 {
     ferr.clear();
 

@@ -1001,10 +1001,12 @@ void path_open_with_explorer(const fpath& path, bool select/* = true*/)
 void path_open_with_explorer(const fpath& path, bool select, ferror& ferr) noexcept
 {
     ferr.clear();
-    fpath param = L"/select, " + path;
+
+    fpath name  = L"\"" + path + L"\"";
+    fpath param = L"/select, " + name;
 
     HINSTANCE hresult = ::ShellExecuteW(NULL, L"open", L"explorer",
-        select ? param.data() : path.data(), NULL, SW_SHOWDEFAULT);
+        select ? param.data() : name.data(), NULL, SW_SHOWDEFAULT);
 
     if (hresult <= HINSTANCE(32))
     {
