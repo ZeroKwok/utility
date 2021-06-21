@@ -276,4 +276,48 @@ std::wstring between(
     return detail::_between(target, left, right, policy);
 }
 
+bool start_with(const std::string& target, const std::string& head)
+{
+    if (head.empty())
+        return true;
+
+    if (head.length() > target.length())
+        return false;
+
+    return target.compare(0, head.length(), head) == 0;
+}
+
+bool start_with(const std::wstring& target, const std::wstring& head)
+{
+    if (head.empty())
+        return true;
+
+    if (head.length() > target.length())
+        return false;
+
+    return target.compare(0, head.length(), head) == 0;
+}
+
+bool end_with(const std::string& target, const std::string& tail)
+{
+    if (tail.empty())
+        return true;
+
+    if (tail.length() > target.length())
+        return false;
+
+    return target.compare(target.size() - tail.length(), tail.length(), tail) == 0;
+}
+
+bool end_with(const std::wstring& target, const std::wstring& tail)
+{
+    if (tail.empty())
+        return true;
+
+    if (tail.length() > target.length())
+        return false;
+
+    return target.compare(target.size() - tail.length(), tail.length(), tail) == 0;
+}
+
 } // util

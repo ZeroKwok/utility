@@ -460,8 +460,14 @@ void file_write(ffile& file, const void *data, int size, ferror& ferr) noexcept
         return;
     }
 
-    if (file.flags() & (_O_WRONLY | _O_RDWR | _O_APPEND))
-        file_seek(file, 0, FILE_END, ferr);
+    if (file.flags() & (_O_WRONLY | _O_RDWR ))
+    {
+        // 
+        // 这里的模拟操作是非原子的, 可能存在一定的安全隐患
+        // 
+        if (file.flags() & _O_APPEND)
+            file_seek(file, 0, FILE_END, ferr);
+    }
 
     DWORD written = 0;
     if (!::WriteFile(

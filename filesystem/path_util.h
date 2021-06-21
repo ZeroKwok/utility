@@ -147,6 +147,24 @@ UTILITY_FUNCT_DECL bool path_is_remote(const fpath& path) noexcept;
 UTILITY_FUNCT_DECL bool path_is_writable(const fpath& path);
 UTILITY_FUNCT_DECL bool path_is_writable(const fpath& path, ferror& ferr) noexcept;
 
+//! 文件系统类型
+enum fstype
+{
+    none   = 0,
+    FAT16  = 1,
+    FAT32  = 2,
+    exFAT  = 3,
+    NTFS   = 4,
+};
+
+/*!
+ *  \brief 获取路径所在的文件系统类型.
+ *  
+ *  \note  暂不支持Unix-like.
+ */
+UTILITY_FUNCT_DECL fstype path_filesystem(const fpath& path);
+UTILITY_FUNCT_DECL fstype path_filesystem(const fpath& path, ferror& ferr) noexcept;
+
 /*!
  *  \brief 路径拼接
  *         根据不同路径风格适当的处理路劲分隔符
@@ -178,11 +196,11 @@ UTILITY_FUNCT_DECL std::wstring path_append(const std::wstring& path, const std:
  * 
  *  \note  根目录暂不支持URL路径, 具体规则如下:
  *         1. 本地路径: 驱动器    C:\Program Files\windows    -> C:\
- *                              \\?\C:\Program Files        -> \\?\C:\
- *                     根目录    /home/git                   -> /
+ *                                \\?\C:\Program Files        -> \\?\C:\
+ *                      根目录    /home/git                   -> /
  * 
  *         2. 网络路径: UNC根目录 \\192.168.0.13\share\folder -> \\192.168.0.13\share
- *                     UNC长路径 \\?\UNC\server\share\folder -> \\?\UNC\server\share
+ *                      UNC长路径 \\?\UNC\server\share\folder -> \\?\UNC\server\share
  * 
  *         由于Unix-Like 中 "\"可以作为文件名, 故在此类平台中不支持Windows, UNC风格的路径.
  */

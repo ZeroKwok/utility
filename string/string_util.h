@@ -98,6 +98,24 @@ UTILITY_FUNCT_DECL std::wstring between(
     const std::wstring& right,
     between_policy policy = without_mark);
 
+/*!
+ *  /brief  判断目标字符串是否以指定内容作为开头;
+ *  /param  target  给定的目标字符串;
+ *  /param  head    给定的字符串;
+ *  /return         成立返回true, 否者false;
+ */
+UTILITY_FUNCT_DECL bool start_with(const std::string& target, const std::string& head);
+UTILITY_FUNCT_DECL bool start_with(const std::wstring& target, const std::wstring& head);
+
+/*!
+ *  /brief  判断目标字符串是否以指定内容作为结束;
+ *  /param  target  给定的目标字符串;
+ *  /param  tail    给定的匹配字符串;
+ *  /return         成立返回true, 否者false;
+ */
+UTILITY_FUNCT_DECL bool end_with(const std::string& target, const std::string& tail);
+UTILITY_FUNCT_DECL bool end_with(const std::wstring& target, const std::wstring& tail);
+
 } // util
 
 #ifndef UTILITY_DISABLE_HEADONLY

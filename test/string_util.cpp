@@ -59,6 +59,32 @@ TEST(string_util, between)
         between("string/string_conv_easy.hpp", "/", "-"));
 }
 
+TEST(string_util, start_with)
+{
+    EXPECT_TRUE(start_with("string_conv_easy.hpp", ""));
+    EXPECT_TRUE(start_with("string_conv_easy.hpp", "string"));
+    EXPECT_TRUE(start_with("string_conv_easy.hpp", "string_conv_easy.hpp"));
+    EXPECT_FALSE(start_with("string_conv_easy.hpp", "string_conv_easy.hpp_"));
+
+    EXPECT_TRUE(start_with(L"string_conv_easy.hpp", L""));
+    EXPECT_TRUE(start_with(L"string_conv_easy.hpp", L"string"));
+    EXPECT_TRUE(start_with(L"string_conv_easy.hpp", L"string_conv_easy.hpp"));
+    EXPECT_FALSE(start_with(L"string_conv_easy.hpp", L"string_conv_easy.hpp_"));
+}
+
+TEST(string_util, end_with)
+{
+    EXPECT_TRUE(end_with("string_conv_easy.hpp", ""));
+    EXPECT_TRUE(end_with("string_conv_easy.hpp", "easy.hpp"));
+    EXPECT_TRUE(end_with("string_conv_easy.hpp", "string_conv_easy.hpp"));
+    EXPECT_FALSE(end_with("string_conv_easy.hpp", ".string_conv_easy.hpp"));
+
+    EXPECT_TRUE(end_with(L"string_conv_easy.hpp", L""));
+    EXPECT_TRUE(end_with(L"string_conv_easy.hpp", L"easy.hpp"));
+    EXPECT_TRUE(end_with(L"string_conv_easy.hpp", L"string_conv_easy.hpp"));
+    EXPECT_FALSE(end_with(L"string_conv_easy.hpp", L".string_conv_easy.hpp"));
+}
+
 TEST(string_util, sformat)
 {
     {

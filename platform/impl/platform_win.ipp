@@ -518,6 +518,18 @@ bool is_network_error(int error_code)
     case ERROR_TOO_MANY_NAMES:
     case ERROR_TOO_MANY_SESS:
     case ERROR_SHARING_PAUSED:
+    
+    // 2021-6-21 添加
+    case ERROR_NO_NETWORK:
+    case ERROR_CONNECTION_REFUSED:
+    case ERROR_CONNECTION_INVALID:
+    case ERROR_NETWORK_UNREACHABLE:
+    case ERROR_HOST_UNREACHABLE:
+    case ERROR_PROTOCOL_UNREACHABLE:
+    case ERROR_PORT_UNREACHABLE:
+    case ERROR_REQUEST_ABORTED:
+    case ERROR_CONNECTION_ABORTED:
+    case ERROR_CONNECTION_COUNT_LIMIT:
         return true;
     }
 

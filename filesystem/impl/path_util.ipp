@@ -860,6 +860,53 @@ bool path_is_writable(const fpath& path, ferror& ferr) noexcept
     return false;
 }
 
+fstype path_filesystem(const fpath& path)
+{
+    ferror ferr;
+    fstype result = path_filesystem(path, ferr);
+
+    if (ferr)
+        throw ferr;
+
+    return result;
+}
+
+fstype path_filesystem(const fpath& path, ferror& ferr) noexcept
+{
+    ferr.clear();
+
+    fpath root = path_find_root(path);
+
+    if (!file_exist(root, ferr))
+        return none;
+
+    if (!detail::is_win_separator(root.back()))
+        root.append(1, detail::win_style_preferred_separator);
+
+    std::wstring fsname(10, 0);
+    if (!GetVolumeInformationW(
+        root.c_str(), nullptr, 0, nullptr, nullptr, nullptr, 
+        &fsname[0], fsname.size()))
+    {
+        ferr = ferror(::GetLastError(), "Can't get volume information.");
+        return none;
+    }
+
+    if (util::start_with(fsname, L"FAT16"))
+        return FAT16;
+    else if (util::start_with(fsname, L"FAT32"))
+        return FAT32;
+    else if (util::start_with(fsname, L"exFAT"))
+        return exFAT;
+    else if (util::start_with(fsname, L"NTFS"))
+        return NTFS;
+    else
+    {
+        ferr = ferror(-1, "retrieve volume information successfully, unprocessed file system type.");
+        return none;
+    }
+}
+
 std::string  path_append(
     const std::string& path, const std::string& stem_1) noexcept
 {

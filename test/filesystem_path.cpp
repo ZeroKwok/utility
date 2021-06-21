@@ -284,3 +284,27 @@ TEST(path_util, path_filename_increment)
     EXPECT_EQ(result_12 , "./folder/filename(2) ");
 }
 
+#include <boost/algorithm/string.hpp>
+
+TEST(path_util, path_filesystem)
+{
+#if OS_WIN
+    size_t size =  ::GetLogicalDriveStrings(0, nullptr);
+    std::string buffer(size, 0);
+    ::GetLogicalDriveStrings(buffer.length(), &buffer[0]);
+
+    std::list<std::string> drives;
+    char* p = buffer.data();
+    while (*p)
+    {
+        drives.push_back(p);
+        p += strlen(p) + 1;
+    }
+    
+    for (auto d : drives)
+    {
+        util::ferror ferr;
+        EXPECT_TRUE(util::path_filesystem(d, ferr) != util::none && !ferr);
+    }
+#endif
+}

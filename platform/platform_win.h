@@ -39,6 +39,7 @@ UTILITY_FUNCT_DECL bool is_user_admin();
 UTILITY_FUNCT_DECL bool is_user_non_elevated_admin();
 
 //! Returns true if the network is available.
+//! There may be several hundred milliseconds of consumption.
 UTILITY_FUNCT_DECL bool is_network_available();
 
 //! Returns the name of the current system
@@ -50,7 +51,7 @@ UTILITY_FUNCT_DECL std::wstring wsystem_name();
 UTILITY_FUNCT_DECL std::string format_error(int error_code);
 UTILITY_FUNCT_DECL std::wstring wformat_error(int error_code);
 
-//! Returns true if the error_code is the network error.
+//! Returns true if the error_code is a common network error.
 UTILITY_FUNCT_DECL bool is_network_error(int error_code);
 
 //! Sets the name of the given thread.

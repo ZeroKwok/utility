@@ -2,6 +2,8 @@
 #   include "../platform_error.h"
 #endif
 
+#include <string/tstring.h>
+#include <string/string_util.h>
 #include <platform/platform_util.h>
 
 namespace util {
@@ -13,10 +15,10 @@ platform_error::msgs_type platform_error::error_message() const
 
 platform_error::msgs_type platform_error::print() const
 { 
-    msgs_type msgs = "Platform Error: ";
-              msgs += error_description();
-              msgs += util::sformat("\r\nError details: 0x08x, ", code());
-              msgs += error_message();
+    msgs_type msgs = util::tstring("Platform Error: {1}(Error details: {2},{3})")
+        % error_description()
+        % util::sformat("0x%08x", code())
+        % error_message();
     return msgs;
 }
 
