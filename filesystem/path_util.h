@@ -287,16 +287,32 @@ UTILITY_FUNCT_DECL std::wstring path_filename_increment(const std::wstring& file
 #if OS_WIN
 
 /*!
- *  \brief 获得系统路径
+ *  \brief 获得系统路径, 建议使用KnownFolders版本代替
  *  
  *  \param flag 定义在shlobj.h line 1204, 如:
  *              1. CSIDL_DESKTOP            表示系统桌面路径
  *              2. CSIDL_COMMON_APPDATA     表示%ProgramData%
  *              3. CSIDL_PROGRAM_FILES      表示C:\Program Files
  *              4. ...
+ *  \see   https://docs.microsoft.com/en-us/windows/win32/shell/csidl
+ *  \note  标记为virtual folder的CSIDL, 可能会失败.
+ *         如: CSIDL_PERSONAL, 在某些环境下面将得到ERROR_ACCESS_DENIED
  */
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag = 0);
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag, ferror& ferr) noexcept;
+
+/*!
+ *  \brief 获得系统路径(建议使用)
+ *
+ *  \param rfid 定义在KnownFolders.h, 如:
+ *              1. FOLDERID_Desktop         表示系统桌面路径
+ *              2. FOLDERID_ProgramData     表示%ProgramData%
+ *              3. FOLDERID_ProgramFiles    表示C:\Program Files
+ *              4. ...
+ *  \see   https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid
+ */
+UTILITY_FUNCT_DECL fpath path_from_sysdir(REFKNOWNFOLDERID rfid = FOLDERID_Desktop);
+UTILITY_FUNCT_DECL fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept;
 
 /*!
  *  \brief 在explorer中打开文件夹并选择指定的文件

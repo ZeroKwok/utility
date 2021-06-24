@@ -65,6 +65,24 @@ TEST(path_util, path_from_home)
     EXPECT_TRUE(path2.find(path) != path.npos && path2.size() > path.size());
 }
 
+TEST(path_util, path_from_sysdir)
+{
+#if OS_WIN
+    util::fpath  path, path2;
+    util::ferror ferr;
+
+    path = util::path_from_sysdir(FOLDERID_Desktop, ferr);
+    EXPECT_FALSE(ferr);
+    EXPECT_FALSE(path.empty());
+
+    path2 = path_from_sysdir(CSIDL_DESKTOP, ferr);
+    EXPECT_FALSE(ferr);
+    EXPECT_FALSE(path2.empty());
+
+    EXPECT_TRUE(path == path2);
+#endif
+}
+
 TEST(path_util, path_is_root)
 {
     // posix
@@ -284,12 +302,10 @@ TEST(path_util, path_filename_increment)
     EXPECT_EQ(result_12 , "./folder/filename(2) ");
 }
 
-#include <boost/algorithm/string.hpp>
-
 TEST(path_util, path_filesystem)
 {
 #if OS_WIN
-    size_t size =  ::GetLogicalDriveStrings(0, nullptr);
+    size_t size = ::GetLogicalDriveStrings(0, nullptr);
     std::string buffer(size, 0);
     ::GetLogicalDriveStrings(buffer.length(), &buffer[0]);
 

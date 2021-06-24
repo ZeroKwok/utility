@@ -1031,9 +1031,41 @@ fpath path_from_sysdir(int flag, ferror& ferr) noexcept
     wchar_t buffer[MAX_PATH + 1] = { 0 };
 
     if (!::SHGetSpecialFolderPathW(0, buffer, csidl, true))
-        ferr = ferror(::GetLastError(), "Can't get special folder path");
+    {
+        if (FAILED(::SHGetFolderPathW(NULL, flag, NULL, 0, buffer)))
+            ferr = ferror(::GetLastError(), "Can't get special folder path");
+    }
 
     return buffer;
+}
+
+fpath path_from_sysdir(REFKNOWNFOLDERID rfid)
+{
+    ferror ferr;
+    fpath result = path_from_sysdir(rfid, ferr);
+
+    if (ferr)
+        throw ferr;
+    return result;
+}
+
+fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept
+{
+    //
+    // https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath
+    //
+
+    PWSTR   path = nullptr;
+    HRESULT code = ::SHGetKnownFolderPath(rfid, KF_FLAG_DEFAULT, NULL, &path);
+    if (code != S_OK)
+    {
+        ferr = ferror(code, "Can't get known folder path");
+    }
+    fpath result = path;
+
+    ::CoTaskMemFree(path);
+
+    return result;
 }
 
 void path_open_with_explorer(const fpath& path, bool select/* = true*/)
