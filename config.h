@@ -196,7 +196,14 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 #   ifdef max
 #      undef max
 #   endif
-
 #endif // if defined(COMPILER_MSVC)
+
+// SDK Version
+#if OS_WIN
+#   if defined(_WIN32_WINNT)
+#       include <winsdkver.h>
+#       include <sdkddkver.h>
+#   endif
+#endif
 
 #endif // config_h__

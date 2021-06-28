@@ -151,10 +151,12 @@ UTILITY_FUNCT_DECL bool path_is_writable(const fpath& path, ferror& ferr) noexce
 enum fstype
 {
     none   = 0,
-    FAT16  = 1,
-    FAT32  = 2,
-    exFAT  = 3,
-    NTFS   = 4,
+    FAT    = 1,
+    FAT16  = 2,
+    FAT32  = 3,
+    exFAT  = 4,
+    NTFS   = 5,
+    CDFS   = 6,
 };
 
 /*!

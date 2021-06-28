@@ -892,14 +892,21 @@ fstype path_filesystem(const fpath& path, ferror& ferr) noexcept
         return none;
     }
 
+    // FAT（FAT12\FAT16和FAT32）、NTFS、CDFS、exFAT、
+    // RAW、Ext、Btrfs、ZFS、HFS、 HFS+、ReiserFS、JFS、VMFS、XFS、UFS、VXFS、ReFS、WBFS、PFS
+    // 
     if (util::start_with(fsname, L"FAT16"))
         return FAT16;
     else if (util::start_with(fsname, L"FAT32"))
         return FAT32;
     else if (util::start_with(fsname, L"exFAT"))
         return exFAT;
+    else if (util::start_with(fsname, L"FAT"))
+        return FAT;
     else if (util::start_with(fsname, L"NTFS"))
-        return NTFS;
+        return NTFS;    
+    else if (util::start_with(fsname, L"CDFS"))
+        return CDFS;
     else
     {
         ferr = ferror(-1, "retrieve volume information successfully, unprocessed file system type.");

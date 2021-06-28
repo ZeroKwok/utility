@@ -16,14 +16,15 @@ option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
 # 是否启用静态运行时
-option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" ON)
+option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# 默认启用Windows SDK 兼容到 Windows 7 SP1
 if(WIN32)
-    set(UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
+    set(UTILITY_TARGET_COMPILE_DEFINITIONS _WIN32_WINNT=0x0601 UTILITY_SUPPORT_BSTR)
 endif()
 
 if(UTILITY_SUPPORT_BOOST)
