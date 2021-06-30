@@ -33,6 +33,7 @@ set(TEST_SOUCES
     common_unit.cpp 
     common_math.cpp
     common_version.cpp
+    common_bytedata.cpp
     common_encryption.cpp)
 
 if(WIN32)

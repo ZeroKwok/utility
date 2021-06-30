@@ -119,39 +119,40 @@ void bytes_into_file(const util::fpath& name, const bytedata& bytes)
 }
 
 std::string& bytes_into_base64(
-    std::string& base64, const bytedata& bytes)
+    std::string& base64, const bytedata& bytes, bool noline/* = true*/)
 {
     base64.clear();
 
     std::insert_iterator<std::string> ii(base64, base64.begin());
     detail::base64<char> b64;
     int state = 0;
-    b64.get(bytes.begin(), bytes.end(), ii, state);
+
+    if (noline)
+    {
+        b64.put(bytes.begin(), bytes.end(), ii, state, detail::base64<>::noline());
+    }
+    else
+    {
+#if defined(OS_WIN)
+        b64.put(bytes.begin(), bytes.end(), ii, state, detail::base64<>::crlf());
+#else
+        b64.put(bytes.begin(), bytes.end(), ii, state, detail::base64<>::lf());
+#endif
+    }
 
     return base64;
 }
 
 bytedata& bytes_from_base64(
-    bytedata& bytes, const std::string& base64, bool noline/* = true*/)
+    bytedata& bytes, const std::string& base64)
 {
     bytes.clear();
 
     std::insert_iterator<std::string> ii(bytes, bytes.begin());
     detail::base64<char> b64;
     int state = 0;
+    b64.get(base64.begin(), base64.end(), ii, state);
 
-    if (noline)
-    {
-        b64.put(base64.begin(), base64.end(), ii, state, detail::base64<>::noline());
-    }
-    else
-    {
-#if defined(OS_WIN)
-        b64.put(base64.begin(), base64.end(), ii, state, detail::base64<>::crlf());
-#else
-        b64.put(base64.begin(), base64.end(), ii, state, detail::base64<>::lf());
-#endif
-    }
     return bytes;
 }
 

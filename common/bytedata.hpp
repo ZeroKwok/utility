@@ -243,13 +243,13 @@ UTILITY_FUNCT_DECL void bytes_into_file(const util::fpath& name, const bytedata&
  *   Converts byte data to base64 string.
  */
 UTILITY_FUNCT_DECL std::string& bytes_into_base64(
-    std::string& base64, const bytedata& bytes);
+    std::string& base64, const bytedata& bytes, bool noline = true);
 
 /*!
  *   Converts base64 string to byte data.
  */
 UTILITY_FUNCT_DECL bytedata& bytes_from_base64(
-    bytedata& bytes, const std::string& base64, bool noline = true);
+    bytedata& bytes, const std::string& base64);
 
 } // util
 
