@@ -344,11 +344,11 @@ process::~process()
 {
     if (valid() && joinable())
     {
-#ifdef OS_WIN
+#if OS_WIN
         ::OutputDebugStringA("*** Warnings ***\r\n");
         ::OutputDebugStringA("The process instance will be destroyed, but the process is still vaild.\r\n");
 #endif
-        std::terminate();
+        detach();
     }
 }
 
@@ -406,8 +406,6 @@ void process::join()
             wait_until(-1, error);
         }
     }
-
-    detach();
 }
 
 bool process::joinable()

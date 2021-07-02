@@ -124,11 +124,14 @@ inline LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* exp)
     util::fpath  path = util::path_append(
         util::path_from_module_dir(ferr), L"dump");
 
+    util::fpath  name = util::path_find_filename(
+        util::path_from_module(ferr));
+
     if (!util::file_exist(path, ferr))
         util::directories_create(path, ferr);
 
-    path = util::path_append(path, 
-           util::format_epoch(::time(0), "%Y%m%d_%H%M%S.dmp"));
+    path = util::path_append(path, name +
+           util::wformat_epoch(::time(0), L".%Y%m%d_%H%M%S.dmp"));
     CreateMiniDump(path, exp);
 
     mini_dump_private::crash_hander();
