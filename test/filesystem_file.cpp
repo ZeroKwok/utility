@@ -53,6 +53,15 @@ TEST(file_util, file_remove)
     auto exist = util::file_exist(current_directory_temp_file, ferr);
     EXPECT_FALSE(exist);
     EXPECT_FALSE(ferr);
+
+    // 删除打开的文件
+    {
+        util::ffile file = util::file_open(current_directory_temp_file, O_CREAT | O_WRONLY, ferr);
+
+        util::file_write(file, gloabl_buffer.data(), gloabl_buffer.size());
+
+        util::file_remove(current_directory_temp_file, ferr);
+    }
 }
 
 TEST(file_util, file_copy)

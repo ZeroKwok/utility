@@ -13,16 +13,26 @@
 
 namespace util {
 namespace win {
+namespace privately {
 
 struct mini_dump_private
 {
+    std::wstring          directory;
+    std::wstring          filename;
+    std::function<void()> crash_handler;
+
     static void crash_hander()
     {
-        mini_dump::instance().crash_hander();
+        if (instance().crash_handler)
+            instance().crash_handler();
+    }
+
+    static mini_dump_private& instance()
+    {
+        return *reinterpret_cast<mini_dump_private*>(
+            mini_dump::instance().__mini_dump_private);
     }
 };
-
-namespace detail {
 
 // mini_dump 模块信息过滤回调, 用户筛选模块中的那些信息要写入dump.
 inline BOOL CALLBACK MiniDumpCallback(
@@ -121,28 +131,31 @@ inline DWORD CreateMiniDump(
 inline LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* exp)
 {
     util::ferror ferr;
-    util::fpath  path = util::path_append(
-        util::path_from_module_dir(ferr), L"dump");
+    if (!util::file_exist(mini_dump_private::instance().directory, ferr))
+        util::directories_create(mini_dump_private::instance().directory, ferr);
 
-    util::fpath  name = util::path_find_filename(
-        util::path_from_module(ferr));
-
-    if (!util::file_exist(path, ferr))
-        util::directories_create(path, ferr);
-
-    path = util::path_append(path, name +
-           util::wformat_epoch(::time(0), L".%Y%m%d_%H%M%S.dmp"));
+    util::fpath path = util::path_append(
+        mini_dump_private::instance().directory, 
+        util::wformat_epoch(::time(0), mini_dump_private::instance().filename.c_str()));
     CreateMiniDump(path, exp);
-
-    mini_dump_private::crash_hander();
+    
+    if (mini_dump_private::instance().crash_handler)
+        mini_dump_private::instance().crash_handler();
 
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-} // detail
+} // privately
 
 mini_dump::mini_dump()
-{}
+{
+    UTILITY_INIT_PRIVATE(mini_dump);
+}
+
+mini_dump::~mini_dump()
+{
+    UTILITY_FREE_PRIVATE(mini_dump);
+}
 
 mini_dump& mini_dump::instance()
 {
@@ -150,7 +163,7 @@ mini_dump& mini_dump::instance()
     return __imp;
 }
 
-void mini_dump::create_dump(const std::wstring file)
+void mini_dump::create_dump(const std::wstring& file)
 {
     platform_error err;
     create_dump(file, err);
@@ -159,7 +172,7 @@ void mini_dump::create_dump(const std::wstring file)
         throw err;
 }
 
-void mini_dump::create_dump(const std::wstring file, platform_error& error)
+void mini_dump::create_dump(const std::wstring& file, platform_error& error)
 {
     util::ferror ferr;
     util::fpath path = util::path_find_parent(file);
@@ -172,7 +185,7 @@ void mini_dump::create_dump(const std::wstring file, platform_error& error)
         return;
     }
 
-    DWORD kResult = detail::CreateMiniDump(file, nullptr);
+    DWORD kResult = privately::CreateMiniDump(file, nullptr);
 
     if (kResult != S_OK)
     {
@@ -180,8 +193,11 @@ void mini_dump::create_dump(const std::wstring file, platform_error& error)
     }
 }
 
-void mini_dump::init()
+void mini_dump::init(const std::wstring& directory, const std::wstring& filename)
 {
+    UTILITY_PRIVATE(mini_dump).directory = directory;
+    UTILITY_PRIVATE(mini_dump).filename = filename;
+
     static bool __inited = false;
 
     if(!__inited)
@@ -190,8 +206,13 @@ void mini_dump::init()
 
         // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setunhandledexceptionfilter
         // 
-        ::SetUnhandledExceptionFilter(detail::UnhandledExceptionFilter);
+        ::SetUnhandledExceptionFilter(privately::UnhandledExceptionFilter);
     }
+}
+
+void mini_dump::set_crash_handler(const std::function<void()>& crash_call)
+{
+    UTILITY_PRIVATE(mini_dump).crash_handler = crash_call;
 }
 
 } // win
