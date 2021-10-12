@@ -155,7 +155,7 @@ inline std::wstring _2wstr(const QString& string)
 //! 提供QString到utf-8转换的便捷API
 inline std::string _2utf8(const QString& string)
 {
-    return util::conv::wstring_to_string(_2wstr(string), std::string());
+    return util::conv::wstring_to_utf8(_2wstr(string), std::string());
 }
 
 //! 提供宽字节到QString转换的便捷API
