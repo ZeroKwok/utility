@@ -5,7 +5,7 @@
 *   bytedata.hpp 
 *
 *   v0.1 2018-05 by GuoJH
-*   v0.2 2023-10 by GuoJH
+*   v0.2 2020-10 by GuoJH
 */
 
 #include <string>

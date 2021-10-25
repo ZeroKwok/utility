@@ -30,6 +30,7 @@ set(TEST_SOUCES
     platform_util.cpp
     filesystem_file.cpp 
     filesystem_path.cpp 
+    common.cpp
     common_unit.cpp 
     common_math.cpp
     common_version.cpp

@@ -16,6 +16,7 @@
 #include "bytedata.ipp"
 #include "math_util.ipp"
 #include "encryption.ipp"
+#include "acronym_for_pinyin.ipp"
 
 #if UTILITY_SUPPORT_BOOST
 #   include "thread_interrupt.ipp"
