@@ -177,6 +177,9 @@ namespace detail {
     inline std::basic_string<_TChar> _path_find_parent(
         const std::basic_string<_TChar>& path)
     {
+        if (path.empty())
+            return {};
+
         size_t pos = path.length() - 1;
         while (pos > 0 && detail::is_separator(path.at(pos)))
             --pos;

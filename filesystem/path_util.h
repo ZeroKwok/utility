@@ -14,6 +14,7 @@
 
 #if OS_WIN
 #   include <shlobj.h>
+#   include <Knownfolders.h>
 #   ifdef MessageBox
 #       undef MessageBox
 #   endif
@@ -279,6 +280,7 @@ UTILITY_FUNCT_DECL std::wstring path_filename_trim(const std::wstring& filename)
  *  \brief 返回一个递增后的文件名
  *         etc. log.txt -> log(1).txt
  *                         log(1).txt -> log(2).txt
+ *  \note 不检测递增后的文件名是否存在, 仅实现文件名的递增.
  */
 UTILITY_FUNCT_DECL std::string  path_filename_increment(const std::string& filename) noexcept;
 UTILITY_FUNCT_DECL std::wstring path_filename_increment(const std::wstring& filename) noexcept;
