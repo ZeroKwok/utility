@@ -188,7 +188,20 @@ inline QString _2qstr(
     if (format == format_utf8)
         return QString::fromUtf8(string.c_str(), string.size());
 
+    //
+    // 在Qt 5.15中QString::fromStdString()的实现如下, 将多字节字符串当成UTF-8处理
+    // 导致乱码, 这里首先将多字节转换为宽字节, 再转换为QString.
+    // 
+    // inline QString QString::fromStdString(const std::string &s)
+    // { return fromUtf8(s.data(), int(s.size())); }
+    //
+    // 2021-12-10 By GuoJH
+#ifdef OS_WIN
+    std::wstring temp;
+    return QString::fromStdWString(util::conv::string_to_wstring(string, temp));
+#else
     return QString::fromStdString(string);
+#endif
 }
 
 #endif
