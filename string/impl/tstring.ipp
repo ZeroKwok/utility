@@ -78,6 +78,11 @@ tstring::operator std::filesystem::path() const
     return wstring();
 #endif 
 }
+
+std::filesystem::path tstring::std() const
+{
+    return *this;
+}
 #endif // std filesystem
 
 tstring::tstring(const tstring& right)

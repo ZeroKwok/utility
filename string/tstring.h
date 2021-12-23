@@ -83,6 +83,7 @@ public:
 #if (_MSC_VER >= 1914 && _MSVC_LANG >= 201703L) || (__GNUC__ >= 8 && __cplusplus >= 201703L)
     UTILITY_MEMBER_DECL tstring(const std::filesystem::path& right);
     UTILITY_MEMBER_DECL operator std::filesystem::path() const;
+    UTILITY_MEMBER_DECL std::filesystem::path std() const;
 #endif
 
     UTILITY_MEMBER_DECL tstring& operator=(const tstring& right);
