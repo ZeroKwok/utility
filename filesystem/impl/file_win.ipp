@@ -69,6 +69,7 @@ bool file_exist(const fpath& name, ferror& ferr) noexcept
             DWORD ecode = ::GetLastError();
             switch (ecode)
             {
+            case ERROR_INVALID_NAME:    // 文件名语法不正确, 比如包含非法字符
             case ERROR_FILE_NOT_FOUND:
             case ERROR_PATH_NOT_FOUND:
                 break;
