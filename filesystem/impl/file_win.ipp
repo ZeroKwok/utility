@@ -56,7 +56,6 @@ bool file_exist(const fpath& name, ferror& ferr) noexcept
 
     if (::GetFileAttributesW(name.c_str()) != INVALID_FILE_ATTRIBUTES)
     {
-        // not exist
         return true;
     }
     else

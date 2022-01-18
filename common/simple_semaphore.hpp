@@ -4,6 +4,8 @@
 #include <mutex>
 #include <condition_variable>
 
+namespace util {
+
 class semaphore 
 {
 public:
@@ -11,11 +13,23 @@ public:
         : count{value}
     {}
     
-    void wait()
+    bool wait(int millisecond = -1)
     {
         std::unique_lock<std::mutex> lock{mutex};
-        if (--count<0) // count is not enough ?
-            condition.wait(lock); // suspend and wait...
+        if (--count < 0) // count is not enough ?
+        {
+            // suspend and wait...
+            if (millisecond < 0) 
+                condition.wait(lock);
+            else
+            {
+                return condition.wait_for(lock,
+                    std::chrono::milliseconds(millisecond))
+                    == std::cv_status::no_timeout;
+            }
+        }
+
+        return true;
     }
     
     void signal()
@@ -30,5 +44,7 @@ private:
     std::mutex mutex;
     std::condition_variable condition;
 };
-    
+
+} // namespace util
+
 #endif // simple_semaphore_h__
