@@ -291,3 +291,6 @@ AUTO_LINK_LIB_VERSION:    The Boost version, in the form x_y, for version x.y.
 #if defined(AUTO_LINK_DYN_LINK)
 #  undef AUTO_LINK_DYN_LINK
 #endif
+#if defined(AUTO_LINK_NOMANGLE)
+#  undef AUTO_LINK_NOMANGLE
+#endif
