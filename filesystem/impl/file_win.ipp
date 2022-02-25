@@ -326,7 +326,7 @@ ffile file_open(const fpath& name, int flags, ferror& ferr) noexcept
     int mode_flag = 0;
     int share_flag = 0;
     int creation_flag = 0;
-    int attribute_flag = 0;
+    int attribute_flag = FILE_ATTRIBUTE_NORMAL;
     int append = 0;
 
     if (flags & _O_WRONLY)   // write-only
@@ -375,20 +375,29 @@ ffile file_open(const fpath& name, int flags, ferror& ferr) noexcept
     }
     else
     {
+        // 
+        // 只读方式打开, 不能仅 FILE_SHARE_READ 否则可能会出现如下错误
+        // 0x02000000 ERROR_SHARING_VIOLATION : 另一个程序正在使用此文件，进程无法访问。
+        // 参考: ucrt:lowio\open.cpp
         share_flag = FILE_SHARE_READ | FILE_SHARE_WRITE;
     }
+
+    SECURITY_ATTRIBUTES security_attributes;
+    security_attributes.nLength = sizeof(security_attributes);
+    security_attributes.lpSecurityDescriptor = nullptr;
+    security_attributes.bInheritHandle = true;
 
     // 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
 
     ffile::native_type fid = reinterpret_cast<ffile::native_type>(::CreateFileW(
-        name.c_str(),    // lpFileName
-        mode_flag,       // dwDesiredAccess
-        share_flag,      // dwShareMode
-        NULL,            // lpSecurityAttributes
-        creation_flag,   // dwCreationDisposition
-        attribute_flag,  // dwFlagsAndAttributes
-        NULL));          // hTemplateFile
+        name.c_str(),         // lpFileName
+        mode_flag,            // dwDesiredAccess
+        share_flag,           // dwShareMode
+        &security_attributes, // lpSecurityAttributes
+        creation_flag,        // dwCreationDisposition
+        attribute_flag,       // dwFlagsAndAttributes
+        nullptr));            // hTemplateFile
 
     ffile file(fid, flags);
 
