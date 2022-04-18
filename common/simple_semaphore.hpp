@@ -19,13 +19,19 @@ public:
         if (--count < 0) // count is not enough ?
         {
             // suspend and wait...
-            if (millisecond < 0) 
+            if (millisecond < 0)
+            {
                 condition.wait(lock);
+            }
             else
             {
-                return condition.wait_for(lock,
+                if (condition.wait_for(lock,
                     std::chrono::milliseconds(millisecond))
-                    == std::cv_status::no_timeout;
+                    == std::cv_status::timeout)
+                {
+                    ++count;
+                    return false;
+                }
             }
         }
 
