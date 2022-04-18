@@ -228,13 +228,13 @@ fsize file_size(const fpath& name, ferror& ferr) noexcept
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
 
     ffile file = reinterpret_cast<ffile::native_type>(::CreateFileW(
-        name.c_str(),               // lpFileName
-        FILE_READ_ATTRIBUTES,       // dwDesiredAccess
-        FILE_SHARE_READ,            // dwShareMode
-        NULL,                       // lpSecurityAttributes
-        OPEN_EXISTING,              // dwCreationDisposition
-        FILE_FLAG_BACKUP_SEMANTICS, // dwFlagsAndAttributes
-        NULL));                     // hTemplateFile
+        name.c_str(),                       // lpFileName
+        FILE_READ_ATTRIBUTES,               // dwDesiredAccess
+        FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+        NULL,                               // lpSecurityAttributes
+        OPEN_EXISTING,                      // dwCreationDisposition
+        FILE_FLAG_BACKUP_SEMANTICS,         // dwFlagsAndAttributes
+        NULL));                             // hTemplateFile
 
     if (!file.vaild())
     {
@@ -260,13 +260,13 @@ ftime file_time(const fpath& name, ferror& ferr) noexcept
 {
     ferr.clear();
     ffile file = reinterpret_cast<ffile::native_type>(::CreateFileW(
-        name.c_str(),               // lpFileName
-        FILE_READ_ATTRIBUTES,       // dwDesiredAccess
-        FILE_SHARE_READ,            // dwShareMode
-        NULL,                       // lpSecurityAttributes
-        OPEN_EXISTING,              // dwCreationDisposition
-        FILE_FLAG_BACKUP_SEMANTICS, // dwFlagsAndAttributes
-        NULL));                    // hTemplateFile
+        name.c_str(),                       // lpFileName
+        FILE_READ_ATTRIBUTES,               // dwDesiredAccess
+        FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+        NULL,                               // lpSecurityAttributes
+        OPEN_EXISTING,                      // dwCreationDisposition
+        FILE_FLAG_BACKUP_SEMANTICS,         // dwFlagsAndAttributes
+        NULL));                             // hTemplateFile
 
     if (!file.vaild())
     {
@@ -291,13 +291,13 @@ void file_set_time(const fpath& name, const ftime& time, ferror& ferr) noexcept
 {
     ferr.clear();
     ffile file = reinterpret_cast<ffile::native_type>(::CreateFileW(
-        name.c_str(),               // lpFileName
-        FILE_WRITE_ATTRIBUTES,      // dwDesiredAccess
-        FILE_SHARE_READ,            // dwShareMode
-        NULL,                       // lpSecurityAttributes
-        OPEN_EXISTING,              // dwCreationDisposition
-        FILE_FLAG_BACKUP_SEMANTICS, // dwFlagsAndAttributes
-        NULL));                    // hTemplateFile
+        name.c_str(),                       // lpFileName
+        FILE_READ_ATTRIBUTES,               // dwDesiredAccess
+        FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+        NULL,                               // lpSecurityAttributes
+        OPEN_EXISTING,                      // dwCreationDisposition
+        FILE_FLAG_BACKUP_SEMANTICS,         // dwFlagsAndAttributes
+        NULL));                             // hTemplateFile
 
     if (!file.vaild())
     {
@@ -675,13 +675,13 @@ bool file_is_writable(const fpath& name, ferror& ferr) noexcept
         return path_is_writable(name, ferr);
 
     ffile file = reinterpret_cast<ffile::native_type>(::CreateFileW(
-        name.c_str(),                   // lpFileName
-        GENERIC_READ | GENERIC_WRITE,   // dwDesiredAccess
-        FILE_SHARE_READ,                // dwShareMode
-        NULL,                           // lpSecurityAttributes
-        OPEN_EXISTING,                  // dwCreationDisposition
-        0,                              // dwFlagsAndAttributes
-        NULL));                         // hTemplateFile
+        name.c_str(),                       // lpFileName
+        GENERIC_READ | GENERIC_WRITE,       // dwDesiredAccess
+        FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+        NULL,                               // lpSecurityAttributes
+        OPEN_EXISTING,                      // dwCreationDisposition
+        0,                                  // dwFlagsAndAttributes
+        NULL));                             // hTemplateFile
 
     if (!file.vaild())
     {
