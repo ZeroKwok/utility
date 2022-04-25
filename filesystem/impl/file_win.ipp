@@ -292,7 +292,7 @@ void file_set_time(const fpath& name, const ftime& time, ferror& ferr) noexcept
     ferr.clear();
     ffile file = reinterpret_cast<ffile::native_type>(::CreateFileW(
         name.c_str(),                       // lpFileName
-        FILE_READ_ATTRIBUTES,               // dwDesiredAccess
+        FILE_WRITE_ATTRIBUTES,              // dwDesiredAccess
         FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
         NULL,                               // lpSecurityAttributes
         OPEN_EXISTING,                      // dwCreationDisposition
@@ -1188,7 +1188,12 @@ void link_create(
             break;
         }
 
-        if (FAILED(hResult = pPersistFile->Save(link_path.c_str(), FALSE)))
+        // 扩展名必须为.lnk
+        auto saveFile = link_path;
+        if (util::path_find_extension(link_path) != L"lnk")
+            saveFile += L".lnk";
+
+        if (FAILED(hResult = pPersistFile->Save(saveFile.c_str(), FALSE)))
         {
             ferr = util::ferror(hResult, "Create the link file failed");
             break;
