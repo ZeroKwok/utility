@@ -267,14 +267,20 @@ UTILITY_FUNCT_DECL std::wstring path_find_extension(const std::wstring& path, in
  *         aux          -> _aux
  *         read/me.txt  -> readme.txt
  *         readme.?txt  -> readme.txt
- *  
+ *      若placeholder为".", 则:
+ *         nul          -> _nul
+ *         aux          -> _aux
+ *         read/me.txt  -> read.me.txt
+ *         readme.?txt  -> readme..txt
+ * 
  *  \param filename 文件名, 不能为全路径或相对路径.
+ *  \param placeholder 占位符, 用于替换非法字符.
  * 
  *  \note  主要针对Windows平台, Unix-Like 平台对文件名的限制比较宽松, 只要不包含目录分隔符'/'即可
  *         但根据短板效应, 为了便于文件跨平台存储, 保持与Windows相同的限制规则.
  */
-UTILITY_FUNCT_DECL std::string  path_filename_trim(const std::string& filename) noexcept;
-UTILITY_FUNCT_DECL std::wstring path_filename_trim(const std::wstring& filename) noexcept;
+UTILITY_FUNCT_DECL std::string  path_filename_trim(const std::string& filename, const std::string& placeholder = "") noexcept;
+UTILITY_FUNCT_DECL std::wstring path_filename_trim(const std::wstring& filename, const std::wstring& placeholder = L"") noexcept;
 
 /*!
  *  \brief 返回一个递增后的文件名

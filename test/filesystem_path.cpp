@@ -261,6 +261,21 @@ TEST(path_util, path_filename_trim)
     EXPECT_EQ(util::path_filename_trim("aux"), "_aux");
     EXPECT_EQ(util::path_filename_trim("read/me.txt"), "readme.txt");
     EXPECT_EQ(util::path_filename_trim("readme.?txt"), "readme.txt");
+
+    EXPECT_EQ(util::path_filename_trim("nul", "."), "_nul");
+    EXPECT_EQ(util::path_filename_trim("aux", "."), "_aux");
+    EXPECT_EQ(util::path_filename_trim("read/me.txt", "."), "read.me.txt");
+    EXPECT_EQ(util::path_filename_trim("readme.?txt", "."), "readme..txt");
+
+    EXPECT_EQ(util::path_filename_trim("nul", "11"), "_nul");
+    EXPECT_EQ(util::path_filename_trim("aux", "11"), "_aux");
+    EXPECT_EQ(util::path_filename_trim("read/me.txt", "11"), "read11me.txt");
+    EXPECT_EQ(util::path_filename_trim("readme.?txt", "11"), "readme.11txt");
+
+    EXPECT_EQ(util::path_filename_trim(L"nul", L"1111"), L"_nul");
+    EXPECT_EQ(util::path_filename_trim(L"aux", L"1111"), L"_aux");
+    EXPECT_EQ(util::path_filename_trim(L"read/me.txt", L"1111"), L"read1111me.txt");
+    EXPECT_EQ(util::path_filename_trim(L"readme.?txt", L"1111"), L"readme.1111txt");
 }
 
 TEST(path_util, path_filename_increment)

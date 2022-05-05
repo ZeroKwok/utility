@@ -244,7 +244,8 @@ namespace detail {
 
     template<class _TChar>
     inline std::basic_string<_TChar> _path_filename_trim(
-        const std::basic_string<_TChar>& filename)
+        const std::basic_string<_TChar>& filename,
+        const std::basic_string<_TChar>& placeholder)
     {
         // POSIX 中对文件名的约束相对与Windows来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
         // 但考虑到文件的跨平台存储(短板效应), 这里采用同windows一样的限制.
@@ -264,7 +265,13 @@ namespace detail {
             {
                 if (*it == *ch)
                 {
-                    it = result.erase(it);
+                    if (!placeholder.empty())
+                    {
+                        result.replace(it, ++decltype(it)(it), placeholder);
+                        std::advance(it, placeholder.length());
+                    }
+                    else
+                        it = result.erase(it);
                     break;
                 }
             }
@@ -997,14 +1004,14 @@ std::wstring path_find_extension(
     return detail::_path_find_extension(path, flags);
 }
 
-std::string  path_filename_trim(const std::string& filename) noexcept
+std::string  path_filename_trim(const std::string& filename, const std::string& placeholder /*= ""*/) noexcept
 {
-    return detail::_path_filename_trim(filename);
+    return detail::_path_filename_trim(filename, placeholder);
 }
 
-std::wstring path_filename_trim(const std::wstring& filename) noexcept
+std::wstring path_filename_trim(const std::wstring& filename, const std::wstring& placeholder /*= L""*/) noexcept
 {
-    return detail::_path_filename_trim(filename);
+    return detail::_path_filename_trim(filename, placeholder);
 }
 
 std::string  path_filename_increment(const std::string& filename) noexcept
