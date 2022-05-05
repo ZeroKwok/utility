@@ -250,7 +250,15 @@ namespace detail {
         // POSIX 中对文件名的约束相对与Windows来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
         // 但考虑到文件的跨平台存储(短板效应), 这里采用同windows一样的限制.
 
-        const char   illegal_char[] = "\\/:*?\"<>|";
+        // ASCII 控制字符
+        // https://en.cppreference.com/w/cpp/string/byte/iscntrl
+        // 
+        const char   illegal_char[] = "\\/:*?\"<>|"
+                                      "\x1\x2\x3\x4\x5\x6\x7\x8" // control codes (NUL, etc.)
+                                      "\t"                       // tab (\t)
+                                      "\n\v\f\r"                 // whitespaces (\n, \v, \f, \r)
+                                      "\xe\xf\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x10\x1a\x1b\x1c\x1d\x1e\x1f" // control codes(\xE–\x1F)
+                                      "\x7f";                    // backspace character (DEL)
         const char * illegal_name[] = {
             "con", "prn", "aux", "nul", "com1", "com2",
             "com3", "com4", "com5", "com6", "com7", "com8",
