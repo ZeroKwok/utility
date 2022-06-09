@@ -3,6 +3,7 @@
 #endif
 
 #include <algorithm>
+#include <boost/algorithm/string/trim.hpp>
 #include <string/string_util.h>
 #include <filesystem/path_util.h>
 #include <platform/platform_util.h>
@@ -146,6 +147,9 @@ namespace detail {
     inline std::basic_string<_TChar> _path_find_root(
         const std::basic_string<_TChar>& path)
     {
+        if (path.empty())
+            return {};
+
         bool is_long = path_is_win_long_path(path);
 
         if (path_is_unc_style(path))
@@ -197,6 +201,9 @@ namespace detail {
     inline std::basic_string<_TChar> _path_find_filename(
         const std::basic_string<_TChar>& path)
     {
+        if (path.empty())
+            return {};
+
         size_t pos = path.length() - 1;
         while (pos >= 0 && detail::is_separator(path.at(pos)))
             --pos;
@@ -209,6 +216,9 @@ namespace detail {
     inline std::basic_string<_TChar> _path_find_basename(
         const std::basic_string<_TChar>& path)
     {
+        if (path.empty())
+            return {};
+
         auto filename = _path_find_filename(path);
 
         auto dot = filename.find(detail::dot);
@@ -222,6 +232,9 @@ namespace detail {
     inline std::basic_string<_TChar> _path_find_extension(
         const std::basic_string<_TChar>& path, int flags)
     {
+        if (path.empty())
+            return {};
+
         size_t pos = 0; 
         if (flags & find_complete)
             pos = path.find(detail::dot);
@@ -247,6 +260,9 @@ namespace detail {
         const std::basic_string<_TChar>& filename,
         const std::basic_string<_TChar>& placeholder)
     {
+        if (filename.empty())
+            return {};
+
         // POSIX 中对文件名的约束相对与Windows来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
         // 但考虑到文件的跨平台存储(短板效应), 这里采用同windows一样的限制.
 
@@ -309,6 +325,9 @@ namespace detail {
                 }
             }
         }
+
+        // 移除前后的空格
+        boost::algorithm::trim(result);
 
         return result;
     }

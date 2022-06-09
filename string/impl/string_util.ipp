@@ -82,12 +82,19 @@ inline _TString _between(
     typename _TString::size_type begin, end, middle;
     if ((begin = target.find(left)) != _TString::npos)
     {
-        if ((end = target.find(right, begin)) != _TString::npos)
+        if ((end = target.find(right, begin + 1)) != _TString::npos)
         {
-            // 寻找最小匹配
-            middle = begin + 1;
-            while (middle < end && (middle = target.find(left, middle)) != _TString::npos)
-                begin = middle++;
+            if (left != right)
+            {
+                // 寻找最小匹配
+                // 例如: a...a...b, a~b
+                middle = begin + 1;
+                while (middle < end && (middle = target.find(left, middle)) != _TString::npos)
+                {
+                    if (middle < end)
+                        begin = middle++;
+                }
+            }
 
             if (policy & contains_mark)
                 return target.substr(begin, end + right.length() - begin);

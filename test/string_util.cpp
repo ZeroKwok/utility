@@ -57,6 +57,21 @@ TEST(string_util, between)
         between("string/string_conv_easy.hpp", "1", "easy.hpp"));
     EXPECT_EQ("",
         between("string/string_conv_easy.hpp", "/", "-"));
+
+    EXPECT_EQ("123",
+        between("a...a123b", "a", "b"));
+
+    EXPECT_EQ(L"工具",
+        between(L"请启用“工具”->“选项”->“调试”", L"“", L"”"));
+    EXPECT_EQ("工具",
+        between("请启用“工具”->“选项”->“调试”", "“", "”"));
+
+    EXPECT_EQ("ProgramData",
+        between("%ProgramData%/AomeiMB", "%", "%"));
+    EXPECT_EQ("Program",
+        between("%Program%Data%/AomeiMB", "%", "%"));
+    EXPECT_EQ("%Program%",
+        between("%Program%Data%/AomeiMB", "%", "%", contains_mark));
 }
 
 TEST(string_util, start_with)

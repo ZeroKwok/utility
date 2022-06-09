@@ -71,8 +71,8 @@ public:
      *  \brief 返回错误相关的详细信息
      *  \note  与error_message()不同的是该函数将返回包括错误的描述在内的尽可能多的信息. 
      */
+    msgs_type message() const;
     msgs_type print() const;
-
 
 private:
     code_type _code;     //!< 系统错误代码
