@@ -826,7 +826,7 @@ inline void _named_object_authorization(
             0, 0, 0, 0, 0, 0, 0,
             &(pSids[AnonymousLogon]) );
 
-        // Authenticated Users
+        // Authenticated Users(大概是所有标准用户)
         AllocateAndInitializeSid(&SIDAuthNT,
             1,
             SECURITY_AUTHENTICATED_USER_RID,
@@ -855,7 +855,7 @@ inline void _named_object_authorization(
         ACCESS_MASK AccessPermission[] = {
             GENERIC_ALL,
             GENERIC_ALL,
-            GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE,
+            GENERIC_ALL,
             GENERIC_ALL 
         };
 

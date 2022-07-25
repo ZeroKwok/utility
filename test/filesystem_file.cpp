@@ -17,6 +17,7 @@ static const char  current_directory_temp_file2[] = "hello2.tmp";
 
 static std::string gloabl_buffer                  = "Hello Utility!";
 
+#if 1
 TEST(file_util, file_exist)
 {
     util::ferror ferr;
@@ -434,7 +435,21 @@ TEST(file_util, directories_create_and_remove)
     util::directories_create(L"中文", ferr);
     EXPECT_FALSE(ferr);
 }
+#endif
 
+TEST(file_util, directory_authorization)
+{
+    util::ferror ferr;
+    util::fpath  file = util::path_append(util::path_from_sysdir(CSIDL_COMMON_APPDATA), L"TestDir");
+    util::directories_create(file, ferr);
+    EXPECT_FALSE(ferr);
+
+    util::win::directory_authorization(file, ferr);
+    EXPECT_FALSE(ferr);
+
+    util::directories_remove(file, ferr);
+    EXPECT_FALSE(ferr);
+}
 
 
 
