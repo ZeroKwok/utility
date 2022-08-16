@@ -263,13 +263,13 @@ UTILITY_FUNCT_DECL std::wstring path_find_extension(const std::wstring& path, in
 
 /*!
  *  \brief 文件名裁剪, 使文件名合法化
- *         nul          -> _nul
- *         aux          -> _aux
+ *         nul          -> (nul)
+ *         aux          -> (aux)
  *         read/me.txt  -> readme.txt
  *         readme.?txt  -> readme.txt
  *      若placeholder为".", 则:
- *         nul          -> _nul
- *         aux          -> _aux
+ *         nul          -> (nul)
+ *         aux          -> (aux)
  *         read/me.txt  -> read.me.txt
  *         readme.?txt  -> readme..txt
  * 

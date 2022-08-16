@@ -279,9 +279,11 @@ namespace detail {
             "con", "prn", "aux", "nul", "com1", "com2",
             "com3", "com4", "com5", "com6", "com7", "com8",
             "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5",
-            "lpt6", "lpt7", "lpt8", "lpt9", 0 };
+            "lpt6", "lpt7", "lpt8", "lpt9", ".", "..", 0 };
 
-        auto result = filename;
+        // 移除前后的空格
+        auto result = boost::algorithm::trim_copy(filename);
+
         for (auto it = result.begin(); it != result.end();)
         {
             const char *ch = illegal_char;
@@ -309,7 +311,7 @@ namespace detail {
             for (int i = 0; illegal_name[i] != 0; ++i)
             {
                 auto ch1_begin = result.begin();
-                auto ch1_end = result.end();
+                auto ch1_end   = result.end();
                 auto ch2_begin = illegal_name[i];
 
                 for (; ch1_begin != ch1_end && *ch2_begin != 0; ++ch1_begin, ++ch2_begin)
@@ -318,16 +320,15 @@ namespace detail {
                         break;
                 }
 
+                std::wstring aa;
                 if (ch1_begin == ch1_end && *ch2_begin == 0)
                 {
-                    result.insert(0, 1, '_');
+                    result.insert(0, 1, '(');
+                    result.append(1, ')');
                     break;
                 }
             }
         }
-
-        // 移除前后的空格
-        boost::algorithm::trim(result);
 
         return result;
     }
