@@ -261,6 +261,8 @@ TEST(path_util, path_filename_trim)
     EXPECT_EQ(util::path_filename_trim("aux"), "(aux)");
     EXPECT_EQ(util::path_filename_trim("."),   "(.)");
     EXPECT_EQ(util::path_filename_trim(".."),  "(..)");
+    EXPECT_EQ(util::path_filename_trim("..."),  "(...)");
+    EXPECT_EQ(util::path_filename_trim("...."),  "(....)");
     EXPECT_EQ(util::path_filename_trim("read/me.txt"), "readme.txt");
     EXPECT_EQ(util::path_filename_trim("readme.?txt"), "readme.txt");
 

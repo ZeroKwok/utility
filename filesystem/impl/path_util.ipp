@@ -331,6 +331,16 @@ namespace detail {
             }
         }
 
+        // Windows API 不支持...作为文件名, 故也许需要处理这种情况
+        // CreateDirectoryW 
+        // GetFileAttributesW
+        if (std::all_of(result.begin(), result.end(),
+            [](decltype(result[0]) x) { return x == '.'; }))
+        {
+            result.insert(0, 1, '(');
+            result.append(1, ')');
+        }
+
         return result;
     }
 

@@ -15,7 +15,7 @@ std::string bytes_add_suffix(
     if(bytes < 100)
         return util::sformat("%.0fB", bytes) + suffix;
 
-    const char* prefix[] = {"kB", "MB", "GB", "TB"};
+    const char* prefix[] = {"KB", "MB", "GB", "TB"};
 
     for (int i = 0; i < sizeof(prefix) / sizeof(const char*); ++i)
     {
