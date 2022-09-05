@@ -103,9 +103,9 @@
 #endif
 
 #if defined(COMPILER_MSVC)
-#   if _MSC_VER >= 1600 // vs2010及之前的版本使用自身携带的stdint.h
+#   if _MSC_VER > 1600 // vs2010之后的版本使用自身携带的inttypes.h
 #      include <inttypes.h>
-#   else
+#   else 
 #      include "msinttypes/inttypes.h"
 #   endif
 #else
@@ -177,9 +177,12 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 #   endif
 
 // nullptr
-#   if _MSC_VER < _MSVC_100 
+#   if _MSC_VER <= _MSVC_100 
 #      ifndef nullptr
 #          define nullptr NULL
+#      endif
+#      ifndef constexpr
+#          define constexpr
 #      endif
 #   endif
 

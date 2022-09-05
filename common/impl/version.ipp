@@ -9,6 +9,8 @@
 #include <string/string_conv_easy.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/algorithm.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 namespace util {
 
@@ -87,7 +89,7 @@ product_version version_from_string(std::string version)
     try
     {
         std::vector<std::string> fields;
-        boost::split(fields, version, boost::is_any_of("."), boost::token_compress_off);
+        boost::algorithm::split(fields, version, boost::algorithm::is_any_of("."), boost::token_compress_off);
 
         if (fields.size() >= 1)
             result.major = boost::lexical_cast<uint32_t>(fields[0]);

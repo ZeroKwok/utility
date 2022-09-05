@@ -174,10 +174,10 @@ inline std::vector<wchar_t> BuildMultiString(
 
     // Get the total length in wchar_ts of the multi-string
     size_t totalLen = 0;
-    for (const auto& s : data)
+    for (auto it = data.begin(); it != data.end(); ++it)
     {
         // Add one to current string's length for the terminating NUL
-        totalLen += (s.length() + 1);
+        totalLen += ((*it).length() + 1);
     }
 
     // Add one for the last NUL terminator (making the whole structure double-NUL terminated)
@@ -190,8 +190,9 @@ inline std::vector<wchar_t> BuildMultiString(
     multiString.reserve(totalLen);
 
     // Copy the single strings into the multi-string
-    for (const auto& s : data)
+    for (auto it = data.begin(); it != data.end(); ++it)
     {
+        const auto& s = *it;
         multiString.insert(multiString.end(), s.begin(), s.end());
 
         // Don't forget to NUL-terminate the current string
@@ -739,7 +740,11 @@ std::vector<std::wstring> registry_get_multi_wstring(
             const size_t currStringLength = wcslen(currStringPtr);
 
             // Add current string to the result vector
+#if _MSC_VER > _MSVC_100 
             result.emplace_back(currStringPtr, currStringLength);
+#else
+            result.push_back(std::wstring(currStringPtr, currStringLength));
+#endif
 
             // Move to the next string
             currStringPtr += currStringLength + 1;
@@ -974,7 +979,7 @@ std::vector<std::wstring> registry_get_wkeys(
         maxSubKeyNameLen++;
 
         // Preallocate a buffer for the subkey names
-        auto nameBuffer = std::make_unique<wchar_t[]>(maxSubKeyNameLen);
+        std::wstring nameBuffer(maxSubKeyNameLen, 0);
 
         // Reserve room in the vector to speed up the following insertion loop
         subkeyNames.reserve(subKeyCount);
@@ -987,7 +992,7 @@ std::vector<std::wstring> registry_get_wkeys(
             retCode = RegEnumKeyExW(
                 key,
                 index,
-                nameBuffer.get(),
+                &nameBuffer[0],
                 &subKeyNameLen,
                 nullptr, // reserved
                 nullptr, // no class
@@ -1003,7 +1008,12 @@ std::vector<std::wstring> registry_get_wkeys(
             // subkey name in the subKeyNameLen output parameter
             // (not including the terminating NUL).
             // So I can build a wstring based on that length.
-            subkeyNames.emplace_back(nameBuffer.get(), subKeyNameLen);
+
+#if _MSC_VER > _MSVC_100 
+            subkeyNames.emplace_back(nameBuffer.substr(subKeyNameLen));
+#else
+            subkeyNames.push_back(nameBuffer.substr(subKeyNameLen));
+#endif
         }
     }
 
@@ -1063,7 +1073,7 @@ std::vector<std::pair<std::wstring, registry_value_types>>
         maxValueNameLen++;
 
         // Preallocate a buffer for the value names
-        auto nameBuffer = std::make_unique<wchar_t[]>(maxValueNameLen);
+        std::wstring nameBuffer(maxValueNameLen, 0);
 
         // Reserve room in the vector to speed up the following insertion loop
         valueInfo.reserve(valueCount);
@@ -1077,7 +1087,7 @@ std::vector<std::pair<std::wstring, registry_value_types>>
             retCode = RegEnumValueW(
                 key,
                 index,
-                nameBuffer.get(),
+                &nameBuffer[0],
                 &valueNameLen,
                 nullptr,    // reserved
                 &valueType,
@@ -1097,7 +1107,7 @@ std::vector<std::pair<std::wstring, registry_value_types>>
             // So we can build a wstring based on that.
             valueInfo.emplace_back(
                 std::make_pair(
-                    std::wstring(nameBuffer.get(), valueNameLen),
+                    nameBuffer.substr(valueNameLen),
                     detail::_conver_type(valueType)
                 )
             );

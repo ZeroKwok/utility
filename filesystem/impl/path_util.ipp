@@ -148,7 +148,7 @@ namespace detail {
         const std::basic_string<_TChar>& path)
     {
         if (path.empty())
-            return {};
+            return std::basic_string<_TChar>();
 
         bool is_long = path_is_win_long_path(path);
 
@@ -182,7 +182,7 @@ namespace detail {
         const std::basic_string<_TChar>& path)
     {
         if (path.empty())
-            return {};
+            return std::basic_string<_TChar>();
 
         size_t pos = path.length() - 1;
         while (pos > 0 && detail::is_separator(path.at(pos)))
@@ -202,7 +202,7 @@ namespace detail {
         const std::basic_string<_TChar>& path)
     {
         if (path.empty())
-            return {};
+            return std::basic_string<_TChar>();
 
         size_t pos = path.length() - 1;
         while (pos >= 0 && detail::is_separator(path.at(pos)))
@@ -217,7 +217,7 @@ namespace detail {
         const std::basic_string<_TChar>& path)
     {
         if (path.empty())
-            return {};
+            return std::basic_string<_TChar>();
 
         auto filename = _path_find_filename(path);
 
@@ -233,7 +233,7 @@ namespace detail {
         const std::basic_string<_TChar>& path, int flags)
     {
         if (path.empty())
-            return {};
+            return std::basic_string<_TChar>();
 
         size_t pos = 0; 
         if (flags & find_complete)
@@ -261,7 +261,7 @@ namespace detail {
         const std::basic_string<_TChar>& placeholder)
     {
         if (filename.empty())
-            return {};
+            return std::basic_string<_TChar>();
 
         // POSIX 中对文件名的约束相对与Windows来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
         // 但考虑到文件的跨平台存储(短板效应), 这里采用同windows一样的限制.
@@ -293,7 +293,8 @@ namespace detail {
                 {
                     if (!placeholder.empty())
                     {
-                        result.replace(it, ++decltype(it)(it), placeholder);
+						auto copy = it;
+                        result.replace(it, ++copy, placeholder);
                         std::advance(it, placeholder.length());
                     }
                     else
@@ -770,7 +771,8 @@ bool path_is_win_style(const fpath& path) noexcept
             return false;
 
         // 冒号前必须是字母(盘符)
-        if (!std::isalpha(static_cast<char>(path[colon - 1])))
+        std::locale local("");
+        if (!std::isalpha(static_cast<char>(path[colon - 1]), local))
             return false;
 
         // 盘符只能为1个字母， 且盘符前只能为分割符 （windows驱动器号只有26个）

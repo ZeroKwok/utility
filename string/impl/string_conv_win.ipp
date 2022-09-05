@@ -135,9 +135,9 @@ float wstring_replacement_character_persents(
     const std::wstring& utf16)
 {
     float count = 0;
-    for (auto ch : utf16)
+    for (auto it = utf16.begin(); it != utf16.end(); ++it)
     {
-        if (ch == 0xfffd)
+        if (*it == 0xfffd)
             ++count;
     }
 

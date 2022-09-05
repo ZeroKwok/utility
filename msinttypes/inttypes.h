@@ -40,7 +40,16 @@
 #pragma once
 #endif
 
-#include "stdint.h"
+#if _MSC_VER >= 1600
+#   include <stdint.h>
+#   define __STDC_FORMAT_MACROS
+#else
+#   include "stdint.h"
+#endif
+
+#if _MSC_VER == 1600
+#   define __STDC_FORMAT_MACROS
+#endif
 
 // 7.8 Format conversion of integer types
 
