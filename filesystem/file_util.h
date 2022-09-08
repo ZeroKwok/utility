@@ -53,8 +53,8 @@ public:
 #endif
     typedef int      open_flags;
 
-    ffile(native_type fid = -1);
-    ffile(native_type fid, open_flags flags);
+    explicit ffile(native_type fid = -1);
+    explicit ffile(native_type fid, open_flags flags);
 
     //! 从其他实例构造, other 将丧失对文件的所有权.
     ffile(ffile& other); 
