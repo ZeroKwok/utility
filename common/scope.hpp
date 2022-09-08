@@ -10,8 +10,10 @@ namespace util {
 class scope_exit
 {
     std::function<void()> _closure;
+    scope_exit(const scope_exit&);
+    scope_exit& operator=(const scope_exit&);
+	
 public:
-
     scope_exit(const std::function<void()>& closure)
         : _closure(closure)
     {}
@@ -21,9 +23,6 @@ public:
         if (_closure)
             _closure();
     }
-
-    scope_exit(const scope_exit&) = delete;
-    scope_exit& operator=(const scope_exit&) = delete;
 };
 
 } // util

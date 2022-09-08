@@ -73,6 +73,34 @@ inline _TString _right(const _TString& target, const _TString& mark)
 }
 
 template<class _TString>
+inline std::pair<_TString, _TString> _right_in_half(
+    const _TString& target, const _TString& mark)
+{
+    _TString::size_type index;
+    if ((index = target.rfind(mark)) != _TString::npos)
+    {
+        return std::make_pair(
+            target.substr(0, index),
+            target.substr(index + mark.length()));
+    }
+    return std::pair<_TString, _TString>();
+}
+
+template<class _TString>
+inline std::pair<_TString, _TString> _left_in_half(
+    const _TString& target, const _TString& mark)
+{
+    _TString::size_type index;
+    if ((index = target.find(mark)) != _TString::npos)
+    {
+        return std::make_pair(
+            target.substr(0, index),
+            target.substr(index + mark.length()));
+    }
+    return std::pair<_TString, _TString>();
+}
+
+template<class _TString>
 inline _TString _between(
     const _TString& target,
     const _TString& left,
@@ -263,6 +291,30 @@ std::wstring right(
     const std::wstring& mark)
 {
     return detail::_right(target, mark);
+}
+
+std::pair<std::string, std::string> in_half_from_left(
+    const std::string& target, const std::string& mark)
+{
+    return detail::_left_in_half(target, mark);
+}
+
+std::pair<std::wstring, std::wstring> in_half_from_left(
+    const std::wstring& target, const std::wstring& mark)
+{
+    return detail::_left_in_half(target, mark);
+}
+
+std::pair<std::string, std::string> in_half_from_right(
+    const std::string& target, const std::string& mark)
+{
+    return detail::_right_in_half(target, mark);
+}
+
+std::pair<std::wstring, std::wstring> in_half_from_right(
+    const std::wstring& target, const std::wstring& mark)
+{
+    return detail::_right_in_half(target, mark);
 }
 
 std::string between(

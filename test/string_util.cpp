@@ -24,7 +24,6 @@ TEST(string_util, left)
     EXPECT_EQ("", left("", "/"));
 }
 
-
 TEST(string_util, right)
 {
     EXPECT_EQ("string_conv_easy.hpp", right("string/string_conv_easy.hpp", "/"));
@@ -39,6 +38,33 @@ TEST(string_util, right)
         right(std::wstring(L"string/"), std::wstring(L"/")));
 
     EXPECT_EQ("", right("", "/"));
+}
+
+TEST(string_util, in_half)
+{
+    {
+        auto result = in_half_from_left("00123=256=144", "=");
+        EXPECT_EQ(result.first, "00123");
+        EXPECT_EQ(result.second, "256=144");
+    }
+
+    {
+        auto result = in_half_from_left(L"00123=256=144", L"=");
+        EXPECT_EQ(result.first, L"00123");
+        EXPECT_EQ(result.second, L"256=144");
+    }
+
+    {
+        auto result = in_half_from_right("00123=256=144", "=");
+        EXPECT_EQ(result.first, "00123=256");
+        EXPECT_EQ(result.second, "144");
+    }
+
+    {
+        auto result = in_half_from_right(L"00123=256=144", L"=");
+        EXPECT_EQ(result.first, L"00123=256");
+        EXPECT_EQ(result.second, L"144");
+    }
 }
 
 TEST(string_util, between)

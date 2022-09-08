@@ -73,6 +73,22 @@ UTILITY_FUNCT_DECL std::wstring right(
     const std::wstring& target,
     const std::wstring& mark);
 
+/*!
+ *  /brief 给定标记, 从左起将目标字符串分成两半
+ *  /param target 目标字符串
+ *  /param mark 若target字符串中存在mark指定的标记则从该位置分割字符串.
+ *  /return 若存在找到mark指定的标记则返回分割成两半的字符串, 否则返回{}.
+ */
+UTILITY_FUNCT_DECL std::pair<std::string, std::string> in_half_from_left(
+    const std::string& target, const std::string& mark);
+UTILITY_FUNCT_DECL std::pair<std::wstring, std::wstring> in_half_from_left(
+    const std::wstring& target, const std::wstring& mark);
+
+UTILITY_FUNCT_DECL std::pair<std::string, std::string> in_half_from_right(
+    const std::string& target, const std::string& mark);
+UTILITY_FUNCT_DECL std::pair<std::wstring, std::wstring> in_half_from_right(
+    const std::wstring& target, const std::wstring& mark);
+
 enum UTILITY_CLASS_DECL between_policy
 {
     without_mark  = 0x00, //!< between()返回的子串不包含标记内容;
