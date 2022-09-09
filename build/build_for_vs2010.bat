@@ -15,7 +15,7 @@ mkdir build_vs2010
 pushd build_vs2010
 cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_static_x86_%ProjectLibSufix%" ^
         -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_ENABLE_STATIC_RUNTIME=ON -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%" ^
-		-DBoost_INCLUDE_DIRS=%BoostIncDir% -DBoost_LIBRARY_DIRS=%BoostLibDir%
+		-DBoost_INCLUDE_DIRS=%BoostIncDir% -DBoost_LIBRARY_DIRS=%BoostLibDir% -DUTILITY_SUPPORT_WINXP=ON
 cmake --build   . --config Debug
 cmake --build   . --config RelWithDebInfo
 cmake --install . --config Debug

@@ -5,6 +5,44 @@
 #include <windows.h>
 #include <platform/platform_error.h>
 
+//
+// RegGetValue() 方法仅存在于 Windows Vista, Windows XP Professional x64 Edition
+// 为了在XP SP1中使用, 故包装如下
+// https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
+// 
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#   define MyRegGetValueW RegGetValueW
+#else
+extern "C" LSTATUS MyRegGetValueW(
+    HKEY hkey, 
+    LPCWSTR lpSubKey, LPCWSTR lpValue, DWORD dwFlags, 
+    LPDWORD pdwType, PVOID pvData, LPDWORD pcbData)
+{
+    typedef LSTATUS(WINAPI* REGGETVALUEW)(
+        HKEY hkey, 
+        LPCWSTR lpSubKey, LPCWSTR lpValue, DWORD dwFlags, 
+        LPDWORD pdwType, PVOID pvData, LPDWORD pcbData);
+
+    auto handle  = GetModuleHandleW(L"advapi32.dll");
+    auto address = (REGGETVALUEW)GetProcAddress(handle, "RegGetValueW");
+    DWORD type;
+    
+    if (address)
+    {
+        return address(hkey, lpSubKey, lpValue, dwFlags, pdwType, pvData, pcbData);
+    }
+    else
+    {
+        if (dwFlags == RRF_RT_REG_SZ)
+            type = REG_SZ;
+        else if (dwFlags == RRF_RT_REG_DWORD)
+            type = REG_DWORD;
+
+        return RegQueryValueExW(hkey, lpValue, NULL, &type, (LPBYTE)pvData, pcbData);
+    }
+}
+#endif
+
 namespace util{
 namespace win {
 namespace detail {
@@ -271,6 +309,7 @@ bool registry_value_exist(
     return false;
 }
 
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
 void registry_tree_remove(const tstring path)
 {
     platform_error error;
@@ -289,12 +328,15 @@ void registry_tree_remove(
     tstring subkey;
     detail::_parse_subkey(key, subkey, path);
 
+    // https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletetreew
+    //
     LONG retCode = RegDeleteTreeW(key, subkey.c_str());
     if (retCode != ERROR_SUCCESS)
     {
         error = platform_error(retCode, "RegDeleteTreeW failed.");
     }
 }
+#endif
 
 void registry_directory_remove(
     const tstring path, int access)
@@ -404,7 +446,7 @@ int32_t registry_get_dword(
         DWORD dataSize = sizeof(data);   // size of data, in bytes
 
         constexpr DWORD flags = RRF_RT_REG_DWORD;
-        LONG retCode = RegGetValueW(
+        LONG retCode = MyRegGetValueW(
             key,
             nullptr, // no subkey
             name.c_str(),
@@ -416,7 +458,7 @@ int32_t registry_get_dword(
 
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error( retCode, "Cannot get DWORD value: RegGetValueW failed." );
+            error = platform_error( retCode, "Cannot get DWORD value: MyRegGetValueW failed." );
         }
 
         return data;
@@ -448,7 +490,7 @@ int64_t registry_get_qword(
         DWORD dataSize = sizeof(data);   // size of data, in bytes
 
         constexpr DWORD flags = RRF_RT_REG_QWORD;
-        LONG retCode = RegGetValueW(
+        LONG retCode = MyRegGetValueW(
             key,
             nullptr, // no subkey
             name.c_str(),
@@ -459,7 +501,7 @@ int64_t registry_get_qword(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get QWORD value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get QWORD value: MyRegGetValueW failed.");
         }
 
         return data;
@@ -488,10 +530,12 @@ bytedata registry_get_binary(
 
     if (detail::AutoHKEY key = detail::_open_key(path, KEY_READ | access, error))
     {
+        // https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
+        //
         // Get the size of the binary data
         DWORD dataSize = 0; // size of data, in bytes
         constexpr DWORD flags = RRF_RT_REG_BINARY;
-        LONG retCode = RegGetValueW(
+        LONG retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -502,15 +546,15 @@ bytedata registry_get_binary(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get size of binary data: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get size of binary data: MyRegGetValueW failed.");
             return data;
         }
 
         // Allocate a buffer of proper size to store the binary data
         data.resize(dataSize);
 
-        // Call RegGetValueW for the second time to read the data content
-        retCode = RegGetValueW(
+        // Call MyRegGetValueW for the second time to read the data content
+        retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -521,7 +565,7 @@ bytedata registry_get_binary(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get binary data: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get binary data: MyRegGetValueW failed.");
         }
     }
 
@@ -551,7 +595,7 @@ std::wstring registry_get_wstring(
         // Get the size of the result string
         DWORD dataSize = 0; // size of data, in bytes
         DWORD flags  = RRF_RT_REG_SZ;
-        LONG retCode = RegGetValueW(
+        LONG retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -563,7 +607,7 @@ std::wstring registry_get_wstring(
 
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get size of string value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get size of string value: MyRegGetValueW failed.");
             return result;
         }
 
@@ -572,8 +616,8 @@ std::wstring registry_get_wstring(
         // we have to convert the size from bytes to wchar_ts for wstring::resize.
         result.resize(dataSize / sizeof(wchar_t));
         
-        // Call RegGetValueW for the second time to read the string's content
-        retCode = RegGetValueW(
+        // Call MyRegGetValueW for the second time to read the string's content
+        retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -585,11 +629,11 @@ std::wstring registry_get_wstring(
 
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get string value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get string value: MyRegGetValueW failed.");
             return result;
         }
 
-        // Remove the NUL terminator scribbled by RegGetValueW from the wstring
+        // Remove the NUL terminator scribbled by MyRegGetValueW from the wstring
         result.resize((dataSize / sizeof(wchar_t)) - 1);
     }
 
@@ -621,7 +665,7 @@ std::wstring registry_get_expand_wstring(
 
         // Get the size of the result string
         DWORD dataSize = 0; // size of data, in bytes
-        LONG retCode = RegGetValueW(
+        LONG retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -633,7 +677,7 @@ std::wstring registry_get_expand_wstring(
 
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get size of string value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get size of string value: MyRegGetValueW failed.");
             return result;
         }
 
@@ -642,8 +686,8 @@ std::wstring registry_get_expand_wstring(
         // we have to convert the size from bytes to wchar_ts for wstring::resize.
         result.resize(dataSize / sizeof(wchar_t));
 
-        // Call RegGetValueW for the second time to read the string's content
-        retCode = RegGetValueW(
+        // Call MyRegGetValueW for the second time to read the string's content
+        retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -655,11 +699,11 @@ std::wstring registry_get_expand_wstring(
 
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get string value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get string value: MyRegGetValueW failed.");
             return result;
         }
 
-        // Remove the NUL terminator scribbled by RegGetValueW from the wstring
+        // Remove the NUL terminator scribbled by MyRegGetValueW from the wstring
         result.resize((dataSize / sizeof(wchar_t)) - 1);
     }
 
@@ -689,7 +733,7 @@ std::vector<std::wstring> registry_get_multi_wstring(
         // Request the size of the multi-string, in bytes
         DWORD dataSize = 0;
         constexpr DWORD flags = RRF_RT_REG_MULTI_SZ;
-        LONG retCode = RegGetValueW(
+        LONG retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -700,7 +744,7 @@ std::vector<std::wstring> registry_get_multi_wstring(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get size of multi-string value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get size of multi-string value: MyRegGetValueW failed.");
             return result;
         }
 
@@ -710,7 +754,7 @@ std::vector<std::wstring> registry_get_multi_wstring(
         std::vector<wchar_t> data(dataSize / sizeof(wchar_t), L' ');
 
         // Read the multi-string from the registry into the vector object
-        retCode = RegGetValueW(
+        retCode = MyRegGetValueW(
             key,
             nullptr,    // no subkey
             name.c_str(),
@@ -721,7 +765,7 @@ std::vector<std::wstring> registry_get_multi_wstring(
         );
         if (retCode != ERROR_SUCCESS)
         {
-            error = platform_error(retCode, "Cannot get multi-string value: RegGetValueW failed.");
+            error = platform_error(retCode, "Cannot get multi-string value: MyRegGetValueW failed.");
             return result;
         }
 

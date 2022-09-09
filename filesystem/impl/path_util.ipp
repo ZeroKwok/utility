@@ -1086,6 +1086,8 @@ fpath path_from_sysdir(int flag, ferror& ferr) noexcept
     return buffer;
 }
 
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+
 fpath path_from_sysdir(REFKNOWNFOLDERID rfid)
 {
     ferror ferr;
@@ -1114,6 +1116,8 @@ fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept
 
     return result;
 }
+
+#endif
 
 void path_open_with_explorer(const fpath& path, bool select/* = true*/)
 {

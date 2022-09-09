@@ -311,6 +311,7 @@ UTILITY_FUNCT_DECL std::wstring path_filename_increment(const std::wstring& file
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag = 0);
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag, ferror& ferr) noexcept;
 
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
 /*!
  *  \brief 获得系统路径(建议使用)
  *
@@ -323,6 +324,7 @@ UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag, ferror& ferr) noexcept;
  */
 UTILITY_FUNCT_DECL fpath path_from_sysdir(REFKNOWNFOLDERID rfid = FOLDERID_Desktop);
 UTILITY_FUNCT_DECL fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept;
+#endif
 
 /*!
  *  \brief 在explorer中打开文件夹并选择指定的文件

@@ -102,8 +102,11 @@ bytedata& bytes_from_file(
     if (length > 0x3200000) // 50MB
         throw std::runtime_error("A single read cannot be greater than 50MB");
 
-    bytes.resize(length);
-    util::file_read(file, &bytes[0], static_cast<int>(bytes.size()));
+    if (size > 0)
+    {
+        bytes.resize(length);
+        util::file_read(file, &bytes[0], static_cast<int>(bytes.size()));
+    }
 
     return bytes;
 }

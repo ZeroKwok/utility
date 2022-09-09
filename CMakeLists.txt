@@ -12,6 +12,9 @@ option(UTILITY_SUPPORT_BOOST "Enable Boost support" ON)
 # 是否支持Qt
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 
+# 是否支持WinXp
+option(UTILITY_SUPPORT_WINXP "Enable WinXP support" OFF)
+
 # 是否编译动态库
 option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
 
@@ -22,9 +25,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# 默认启用Windows SDK 兼容到 Windows 7 SP1
+set(UTILITY_TARGET_COMPILE_DEFINITIONS "")
 if(WIN32)
-    set(UTILITY_TARGET_COMPILE_DEFINITIONS _WIN32_WINNT=0x0601 UTILITY_SUPPORT_BSTR)
+    # 若Windows SDK 没有启动支持WinXP SP1则默认兼容到 Windows 7 SP1
+    if(UTILITY_SUPPORT_WINXP)
+        list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS _WIN32_WINNT=0x0502)
+    else()
+        list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS _WIN32_WINNT=0x0601)
+    endif()
+    list(APPEND UTILITY_TARGET_COMPILE_DEFINITIONS UTILITY_SUPPORT_BSTR)
 endif()
 
 if(UTILITY_SUPPORT_BOOST)
@@ -48,7 +57,7 @@ if(MSVC AND UTILITY_ENABLE_STATIC_RUNTIME)
     endforeach(flag_var)
 endif()
 
-# 如果编译器支持则启用c++最新特性
+# 如果编译器支持则启用c++17特性
 if (MSVC_VERSION GREATER_EQUAL "1900")
     include(CheckCXXCompilerFlag)
     CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_17_flag_supported)
@@ -117,7 +126,24 @@ add_subdirectory(process)
 # 单元测试
 if(UTILITY_BUILD_TEST)
     # enable_testing()
-    add_subdirectory(test)
+
+    # 添加GoogleTest支持
+    include(GoogleTest)
+    find_package(GTest 1.10.0)
+
+    # 找不到尝试编译
+    if(NOT GTest_NOTFOUND)
+        if(UTILITY_ENABLE_STATIC_RUNTIME)
+            set(gtest_force_shared_crt OFF)
+        else()
+            set(gtest_force_shared_crt ON)
+        endif()
+        # 参考 googletest:CMakeLists.txt
+        message("gtest_force_shared_crt=${gtest_force_shared_crt}")
+        add_subdirectory(3rd/googletest-1.10.0)
+    endif()
+
+    add_subdirectory(unittest)
 endif()
 
 # 安装公共头文件
@@ -158,4 +184,4 @@ write_basic_package_version_file(
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake" DESTINATION cmake)
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/internal_util.cmake" DESTINATION cmake)
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README.md" DESTINATION .)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test DESTINATION . OPTIONAL)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/unittest DESTINATION . OPTIONAL)

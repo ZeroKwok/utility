@@ -65,11 +65,13 @@ UTILITY_FUNCT_DECL bool registry_value_exist(
 UTILITY_FUNCT_DECL bool registry_value_exist(
     const tstring path, const tstring& name, int access, platform_error& error);
 
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
 /// 删除注册表目录树(多级目录), 及其下的值.
 UTILITY_FUNCT_DECL void registry_tree_remove(
     const tstring path);
 UTILITY_FUNCT_DECL void registry_tree_remove(
     const tstring path, platform_error& error);
+#endif
 
 /*!
  *  /brief  删除注册表目录(subkey), 及其下的值.
