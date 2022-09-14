@@ -298,7 +298,13 @@ namespace detail {
                         std::advance(it, placeholder.length());
                     }
                     else
-                        it = result.erase(it);
+                    {
+                        // 预防 "|", "/" 这样的单违法字符的文件名
+                        if (result.size() != 1)
+                            it = result.erase(it);
+                        else
+                            *it++ = '_';
+                    }
                     break;
                 }
             }
@@ -339,6 +345,14 @@ namespace detail {
         {
             result.insert(0, 1, '(');
             result.append(1, ')');
+        }
+
+        // Windows API 不支持 文件名后面的 ., 故这里需要移除文件名后的.
+        for (int i = result.size() - 1; i > 0; --i)
+        {
+            if (result[i] != '.')
+                break;
+            result.pop_back();
         }
 
         return result;
@@ -436,12 +450,21 @@ namespace detail {
             // 有匹配的括号对
             long long number = 1;
 
-            size_t pos = 0;
-            number = std::stoll(filename.substr(++leftPos, rightPos - leftPos), &pos);
+            if (rightPos > leftPos && rightPos - leftPos > 1)
+            {
+                size_t pos = 0;
+                number = std::stoll(filename.substr(++leftPos, rightPos - leftPos), &pos);
 
-            auto string = std::to_string(++number);
-            return target.replace(leftPos, rightPos - leftPos,
-                std::basic_string<_TChar>(string.begin(), string.end()));
+                auto string = std::to_string(++number);
+                return target.replace(leftPos, rightPos - leftPos,
+                    std::basic_string<_TChar>(string.begin(), string.end()));
+            }
+            else
+            {
+                auto string = std::to_string(number);
+                target.insert(++leftPos, std::basic_string<_TChar>(string.begin(), string.end()));
+                return target;
+            }
         }
     }
 

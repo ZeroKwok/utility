@@ -258,11 +258,17 @@ TEST(path_util, path_find_extension)
 TEST(path_util, path_filename_trim)
 {
     EXPECT_EQ(util::path_filename_trim("nul"), "(nul)");
+    EXPECT_EQ(util::path_filename_trim("*"), "_");
+    EXPECT_EQ(util::path_filename_trim("|"), "_");
     EXPECT_EQ(util::path_filename_trim("aux"), "(aux)");
     EXPECT_EQ(util::path_filename_trim("."),   "(.)");
     EXPECT_EQ(util::path_filename_trim(".."),  "(..)");
     EXPECT_EQ(util::path_filename_trim("..."),  "(...)");
     EXPECT_EQ(util::path_filename_trim("...."),  "(....)");
+    EXPECT_EQ(util::path_filename_trim("………………………………..."),  "………………………………");
+    EXPECT_EQ(util::path_filename_trim("……………………………….."),  "………………………………");
+    EXPECT_EQ(util::path_filename_trim("………………………………."),  "………………………………");
+    EXPECT_EQ(util::path_filename_trim("………………………………"),  "………………………………");
     EXPECT_EQ(util::path_filename_trim("read/me.txt"), "readme.txt");
     EXPECT_EQ(util::path_filename_trim("readme.?txt"), "readme.txt");
 
@@ -284,6 +290,9 @@ TEST(path_util, path_filename_trim)
 
 TEST(path_util, path_filename_increment)
 {
+    auto result_0 = util::path_filename_increment("().txt");
+    EXPECT_EQ(result_0, "(1).txt");
+
     auto result_1 = util::path_filename_increment("log.txt");
     EXPECT_EQ(result_1 , "log(1).txt");
 

@@ -434,6 +434,12 @@ TEST(file_util, directories_create_and_remove)
 
     util::directories_create(L"中文", ferr);
     EXPECT_FALSE(ferr);
+
+    //util::directories_create(L"………………………………..", ferr);
+    //EXPECT_FALSE(ferr);
+
+    //util::directories_remove("………………………………..", ferr);
+    //EXPECT_FALSE(ferr);
 }
 #endif
 
