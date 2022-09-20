@@ -9,7 +9,7 @@ set(TEST_SOUCES
     string.cpp
     string_util.cpp
     #platform_cpu.cpp 
-    #platform_util.cpp
+    platform_util.cpp
     #filesystem_file.cpp 
     #filesystem_path.cpp 
     #common.cpp
@@ -22,8 +22,8 @@ set(TEST_SOUCES
 
 if(WIN32)
     list(APPEND TEST_SOUCES 
-                process.cpp
-                mini_dump.cpp
+#                process.cpp
+#                mini_dump.cpp
                 platform_registry.cpp)
 endif()
 

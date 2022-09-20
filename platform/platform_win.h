@@ -28,6 +28,7 @@ UTILITY_FUNCT_DECL bool is_64bitsys();
 UTILITY_FUNCT_DECL bool is_running_on_vista_or_higher();
 UTILITY_FUNCT_DECL bool is_running_on_win7_or_higher();
 UTILITY_FUNCT_DECL bool is_running_on_win7_sp1_or_higher();
+UTILITY_FUNCT_DECL bool is_running_on_win11_or_higher();
 
 //! Determine if the user is part of the adminstators group. This will return
 //! true in case of XP and 2K if the user belongs to admin group. In case of

@@ -8,6 +8,7 @@
 #include <platform/registry_win.h>
 
 #include "dbghelp_api.hpp"
+#include <boost/lexical_cast.hpp>
 
 #if _WIN32_WINNT < _WIN32_WINNT_VISTA
 #   include <winsock2.h>
@@ -101,6 +102,35 @@ HRESULT get_process_integrity_level(DWORD process_id, MANDATORY_LEVEL* level)
     return result;
 }
 
+// 
+// GetVersionExW()只支持到Win8.1, 此后该方法获得的版本号最大仅为Win 8.1.
+// 
+// Applications not manifested for Windows 8.1 or Windows 10 will return the Windows 8 OS version value (6.2). 
+// Once an application is manifested for a given operating system version, 
+// GetVersionEx will always return the version that the application is manifested for in future releases. 
+// https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getversionexw
+//
+OSVERSIONINFOEXW MyGetVersionExW()
+{
+    OSVERSIONINFOEXW version = { 0 };
+    version.dwOSVersionInfoSize = sizeof(version);
+    GetVersionExW((OSVERSIONINFOW*)&version);
+
+    if (auto hinst = LoadLibraryA("ntdll.dll"))
+    {
+        typedef void (WINAPI* getver)(DWORD*, DWORD*, DWORD*);
+        if (getver proc = (getver)GetProcAddress(hinst, "RtlGetNtVersionNumbers"))
+        {
+            proc(&version.dwMajorVersion, &version.dwMinorVersion, &version.dwBuildNumber);
+            version.dwBuildNumber = version.dwBuildNumber & 0xffff;
+        }
+
+        FreeLibrary(hinst);
+    }
+
+    return version;
+}
+
 // Returns true, if this program running on Wow64.
 // That is, 32-bit programs run on 64-bit systems.
 bool is_wow64()
@@ -180,6 +210,17 @@ bool is_running_on_win7_sp1_or_higher()
         return true;
     else
         return false;
+}
+
+bool is_running_on_win11_or_higher()
+{
+    OSVERSIONINFOEXW version = MyGetVersionExW();
+    if (version.dwMajorVersion > 10)
+        return true;
+    if (version.dwMajorVersion == 10 && version.dwBuildNumber >= 22000)
+        return true;
+
+    return false;
 }
 
 // Determine if the user is part of the adminstators group. This will return
@@ -372,7 +413,7 @@ std::string system_name()
 
 std::wstring wsystem_name()
 {
-    platform_error error;
+    platform_error error, error1;
 
     // 优先读取注册表
     std::wstring name = registry_get_wstring(
@@ -381,14 +422,32 @@ std::wstring wsystem_name()
         is_wow64() ? KEY_WOW64_64KEY : 0, 
         error);
 
-    if(error)
+    std::wstring build = registry_get_wstring(
+        L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+        L"CurrentBuildNumber",
+        is_wow64() ? KEY_WOW64_64KEY : 0,
+        error1);
+
+    int number = 0;
+    try {
+        number = boost::lexical_cast<int>(build);
+    }
+    catch (...) {
+    }
+
+    if (!error)
     {
+        // 判断是否为 Win 11
+        if (number >= 22000 && name.find(L"Windows 10") != name.npos)
+        {
+            util::replace(name, L"Windows 10", L"Windows 11");
+        }
+    }
+    else
+    {
+        OSVERSIONINFOEXW version = MyGetVersionExW();
+
         name = L"Windows ?";
-
-        OSVERSIONINFOEXW version = { 0 };
-        version.dwOSVersionInfoSize = sizeof(version);
-        GetVersionExW((OSVERSIONINFOW*)&version);
-
         if (version.dwPlatformId == VER_PLATFORM_WIN32_NT && version.dwMajorVersion >= 5)
         {
             switch (version.dwMajorVersion)
@@ -452,7 +511,13 @@ std::wstring wsystem_name()
                 {
                 case 0:
                     if (version.wProductType == VER_NT_WORKSTATION)
-                        name = L"Windows 10";
+                    {
+                        // 判断Win 11
+                        if (version.dwBuildNumber >= 22000)
+                            name = L"Windows 11";
+                        else
+                            name = L"Windows 10";
+                    }
                     else
                         name = L"Windows Server 2016";
                 }

@@ -18,3 +18,18 @@ TEST(platform, format_error)
 
     EXPECT_FALSE(message.empty());
 }
+
+
+#if OS_WIN
+
+TEST(platform, wsystem_name)
+{
+    auto name = win::wsystem_name();
+
+    EXPECT_FALSE(name.empty());
+    EXPECT_TRUE(name.find(L"Windows") != name.npos);
+
+    std::wcout << name << std::endl;
+}
+
+#endif
