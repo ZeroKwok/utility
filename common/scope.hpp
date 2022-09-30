@@ -20,8 +20,18 @@ public:
 
     ~scope_exit()
     {
+        run();
+    }
+
+    void run()
+    {
         if (_closure)
             _closure();
+    }
+
+    void reset(const std::function<void()>& closure = std::function<void()>()) 
+    {
+        _closure = closure;
     }
 };
 
