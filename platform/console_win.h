@@ -52,6 +52,11 @@ UTILITY_FUNCT_DECL void output(
 UTILITY_FUNCT_DECL void clear();
 
 /*!
+ *  判断指定流是否重定向
+ */
+UTILITY_FUNCT_DECL bool is_redirect(const uint32_t handle = STD_OUTPUT);
+
+/*!
  *  移动打印光标到指定位置
  */
 UTILITY_FUNCT_DECL void cursor_goto(const coord& pos);

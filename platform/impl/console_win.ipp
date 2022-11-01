@@ -34,6 +34,29 @@ void clear()
     ::system("cls");
 }
 
+bool is_redirect(const uint32_t handle)
+{
+    // How do I check if my Delphi console app is redirected to a file or pipe?
+    // https://stackoverflow.com/questions/9021916/how-do-i-check-if-my-delphi-console-app-is-redirected-to-a-file-or-pipe
+
+    // https://learn.microsoft.com/zh-cn/windows/console/getstdhandle#return-value
+    HANDLE hstdout = ::GetStdHandle(handle);
+    if (hstdout == INVALID_HANDLE_VALUE || hstdout == NULL)
+        return false;
+
+    // https://learn.microsoft.com/zh-cn/windows/win32/api/fileapi/nf-fileapi-getfiletype
+    DWORD type = ::GetFileType(hstdout);
+    if (type == FILE_TYPE_DISK || type == FILE_TYPE_PIPE)
+        return true;
+
+    // https://learn.microsoft.com/zh-cn/windows/console/getconsolemode
+    DWORD mode = 0;
+    if (::GetConsoleMode(hstdout, &mode) == 0)
+        return true;
+
+    return false;
+}
+
 void cursor_goto(const coord& pos)
 {
     COORD _pos = { pos.x, pos.y };

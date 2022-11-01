@@ -3,3 +3,4 @@ out
 WinReg
 CMakeSettings*
 utility.hpp
+build/msvc14.2
