@@ -25,11 +25,13 @@ TEST(platform, format_error)
 TEST(platform, wsystem_name)
 {
     auto name = win::wsystem_name();
+    auto verw = win::get_osversionex_w();
 
     EXPECT_FALSE(name.empty());
     EXPECT_TRUE(name.find(L"Windows") != name.npos);
 
     std::wcout << name << std::endl;
+    std::wcout << "dwMajorVersion: " << verw.dwMajorVersion  << " dwBuildNumber: " << verw.dwBuildNumber << std::endl;
 }
 
 #endif

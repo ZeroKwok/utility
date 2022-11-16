@@ -14,6 +14,7 @@
 
 #include <list>
 #include <string>
+#include <windows.h>
 
 namespace util{
 namespace win {
@@ -47,6 +48,17 @@ UTILITY_FUNCT_DECL bool is_network_available();
 //! Note: https://!docs.microsoft.com/zh-cn/windows/win32/sysinfo/targeting-your-application-at-windows-8-1
 UTILITY_FUNCT_DECL std::string system_name();
 UTILITY_FUNCT_DECL std::wstring wsystem_name();
+
+//! 返回系统真实的版本号, 是::GetVersionExW()系统API的包装
+//! 
+//! GetVersionExW()只支持到Win8.1, 此后该方法获得的版本号最大仅为Win 8.1.
+//! 
+//! Applications not manifested for Windows 8.1 or Windows 10 will return the Windows 8 OS version value (6.2). 
+//! Once an application is manifested for a given operating system version, 
+//! GetVersionEx will always return the version that the application is manifested for in future releases. 
+//! https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getversionexw
+//!
+UTILITY_FUNCT_DECL OSVERSIONINFOEXW get_osversionex_w();
 
 //! Returns a string with the meaning of the error_code error code.
 UTILITY_FUNCT_DECL std::string format_error(int error_code);

@@ -110,7 +110,7 @@ HRESULT get_process_integrity_level(DWORD process_id, MANDATORY_LEVEL* level)
 // GetVersionEx will always return the version that the application is manifested for in future releases. 
 // https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getversionexw
 //
-OSVERSIONINFOEXW MyGetVersionExW()
+OSVERSIONINFOEXW get_osversionex_w()
 {
     OSVERSIONINFOEXW version = { 0 };
     version.dwOSVersionInfoSize = sizeof(version);
@@ -214,7 +214,7 @@ bool is_running_on_win7_sp1_or_higher()
 
 bool is_running_on_win11_or_higher()
 {
-    OSVERSIONINFOEXW version = MyGetVersionExW();
+    OSVERSIONINFOEXW version = get_osversionex_w();
     if (version.dwMajorVersion > 10)
         return true;
     if (version.dwMajorVersion == 10 && version.dwBuildNumber >= 22000)
@@ -445,7 +445,7 @@ std::wstring wsystem_name()
     }
     else
     {
-        OSVERSIONINFOEXW version = MyGetVersionExW();
+        OSVERSIONINFOEXW version = get_osversionex_w();
 
         name = L"Windows ?";
         if (version.dwPlatformId == VER_PLATFORM_WIN32_NT && version.dwMajorVersion >= 5)

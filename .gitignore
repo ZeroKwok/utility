@@ -3,6 +3,7 @@ out
 WinReg
 CMakeSettings*
 utility.hpp
+discard
 build/msvc14.2/*
 !build/msvc14.2/ALL_BUILD.*
 !build/msvc14.2/utility.sln

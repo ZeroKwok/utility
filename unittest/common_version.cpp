@@ -3,14 +3,17 @@
 
 TEST(common_version, version)
 {
-    EXPECT_EQ(util::version_generate(2, 0, 0, 1), 0x02000001);
-    EXPECT_EQ(util::version_generate(1, 2, 3, 4), 0x01020304);
+    EXPECT_EQ(util::version_into_value32(2, 0, 0, 1), 0x02000001);
+    EXPECT_EQ(util::version_into_value32(1, 2, 3, 4), 0x01020304);
+
+    EXPECT_EQ(util::version_into_value(2, 0, 0, 1), 0x0002000000000001);
+    EXPECT_EQ(util::version_into_value(1, 2, 3, 4), 0x0001000200030004);
 
     util::product_version version = { 2, 0, 0, 1 };
     util::product_version version1 = { 1, 2, 3, 4 };
     util::product_version version2 = { 1, 2, 3, 0 };
-    EXPECT_EQ(util::version_into_value(version), 0x02000001);
-    EXPECT_EQ(util::version_into_value(version1), 0x01020304);
+    EXPECT_EQ(util::version_into_value32(version), 0x02000001);
+    EXPECT_EQ(util::version_into_value32(version1), 0x01020304);
 
     EXPECT_EQ(util::version_into_string(version), "2.0.0.1");
     EXPECT_EQ(util::version_into_string(version1), "1.2.3.4");
@@ -25,4 +28,6 @@ TEST(common_version, version)
 
     EXPECT_TRUE(util::version_from_string(L"2.0.0.1") == version);
     EXPECT_TRUE(util::version_from_string(L"1.2.3.4") == version1);
+
+
 }

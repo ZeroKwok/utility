@@ -7,6 +7,7 @@
 #endif
 
 #include <string/string_conv_easy.hpp>
+#include <platform/platform_util.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/algorithm.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -14,74 +15,36 @@
 
 namespace util {
 
-uint32_t version_generate(
-    int8_t major, int8_t minor, int8_t build /*= 0*/, int8_t revision /*= 0*/)
+product_version version_make(
+    uint16_t major, uint16_t minor, uint16_t patch /*= 0*/, uint16_t build /*= 0*/)
 {
-    return (major << 24) | (minor << 16) | (build << 8) | revision;
+    return { major, minor, patch, build };
 }
 
-//!
-//!  返回指定版本号的32位值
-//!
-uint32_t version_into_value(const product_version& version)
-{
-    return uint32_t(version.major << 24) | uint32_t(version.minor << 16) |
-           uint32_t(version.build << 8) | uint32_t(version.revision);
-}
-
-//!
-//!  返回指定版本号的字符串表示
-//!
-//!  product_version {0,0,0,0} -> "0.0"
-//!  product_version {0,1,0,0} -> "0.1"
-//!  product_version {0,1,5,0} -> "0.1.5"
-//!  product_version {0,1,0,1} -> "0.1.0.1"
-//! 
-std::string version_into_string(const product_version& version)
-{
-    std::string result = util::sformat("%d.%d", version.major, version.minor);
-
-    if (version.revision != 0)
-        result += util::sformat(".%d.%d", version.build, version.revision);
-    else if (version.build != 0)
-        result += util::sformat(".%d", version.build);
-
-    return result;
-}
-
-//!
-//!  返回指定版本号的宽字符表示
-//!
-std::wstring version_into_wstring(const product_version& version)
-{
-    std::wstring result = util::sformat(L"%d.%d", version.major, version.minor);
-
-    if (version.revision != 0)
-        result += util::sformat(L".%d.%d", version.build, version.revision);
-    else if (version.build != 0)
-        result += util::sformat(L".%d", version.build);
-
-    return result;
-}
-
-//!
-//! 从32位值构造版本号
-//! 
-product_version version_from_value(uint32_t value)
+product_version version_from_value(uint64_t value)
 {
     product_version version = {
-        /* 主版本号   */ (value & 0xff000000) >> 24,
-        /* 次版本号   */ (value & 0x00ff0000) >> 16,
-        /* 构建版本号 */ (value & 0x0000ff00) >> 8,
-        /* 修订版本号 */ (value & 0x000000ff)
+        /* major */ uint16_t((value >> 48) & 0xffff),
+        /* minor */ uint16_t((value >> 32) & 0xffff),
+        /* patch */ uint16_t((value >> 16) & 0xffff),
+        /* build */ uint16_t(value & 0xffff),
     };
 
     return version;
 }
 
-//!
-//! 从字符串构造版本号
-//! 
+product_version version_from_value32(uint32_t value)
+{
+    product_version version = {
+        /* major */ (value & 0xff000000) >> 24,
+        /* minor */ (value & 0x00ff0000) >> 16,
+        /* patch */ (value & 0x0000ff00) >> 8,
+        /* build */ (value & 0x000000ff)
+    };
+
+    return version;
+}
+
 product_version version_from_string(std::string version)
 {
     product_version result = { 0 };
@@ -98,13 +61,14 @@ product_version version_from_string(std::string version)
             result.minor = boost::lexical_cast<uint32_t>(fields[1]);
 
         if (fields.size() >= 3)
-            result.build = boost::lexical_cast<uint32_t>(fields[2]);
+            result.patch = boost::lexical_cast<uint32_t>(fields[2]);
 
         if (fields.size() >= 4)
-            result.revision = boost::lexical_cast<uint32_t>(fields[3]);
+            result.build = boost::lexical_cast<uint32_t>(fields[3]);
     }
-    catch (...)
+    catch (const std::exception& e)
     {
+        util::output_debug_string("version_from_string() exception: " + std::string(e.what()));
     }
 
     return result;
@@ -113,6 +77,100 @@ product_version version_from_string(std::string version)
 product_version version_from_string(std::wstring version)
 {
     return version_from_string(conv::easy::_2str(version));
+}
+
+uint64_t version_into_value(const product_version& version)
+{
+    return version_into_value(version.major, version.minor, version.patch, version.build);
+}
+
+uint32_t version_into_value32(const product_version& version)
+{
+    return version_into_value32(version.major, version.minor, version.patch, version.build);
+}
+
+uint64_t version_into_value(
+    uint16_t major, uint16_t minor, uint16_t patch /*= 0*/, uint16_t build /*= 0*/)
+{
+    return (uint64_t(major) << 48) | (uint64_t(minor) << 32) | (uint64_t(patch) << 16) | build;
+}
+
+uint32_t version_into_value32(
+    uint16_t major, uint16_t minor, uint16_t patch /*= 0*/, uint16_t build /*= 0*/)
+{
+    if (major & 0xff00 ||
+        minor & 0xff00 ||
+        patch & 0xff00 ||
+        build & 0xff00)
+    {
+        util::output_debug_string(L"version_generate32() warning: High version data will be lost.");
+    }
+
+    return ((0x00ff & major) << 24) | ((0x00ff & minor) << 16) | ((0x00ff & patch) << 8) | (0x00ff & build);
+}
+
+uint64_t version_into_value(std::string version)
+{
+    return version_into_value(version_from_string(version));
+}
+
+uint64_t version_into_value(std::wstring version)
+{
+    return version_into_value(version_from_string(version));
+}
+
+uint32_t version_into_value32(std::string version)
+{
+    return version_into_value32(version_from_string(version));
+}
+
+uint32_t version_into_value32(std::wstring version)
+{
+    return version_into_value32(version_from_string(version));
+}
+
+std::string version_into_string(const product_version& version)
+{
+    std::string result = util::sformat("%d.%d", version.major, version.minor);
+
+    if (version.build != 0)
+        result += util::sformat(".%d.%d", version.patch, version.build);
+    else if (version.patch != 0)
+        result += util::sformat(".%d", version.patch);
+
+    return result;
+}
+
+std::wstring version_into_wstring(const product_version& version)
+{
+    std::wstring result = util::sformat(L"%d.%d", version.major, version.minor);
+
+    if (version.build != 0)
+        result += util::sformat(L".%d.%d", version.patch, version.build);
+    else if (version.patch != 0)
+        result += util::sformat(L".%d", version.patch);
+
+    return result;
+}
+
+std::string version_into_string(uint64_t version)
+{
+    return version_into_string(version_from_value(version));
+}
+
+std::wstring version_into_wstring(uint64_t version)
+{
+    return version_into_wstring(version_from_value(version));
+}
+
+std::string version_into_string_from32(uint32_t version)
+{
+    return version_into_string(version_from_value32(version));
+}
+
+std::wstring version_into_wstring_from32(uint32_t version)
+{
+    return version_into_wstring(version_from_value32(version));
 }
 
 } // util
