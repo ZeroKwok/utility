@@ -24,6 +24,10 @@ void ffile::close()
     if (vaild())
     {
         //
+        // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers
+        ::FlushFileBuffers(reinterpret_cast<HANDLE>(native_id()));
+
+        //
         // https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
 
         ::CloseHandle(reinterpret_cast<HANDLE>(native_id()));

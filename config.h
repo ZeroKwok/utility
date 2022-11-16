@@ -145,7 +145,18 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 #if defined(COMPILER_MSVC)
 
 // Microsoft Visual C++各版本的_MSC_VER值定义
-// https://zh.m.wikipedia.org/zh-hans/Microsoft_Visual_C%2B%2B
+// https://zh.wikipedia.org/zh-hans/Microsoft_Visual_C%2B%2B
+// https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B
+// https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170
+// 
+                                  // _MSC_VER == 1932 (Visual Studio 2022 version 17.2      MSVC++ 14.32)
+                                  // _MSC_VER == 1931 (Visual Studio 2022 version 17.1      MSVC++ 14.31)
+#   define  _MSVC_143       1930  // _MSC_VER == 1930 (Visual Studio 2022 RTW (17.0)        MSVC++ 14.30)
+
+                                  // _MSC_VER == 1929 (Visual Studio 2019 Version 16.10/11  MSVC++ 14.29)
+                                  // _MSC_VER == 1928 (Visual Studio 2019 Version 16.8/9    MSVC++ 14.28)
+                                  // _MSC_VER == 1927 (Visual Studio 2019 Version 16.7      MSVC++ 14.27)
+                                  // 
                                   // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
                                   // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
                                   // _MSC_VER == 1924 (Visual Studio 2019 Version 16.4 MSVC++ 14.24)

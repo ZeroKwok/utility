@@ -183,5 +183,6 @@ write_basic_package_version_file(
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/utilityConfigVersion.cmake" DESTINATION cmake)
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/internal_util.cmake" DESTINATION cmake)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_debug.cmake" DESTINATION cmake)
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README.md" DESTINATION .)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/unittest DESTINATION . OPTIONAL)
