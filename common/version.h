@@ -59,22 +59,46 @@ UTILITY_FUNCT_DECL uint32_t version_into_value32(
 
 //!
 //!  返回指定版本号的字符串表示
-//!
-//!  product_version {0,0,0,0} -> "0.0"
-//!  product_version {0,1,0,0} -> "0.1"
-//!  product_version {0,1,5,0} -> "0.1.5"
-//!  product_version {0,1,0,1} -> "0.1.0.1"
+//!  if reserve == 4 then
+//!     product_version {0,0,0,0} -> "0.0.0.0"
+//!     product_version {0,1,0,0} -> "0.1.0.0"
+//!     product_version {0,1,5,0} -> "0.1.5.0"
+//!     product_version {0,1,0,1} -> "0.1.0.1"
+//!  else if reserve == 3 then
+//!     product_version {0,0,0,0} -> "0.0.0"
+//!     product_version {0,1,0,0} -> "0.1.0"
+//!     product_version {0,1,5,0} -> "0.1.5"
+//!     product_version {0,1,0,1} -> "0.1.0.1"
+//!  else if reserve == 2 then
+//!     product_version {0,0,0,0} -> "0.0"
+//!     product_version {0,1,0,0} -> "0.1"
+//!     product_version {0,1,5,0} -> "0.1.5"
+//!     product_version {0,1,0,1} -> "0.1.0.1"
+//!  else if reserve == 1 then
+//!     product_version {0,0,0,0} -> "0"
+//!     product_version {1,0,0,0} -> "1"
+//!     product_version {0,1,0,0} -> "0.1"
+//!     product_version {0,1,5,0} -> "0.1.5"
+//!     product_version {0,1,0,1} -> "0.1.0.1"
 //! 
-UTILITY_FUNCT_DECL std::string version_into_string(const product_version& version);
-UTILITY_FUNCT_DECL std::wstring version_into_wstring(const product_version& version);
+UTILITY_FUNCT_DECL std::string version_into_string(const product_version& version, int reserve = 3);
+UTILITY_FUNCT_DECL std::wstring version_into_wstring(const product_version& version, int reserve = 3);
 
 //!
 //!  从整形值转换为字符串表示
 //!
-UTILITY_FUNCT_DECL std::string version_into_string(uint64_t version);
-UTILITY_FUNCT_DECL std::wstring version_into_wstring(uint64_t version);
-UTILITY_FUNCT_DECL std::string version_into_string_from32(uint32_t version);
-UTILITY_FUNCT_DECL std::wstring version_into_wstring_from32(uint32_t version);
+UTILITY_FUNCT_DECL std::string version_into_string(uint64_t version, int reserve = 3);
+UTILITY_FUNCT_DECL std::wstring version_into_wstring(uint64_t version, int reserve = 3);
+UTILITY_FUNCT_DECL std::string version_into_string_from32(uint32_t version, int reserve = 3);
+UTILITY_FUNCT_DECL std::wstring version_into_wstring_from32(uint32_t version, int reserve = 3);
+
+//!
+//!  从字段转换为字符串表示
+//!
+UTILITY_FUNCT_DECL std::string version_into_string(
+    uint16_t major, uint16_t minor, uint16_t patch = 0, uint16_t build = 0, int reserve = 3);
+UTILITY_FUNCT_DECL std::wstring version_into_wstring(
+    uint16_t major, uint16_t minor, uint16_t patch = 0, uint16_t build = 0, int reserve = 3);
 
 //!
 //!  版本类型比较

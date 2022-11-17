@@ -129,48 +129,61 @@ uint32_t version_into_value32(std::wstring version)
     return version_into_value32(version_from_string(version));
 }
 
-std::string version_into_string(const product_version& version)
+std::string version_into_string(const product_version& version, int reserve /*= 3*/)
 {
-    std::string result = util::sformat("%d.%d", version.major, version.minor);
+    reserve = std::max(std::min(4, reserve), 1);
+    auto value = version_into_value(version);
 
-    if (version.build != 0)
-        result += util::sformat(".%d.%d", version.patch, version.build);
-    else if (version.patch != 0)
-        result += util::sformat(".%d", version.patch);
+    std::string result = std::to_string(version.major);
+    if (value & 0x0000ffffffffffff || reserve > 1)
+        result = result + "." + std::to_string(version.minor);
+
+    if (value & 0x00000000ffffffff || reserve > 2)
+        result = result + "." + std::to_string(version.patch);
+
+    if (value & 0x000000000000ffff || reserve > 3)
+        result = result + "." + std::to_string(version.build);
 
     return result;
 }
 
-std::wstring version_into_wstring(const product_version& version)
+std::wstring version_into_wstring(const product_version& version, int reserve /*= 3*/)
 {
-    std::wstring result = util::sformat(L"%d.%d", version.major, version.minor);
-
-    if (version.build != 0)
-        result += util::sformat(L".%d.%d", version.patch, version.build);
-    else if (version.patch != 0)
-        result += util::sformat(L".%d", version.patch);
-
-    return result;
+    return util::conv::easy::_2wstr(version_into_string(version, reserve));
 }
 
-std::string version_into_string(uint64_t version)
+std::string version_into_string(uint64_t version, int reserve /*= 3*/)
 {
-    return version_into_string(version_from_value(version));
+    return version_into_string(version_from_value(version), reserve);
 }
 
-std::wstring version_into_wstring(uint64_t version)
+std::wstring version_into_wstring(uint64_t version, int reserve /*= 3*/)
 {
-    return version_into_wstring(version_from_value(version));
+    return version_into_wstring(version_from_value(version), reserve);
 }
 
-std::string version_into_string_from32(uint32_t version)
+std::string version_into_string_from32(uint32_t version, int reserve /*= 3*/)
 {
-    return version_into_string(version_from_value32(version));
+    return version_into_string(version_from_value32(version), reserve);
 }
 
-std::wstring version_into_wstring_from32(uint32_t version)
+std::wstring version_into_wstring_from32(uint32_t version, int reserve /*= 3*/)
 {
-    return version_into_wstring(version_from_value32(version));
+    return version_into_wstring(version_from_value32(version), reserve);
+}
+
+std::string version_into_string(
+    uint16_t major, uint16_t minor, 
+    uint16_t patch /*= 0*/, uint16_t build /*= 0*/, int reserve /*= 3*/)
+{
+    return version_into_string(version_make(major, minor, patch, build), reserve);
+}
+
+std::wstring version_into_wstring(
+    uint16_t major, uint16_t minor, 
+    uint16_t patch /*= 0*/, uint16_t build /*= 0*/, int reserve /*= 3*/)
+{
+    return version_into_wstring(version_make(major, minor, patch, build), reserve);
 }
 
 } // util
