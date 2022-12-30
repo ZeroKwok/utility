@@ -42,6 +42,10 @@ UTILITY_FUNCT_DECL std::wstring wtime_gmt();
 /*!
  *  \brief 格式化Uinx时间戳
  *  \param format 格式化参数, 默认为: %d-%m-%Y %H:%M, %a
+ *         常用格式:
+ *           a. %Y-%m-%d %H:%M:%S
+ *           b. %Y%m%d %H%M%S
+ *           c. %Y%m%d%H%M%S
  *         参考: https://zh.cppreference.com/w/c/chrono/strftime
  *  \note  time 不能为负数, 即不能格式化epoch纪元之前的时间;
  */

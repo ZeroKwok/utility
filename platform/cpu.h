@@ -59,7 +59,7 @@ public:
 
     /*
     *   Returns a windows-style CPU Id.
-    *   Equate to $wmic cpu get processor id
+    *   Equate to $wmic CPU get ProcessorID
     */
     UTILITY_MEMBER_DECL uint64_t    id() const { return _cpu_id; }
     UTILITY_MEMBER_DECL std::string id_string() const;
