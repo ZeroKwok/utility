@@ -71,15 +71,29 @@ TEST(path_util, path_from_sysdir)
     util::fpath  path, path2;
     util::ferror ferr;
 
-    path = util::path_from_sysdir(FOLDERID_Desktop, ferr);
-    EXPECT_FALSE(ferr);
-    EXPECT_FALSE(path.empty());
+    {
+        path = util::path_from_sysdir(FOLDERID_Desktop, ferr);
+        EXPECT_FALSE(ferr);
+        EXPECT_FALSE(path.empty());
 
-    path2 = path_from_sysdir(CSIDL_DESKTOP, ferr);
-    EXPECT_FALSE(ferr);
-    EXPECT_FALSE(path2.empty());
+        path2 = path_from_sysdir(CSIDL_DESKTOP, ferr);
+        EXPECT_FALSE(ferr);
+        EXPECT_FALSE(path2.empty());
 
-    EXPECT_TRUE(path == path2);
+        EXPECT_TRUE(path == path2);
+    }
+
+    {
+        path = util::path_from_sysdir(FOLDERID_Documents, ferr);
+        EXPECT_FALSE(ferr);
+        EXPECT_FALSE(path.empty());
+
+        path2 = path_from_sysdir(CSIDL_PERSONAL, ferr);
+        EXPECT_FALSE(ferr);
+        EXPECT_FALSE(path2.empty());
+
+        EXPECT_TRUE(path == path2);
+    }
 #endif
 }
 

@@ -1112,7 +1112,10 @@ fpath path_from_sysdir(int flag, ferror& ferr) noexcept
 
     if (!::SHGetSpecialFolderPathW(0, buffer, csidl, true))
     {
-        if (FAILED(::SHGetFolderPathW(NULL, flag, NULL, 0, buffer)))
+        //
+        // https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetfolderpatha
+        //
+        if (FAILED(::SHGetFolderPathW(NULL, flag | CSIDL_FLAG_CREATE, NULL, 0, buffer)))
             ferr = ferror(::GetLastError(), "Can't get special folder path");
     }
 

@@ -13,6 +13,16 @@ void output(
     const uint32_t handle /*= STD_OUTPUT*/, 
     const uint16_t color  /*= COLOR_DEF*/)
 {
+    if (is_redirect(handle))
+    {
+        DWORD lpNumberOfCharsWritten = 0;
+        WriteFile(
+            ::GetStdHandle(handle), 
+            text.data(), (DWORD)text.length(), 
+            &lpNumberOfCharsWritten, nullptr);
+        return;
+    }
+
     HANDLE hstdout = nullptr;
     CONSOLE_SCREEN_BUFFER_INFO csbi;
 

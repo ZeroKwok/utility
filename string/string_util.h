@@ -74,10 +74,11 @@ UTILITY_FUNCT_DECL std::wstring right(
     const std::wstring& mark);
 
 /*!
- *  /brief 给定标记, 从左起将目标字符串分成两半
- *  /param target 目标字符串
- *  /param mark 若target字符串中存在mark指定的标记则从该位置分割字符串.
- *  /return 若存在找到mark指定的标记则返回分割成两半的字符串, 否则返回{}.
+ *  /brief  给定标记, 从左起将目标字符串分成两半
+ *  /param  target 目标字符串
+ *  /param  mark   若target字符串中存在mark指定的标记则从该位置分割字符串.
+ *  /return        若存在mark指定的标记, 则返回分割结果: {left, right}, 否则返回: {}.
+ *                 需要注意的是该结果不包含mark.
  */
 UTILITY_FUNCT_DECL std::pair<std::string, std::string> in_half_from_left(
     const std::string& target, const std::string& mark);

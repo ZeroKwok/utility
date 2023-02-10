@@ -6,26 +6,27 @@ option(UTILITY_ENABLE_AUTO_LINK "Enable auto link utility library support" OFF)
 project(utility_test)
 
 set(TEST_SOUCES
-    string.cpp
-    string_util.cpp
+    #string.cpp
+    #string_util.cpp
     #platform_cpu.cpp 
+    console_win.cpp
     platform_util.cpp
     #filesystem_file.cpp 
-    #filesystem_path.cpp 
+    filesystem_path.cpp 
     #common.cpp
     #common_unit.cpp 
     #common_math.cpp
-    common_version.cpp
+    #common_version.cpp
     #common_bytedata.cpp
     #common_encryption.cpp
     )
 
-if(WIN32)
-    list(APPEND TEST_SOUCES 
+#if(WIN32)
+#    list(APPEND TEST_SOUCES 
 #                process.cpp
 #                mini_dump.cpp
-                platform_registry.cpp)
-endif()
+#                platform_registry.cpp)
+#endif()
 
 # 测试项目
 add_executable(${PROJECT_NAME} ${TEST_SOUCES})
