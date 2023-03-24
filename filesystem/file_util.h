@@ -178,8 +178,8 @@ UTILITY_FUNCT_DECL void file_set_time(const fpath& name, const ftime& time, ferr
  * 
  *  \note  1. 如果name指向符号链接, 则将进一步解析其内容指向的文件.
  *         2. 对于windows平台, 其通过CreateFile模拟POSIX open()函数的行为:
- *            在指定 O_APPEND 旗帜时打开文件时行为与POSIX定义有差异, 前者设置文件指针与写入数据不是原子操作,
- *            而open()函数在这里将是原子的;
+ *            在指定O_APPEND标识符时打开文件时行为与POSIX定义有差异, 前者设置文件指针与写入数据不是原子操作,
+ *            而::open()函数在这里将是原子的;
  *         3. 对于POSIX平台, 其直接调用open(), 默认创建权限采用666;
  *
  *	** 以这种模式O_WRONLY | O_CREAT 打开文件, 似乎win的逻辑是追加而不是复写, 需要测试
@@ -187,6 +187,7 @@ UTILITY_FUNCT_DECL void file_set_time(const fpath& name, const ftime& time, ferr
 UTILITY_FUNCT_DECL ffile file_open(const fpath& name, int oflag);
 UTILITY_FUNCT_DECL ffile file_open(const fpath& name, int oflag, ferror& ferr) noexcept;
 
+//! 
 //! 关闭file指向的文件
 //! 
 UTILITY_FUNCT_DECL void file_close(ffile& file) noexcept;
@@ -194,7 +195,7 @@ UTILITY_FUNCT_DECL void file_close(ffile& file) noexcept;
 /*!
  *  \brief 从文件读取内容
  *  
- *  \note  1. 若文件实际内容小于读取内容将出错.
+ *  \note  1. 若文件实际内容小于读取内容将出错, 但缓存区仍然会被填充.
  *         2. 对于Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
  */
 UTILITY_FUNCT_DECL void file_read(const ffile& file, void* data_out, int size);

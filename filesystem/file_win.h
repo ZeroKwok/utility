@@ -128,7 +128,7 @@ UTILITY_FUNCT_DECL void link_create(
     ferror           & ferr) noexcept;
 
 /*!
- *  \brief 将指定目录项标准用户授予写权限
+ *  \brief 将指定目录向标准用户授予写权限
  */
 UTILITY_FUNCT_DECL void directory_authorization(const fpath& path);
 UTILITY_FUNCT_DECL void directory_authorization(const fpath& path, ferror& ferr) noexcept;

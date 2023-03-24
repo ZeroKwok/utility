@@ -1144,7 +1144,16 @@ fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept
     HRESULT code = ::SHGetKnownFolderPath(rfid, KF_FLAG_DEFAULT, NULL, &path);
     if (code != S_OK)
     {
-        ferr = ferror(code, "Can't get known folder path");
+        if (code == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        {
+            HRESULT hr = SHCreateDirectoryExW(NULL, path, NULL);
+            if (hr != S_OK)
+                ferr = ferror(code, "Can't get known folder path");
+        }
+        else
+        {
+            ferr = ferror(code, "Can't get known folder path");
+        }
     }
     fpath result = path;
 
@@ -1168,7 +1177,8 @@ void path_open_with_explorer(const fpath& path, bool select, ferror& ferr) noexc
 {
     ferr.clear();
 
-    fpath name  = L"\"" + path + L"\"";
+    fpath file  = util::replace_copy(path, L"/", L"\\");
+    fpath name  = L"\"" + file + L"\"";
     fpath param = L"/select, " + name;
 
     HINSTANCE hresult = ::ShellExecuteW(NULL, L"open", L"explorer",
