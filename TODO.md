@@ -3,3 +3,29 @@
 - [ ] UTILITY_SUPPORT_LONG_PATH
 - [ ] util::bytes_into_file("filename", bytes)
     写入文件失败, 并会在当前目录下创建filename的文件夹.
+- [ ] 模块间通用的错误处理及错误码
+  - 通过错误码
+    - 主要为了方便在模块间转换
+    - 基础错误(0x00~0x1f)
+      - kSucceed
+      - kInvalidParam
+      - kRuntimeError
+      - kMemoryError
+      - kPermissionError
+      - kInterruptedError
+    - 文件系统错误(0x20~0x4f)
+      - kFilesystemError
+      - kFilesystemNoSpace
+      - kFilesystemNotAccessible
+      - kFilesystemNotWritable
+      - kFilesystemNotSupportLargeFile
+      - kFilesystemUnavailable
+      - kNetworkFilesystemUnavailable
+      - kFileIOError
+      - kFileNotFound
+      - kFilePermissionDenied
+      - kFilePathTooLong
+    - 模块专属错误(0x0100以上)
+  - 通用错误处理
+     - 错误处理模板
+     - 本地平台到通用错误码的转换
