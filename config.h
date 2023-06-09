@@ -103,7 +103,7 @@
 #endif
 
 #if defined(COMPILER_MSVC)
-#   if _MSC_VER > 1600 // vs2010之后的版本使用自身携带的inttypes.h
+#   if _MSC_VER > 1600 // vs2010及以前的版本使用 msinttypes/inttypes.h
 #      include <inttypes.h>
 #   else 
 #      include "msinttypes/inttypes.h"
@@ -113,6 +113,11 @@
 #   include <inttypes.h>
 #endif
 
+#if COMPILER_MSVC
+#   if defined(DEBUG) || defined(_DEBUG)
+#      define IS_DEBUG     1
+#   endif
+#endif
 
 // The arraysize(arr) macro returns the # of elements in an array arr.
 // The expression is a compile-time constant, and therefore can be

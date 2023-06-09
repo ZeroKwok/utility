@@ -306,7 +306,8 @@ UTILITY_FUNCT_DECL std::wstring path_filename_increment(const std::wstring& file
  *              4. ...
  *  \see   https://docs.microsoft.com/en-us/windows/win32/shell/csidl
  *  \note  标记为virtual folder的CSIDL, 可能会失败.
- *         如: CSIDL_PERSONAL, 在某些环境下面将得到ERROR_ACCESS_DENIED
+ *         如: CSIDL_PERSONAL, 在某些环境下面将得到ERROR_ACCESS_DENIED,
+ *         因此该方法总是应该判断错误，而不是忽略错误，否则抛出异常将导致致命错误。
  */
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag = 0);
 UTILITY_FUNCT_DECL fpath path_from_sysdir(int flag, ferror& ferr) noexcept;
