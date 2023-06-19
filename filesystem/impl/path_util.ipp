@@ -1136,6 +1136,8 @@ fpath path_from_sysdir(REFKNOWNFOLDERID rfid)
 
 fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept
 {
+    ferr.clear();
+
     //
     // https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath
     //
@@ -1155,9 +1157,13 @@ fpath path_from_sysdir(REFKNOWNFOLDERID rfid, ferror& ferr) noexcept
             ferr = ferror(code, "Can't get known folder path");
         }
     }
-    fpath result = path;
 
-    ::CoTaskMemFree(path);
+    fpath result;
+    if (path != nullptr)
+    {
+        result = path;
+        ::CoTaskMemFree(path);
+    }
 
     return result;
 }
