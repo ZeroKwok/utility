@@ -54,4 +54,48 @@ TEST(common_version, version)
     EXPECT_EQ(util::version_into_string(version1, 4), "1.0.0.0");
     EXPECT_EQ(util::version_into_string(version2, 4), "0.1.0.0");
     EXPECT_EQ(util::version_into_string(version3, 4), "1.2.3.4");
+
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.1"),        "2.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.2.3"),      "2.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.9.0"),      "2.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.20.55.86"), "2.*"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.1"),        "2"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.2.3"),      "2"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.9.0"),      "2"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.20.55.86"), "2"));
+
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5"),        "3.5.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.0"),      "3.5.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.1"),      "3.5.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.86.32"),  "3.5.*"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5"),        "3.5"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.0"),      "3.5"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.1"),      "3.5"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.86.32"),  "3.5"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.0.2"),      "3.*.2"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.2.2"),      "3.*.2"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.1"),      "*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.86.32"),  "*"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5"),        "*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.0"),      "*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.1"),      "*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.86.32"),  "*"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.1"),      "*.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("3.5.86.32"),  "*.*"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.1"),        "*.*.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.2.3"),      "*.*.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.9.0"),      "*.*.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.20.55.86"), "*.*.*"));
+
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.20.55.86"), "*.20.*"));
+    EXPECT_TRUE(util::version_match(util::version_from_string("2.20.55.86"), "*.*.55"));
 }

@@ -101,6 +101,27 @@ UTILITY_FUNCT_DECL std::wstring version_into_wstring(
     uint16_t major, uint16_t minor, uint16_t patch = 0, uint16_t build = 0, int reserve = 3);
 
 //!
+//!  版本模式匹配(通配符可以指代任何版本号)
+//! 
+//!  2.* or 2
+//!     2.1
+//!     2.2.3
+//!     2.9.0
+//!     2.20.55.86
+//!  3.5.* or 3.5
+//!     3.5
+//!     3.5.0
+//!     3.5.1
+//!     3.5.86.32
+//!  3.*.2
+//!     3.0.2
+//!     3.2.2
+//!  * or *.* or *.*.*
+//!     All
+//! 
+UTILITY_FUNCT_DECL bool version_match(const product_version& version, const std::string& pattern);
+
+//!
 //!  版本类型比较
 //!
 inline bool operator>(const product_version& left, const product_version& right)

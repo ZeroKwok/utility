@@ -186,4 +186,41 @@ std::wstring version_into_wstring(
     return version_into_wstring(version_make(major, minor, patch, build), reserve);
 }
 
+
+bool util::version_match(const product_version& version, const std::string& pattern)
+{
+    try
+    {
+        std::vector<std::string> fields;
+        boost::algorithm::split(fields, pattern, boost::algorithm::is_any_of("."), boost::token_compress_off);
+
+        auto isMatch = [](int var, auto field) -> bool
+        {
+            if (field == "*")
+                return true;
+            return var == boost::lexical_cast<uint32_t>(field);
+        };
+
+        if (fields.size() >= 1 && !isMatch(version.major, fields[0]))
+            return false;
+
+        if (fields.size() >= 2 && !isMatch(version.minor, fields[1]))
+            return false;
+
+        if (fields.size() >= 3 && !isMatch(version.patch, fields[2]))
+            return false;
+
+        if (fields.size() >= 4 && !isMatch(version.build, fields[3]))
+            return false;
+
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        util::output_debug_string("version_match() exception: " + std::string(e.what()));
+    }
+
+    return false;
+}
+
 } // util

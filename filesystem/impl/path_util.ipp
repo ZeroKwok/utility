@@ -355,7 +355,7 @@ namespace detail {
             result.pop_back();
         }
 
-        return result;
+        return boost::algorithm::trim_copy(result);
     }
 
 #if defined(_MSC_VER)
