@@ -37,7 +37,10 @@ inline bytedata bytes_sha1_digest(const bytedata& bytes)
 }
 
 /// 计算文件的sha1摘要
-inline bytedata file_sha1_digest(const fpath& name)
+inline bytedata file_sha1_digest(
+    const fpath& name, 
+    const fsize& blockSize = 1024 * 512,
+    const std::function<bool(fsize, fsize)>& call = {})
 {
     boost::uuids::detail::sha1 sha1;
     boost::uuids::detail::sha1::digest_type digest = { 0 };
@@ -45,17 +48,25 @@ inline bytedata file_sha1_digest(const fpath& name)
     ffile file = util::file_open(name, O_RDONLY);
     fsize size = util::file_size(file);
 
-    uint64_t len = 0;
+    fsize    processed = 0;
+    bytedata buf(blockSize, 0);
     do
     {
-        bytedata buf(std::min<size_t>(1024 * 512, size_t(size - len)), 0);
-        util::file_read(file, &buf[0], buf.size());
+        fsize len = std::min<fsize>(buf.size(), size - processed);
 
-        sha1.process_bytes(buf.data(), buf.size());
+        util::file_read(file, &buf[0], len);
 
-        len += buf.length();
+        sha1.process_bytes(buf.data(), len);
+
+        processed += len;
+
+        if (call)
+        {
+            if (!call(processed, size))
+                return {};
+        }
     } 
-    while (len < size);
+    while (processed < size);
 
     sha1.get_digest(digest);
 
@@ -83,7 +94,10 @@ inline bytedata bytes_md5_digest(const bytedata& bytes)
 }
 
 /// 计算文件的md5摘要
-inline bytedata file_md5_digest(const fpath& name)
+inline bytedata file_md5_digest(
+    const fpath& name,
+    const fsize& blockSize = 1024 * 512,
+    const std::function<bool(fsize, fsize)>& call = {})
 {
     boost::uuids::detail::md5 md5;
     boost::uuids::detail::md5::digest_type digest;
@@ -91,17 +105,24 @@ inline bytedata file_md5_digest(const fpath& name)
     ffile file = util::file_open(name, O_RDONLY);
     fsize size = util::file_size(file);
 
-    uint64_t len = 0;
+    fsize    processed = 0;
+    bytedata buf(blockSize, 0);
     do
     {
-        bytedata buf(std::min<size_t>(1024 * 512, size_t(size - len)), 0);
-        util::file_read(file, &buf[0], buf.size());
+        fsize len = std::min<fsize>(buf.size(), size - processed);
 
-        md5.process_bytes(buf.data(), buf.size());
+        util::file_read(file, &buf[0], len);
 
-        len += buf.length();
+        md5.process_bytes(buf.data(), len);
+
+        processed += len;
+        if (call)
+        {
+            if (!call(processed, size))
+                return {};
+        }
     } 
-    while (len < size);
+    while (processed < size);
 
     md5.get_digest(digest);
 
