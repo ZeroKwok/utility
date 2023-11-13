@@ -56,7 +56,7 @@ bool file_exist(const fpath& name, ferror& ferr) noexcept
     //
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesa
     // 
-    // 这里要修改为, 查找符号链接的内容
+    // 这里要修改为, 查找符号链接的内容: GetFileAttributesExW(), filesystem.cpp:__std_fs_get_stats()
 
     if (::GetFileAttributesW(name.c_str()) != INVALID_FILE_ATTRIBUTES)
     {
@@ -144,7 +144,7 @@ void file_copy(const fpath& from, const fpath& to, ferror& ferr) noexcept
     // 
     // https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfilew
     // 
-    if (::CopyFileW(from.c_str(), to.c_str(), false) == 0)
+    if (::CopyFileW(from.c_str(), to.c_str(), false) == 0) // CopyFile2
     {
         ferr = ferror(::GetLastError(), "Can't copy file");
     }
