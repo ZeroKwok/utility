@@ -714,6 +714,12 @@ void directories_remove(const fpath& path, ferror& ferr) noexcept
 {
     ferr.clear();
 
+    if (path.empty())
+    {
+        ferr = ferror(-1, "Invalid parameter. An empty file cannot be deleted.");
+        return;
+    }
+
     WIN32_FIND_DATAW file_data;
     HANDLE fd = ::FindFirstFileW((path + L"\\*").c_str(), &file_data);
 
