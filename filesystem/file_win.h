@@ -54,7 +54,7 @@ UTILITY_FUNCT_DECL bool file_unlock(ffile& file, fsize offset, fsize length, fer
  *  \brief 判断文件是否被其他进程占用
  * 
  *  \note  1. 如果name指向一个符号链接, 则将通过其内容解析目标文件.
- *         2. 原理是判断文件是否被其他进程以排斥写打开, 故判断结果可能并不精确.
+ *         2. 原理是判断文件是否被其他进程以独占写打开, 故判断结果可能并不精确.
  */
 UTILITY_FUNCT_DECL bool file_is_occupied(const fpath& name);
 UTILITY_FUNCT_DECL bool file_is_occupied(const fpath& name, ferror& ferr) noexcept;

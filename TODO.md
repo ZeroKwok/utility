@@ -4,7 +4,7 @@
 - [ ] util::bytes_into_file("filename", bytes)
     写入文件失败, 并会在当前目录下创建filename的文件夹.
 - [ ] 模块间通用的错误处理及错误码
-  - 通过错误码
+  - 通用错误码
     - 主要为了方便在模块间转换
     - 基础错误(0x00~0x1f)
       - kSucceed
@@ -29,3 +29,4 @@
   - 通用错误处理
      - 错误处理模板
      - 本地平台到通用错误码的转换
+        - Windows: `Windows Kits\10\Source\10.0.10240.0\ucrt\misc\errno.cpp:errtable[]`
