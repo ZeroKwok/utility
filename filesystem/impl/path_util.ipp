@@ -221,7 +221,7 @@ namespace detail {
 
         auto filename = _path_find_filename(path);
 
-        auto dot = filename.find(detail::dot);
+        auto dot = filename.rfind(detail::dot);
         if (dot != filename.npos)
             return filename.substr(0, dot);
 
