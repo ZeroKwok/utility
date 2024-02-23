@@ -327,6 +327,17 @@ ffile file_open(const fpath& name, int flags, ferror& ferr) noexcept
 {
     ferr.clear();
 
+    // TODO
+    // 
+    // Windows Kits\10\Source\10.0.10240.0\ucrt\lowio\open.cpp
+    // - _wsopen_nolock()
+    // - decode_access_flags()
+    // 
+    // Windows Kits\10\Source\10.0.10240.0\ucrt\lowio\write.cpp
+    // - _write_nolock()
+    // Append打开的文件: 可以在每次写入时, 再设置文件指针
+    //
+
     int mode_flag = 0;
     int share_flag = 0;
     int creation_flag = 0;
