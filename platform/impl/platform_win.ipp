@@ -1,3 +1,10 @@
+/*
+*   platform_for_win.ipp
+*
+*   v0.1 2018-03 By GuoJH
+*   v0.2 2020-12 By GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../platform_win.h"
 #endif

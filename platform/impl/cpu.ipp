@@ -1,3 +1,9 @@
+/*
+*   cpu.ipp
+*   
+*   Refer: chromium:base/cpu.cc
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../cpu.h"
 #endif

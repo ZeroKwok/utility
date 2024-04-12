@@ -1,3 +1,9 @@
+/*
+*  mini_dump_win.ipp
+* 
+*  v0.1 2019-02 By GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../mini_dump_win.h"
 #endif

@@ -1,3 +1,10 @@
+/*
+*   service_win.ipp
+*
+*   v0.1 2018-04 By GuoJH
+*   v0.2 2020-10 By GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../service_win.h"
 #endif
@@ -11,7 +18,7 @@ namespace detail {
 
 /*
 *    以指定权限打开服务控制管理器(service control manager)
-*   SC_MANAGER_ALL_ACCESS   所有权限
+*    SC_MANAGER_ALL_ACCESS   所有权限
 */
 inline SC_HANDLE InitSCManager(DWORD dwAccess, platform_error& error)
 {

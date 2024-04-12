@@ -1,3 +1,9 @@
+/*
+*   unit.ipp
+*
+*   v0.1 2018-10 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../unit.h"
 #endif

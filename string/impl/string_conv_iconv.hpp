@@ -1,3 +1,10 @@
+/*
+*   string_conv_iconv.hpp
+*
+*   v0.1  2018-04 By GuoJH
+*   v0.2  2020-08 By GuoJH
+*/
+
 #ifndef string_conv_iconv_h__
 #define string_conv_iconv_h__
 

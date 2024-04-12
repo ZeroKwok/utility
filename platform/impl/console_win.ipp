@@ -1,3 +1,9 @@
+/*
+*   console_win.ipp
+*
+*   v0.1 2018-11 By GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../console_win.h"
 #endif

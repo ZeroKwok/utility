@@ -1,3 +1,9 @@
+/*
+*   encryption.ipp 
+*
+*   v0.1 2020-11 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../encryption.h"
 #endif

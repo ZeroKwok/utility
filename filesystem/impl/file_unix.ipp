@@ -1,3 +1,9 @@
+/*
+*   file_unix.ipp
+*
+*   v0.1 2020-12 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../file_unix.h"
 #endif

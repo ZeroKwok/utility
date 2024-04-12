@@ -1,3 +1,11 @@
+/*
+*   file_win.ipp
+*
+*   v0.1 2018-03 by GuoJH
+*   v0.2 2019-07 by GuoJH
+*   v0.3 2020-12 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../file_win.h"
 #endif

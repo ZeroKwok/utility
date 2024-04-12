@@ -1,6 +1,12 @@
 #ifndef scope_h__
 #define scope_h__
 
+/*
+*   scope.hpp
+*
+*   v0.1 2022-02 by GuoJH
+*/
+
 #include <string>
 #include <functional>
 #include <common/common_cfg.h>

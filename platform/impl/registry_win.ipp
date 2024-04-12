@@ -1,3 +1,10 @@
+/*
+*   registry_win.ipp
+*
+*   v0.1 2018-08 by GuoJH
+*   v0.2 2020-11 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../registry_win.h"
 #endif

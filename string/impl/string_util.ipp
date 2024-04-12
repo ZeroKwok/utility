@@ -1,3 +1,10 @@
+/*
+*   string_util.ipp
+*
+*   v0.1  2018-04 By GuoJH
+*   v0.2  2020-08 By GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../string_util.h"
 #endif

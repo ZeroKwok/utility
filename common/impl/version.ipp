@@ -1,3 +1,10 @@
+/*
+*   version.ipp
+*
+*   v0.1 2021-03 by GuoJH
+*   v0.2 2022-11 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../version.h"
 #endif

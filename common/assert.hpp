@@ -1,6 +1,12 @@
 #ifndef assert_h__
 #define assert_h__
 
+/*
+*   assert.hpp
+*
+*   v0.1 2021-10 by GuoJH
+*/
+
 #include <common/common_cfg.h>
 #include <string/string_util.h>
 #include <platform/console_win.h>

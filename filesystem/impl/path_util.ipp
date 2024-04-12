@@ -1,3 +1,11 @@
+/*
+*   path_util.ipp
+*
+*   v0.1 2018-3 by GuoJH
+*   v0.2 2019-7 by GuoJH
+*   v0.3 2021-1 by GuoJH
+*/
+
 #ifdef UTILITY_DISABLE_HEADONLY
 #   include "../path_util.h"
 #endif
@@ -585,7 +593,7 @@ fpath path_from_temp(ferror& ferr) noexcept
 
     if (::GetTempPathW(MAX_PATH, buffer) == 0)
     {
-        ferr = ferror(::GetLastError(), "Can't get module path");
+        ferr = ferror(::GetLastError(), "Can't get temp path");
     }
     return buffer;
 #else

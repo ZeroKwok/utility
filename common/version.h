@@ -1,6 +1,13 @@
 #ifndef version_h__
 #define version_h__
 
+/*
+*   version.h
+*
+*   v0.1 2021-03 by GuoJH
+*   v0.2 2022-11 by GuoJH
+*/
+
 #include <string>
 #include <common/common_cfg.h>
 
