@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <iterator>
+#include <boost/filesystem.hpp>
 
 namespace util {
 namespace detail {
@@ -120,11 +121,11 @@ bytedata& bytes_from_file(
 
 void bytes_into_file(const util::fpath& name, const bytedata& bytes)
 {
-    if (!util::file_exist(util::path_find_parent(name)))
-        util::directories_create(util::path_find_parent(name));
+    auto filename = boost::filesystem::absolute(name.wstring());
+    if (!util::file_exist(filename.parent_path()))
+        util::directories_create(filename.parent_path());
 
-    util::ffile file = util::file_open(name, O_CREAT | O_TRUNC | O_WRONLY);
-
+    util::ffile file = util::file_open(filename, O_CREAT | O_TRUNC | O_WRONLY);
     util::file_write(file, bytes.data(), static_cast<int>(bytes.size()));
 }
 

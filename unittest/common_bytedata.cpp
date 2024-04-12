@@ -81,3 +81,16 @@ TEST(common_bytedata, bytes_from)
     EXPECT_TRUE(lining1.height == lining.height);
     EXPECT_TRUE(strcmp(lining1.name, lining.name) == 0);
 }
+
+TEST(common_bytedata, bytes_file)
+{
+    std::string srcByte =
+        R"(对于 Windows 操作系统而言，要想成功的删除一个文件或重命名一个文件，需要满足一个条件：文件不能被占用。)";
+    util::bytes_into_file(util::path_from_temp("test.txt"), srcByte);
+    util::bytes_into_file("test.txt", srcByte);
+
+
+    util::bytedata bytes;
+    util::bytes_from_file(bytes, util::path_from_temp("test.txt"));
+    EXPECT_EQ(bytes.string(), srcByte);
+}
