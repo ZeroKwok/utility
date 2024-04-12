@@ -3,23 +3,23 @@ cmake_minimum_required(VERSION 3.13)
 
 project(utility VERSION 0.2.1 LANGUAGES CXX)
 
-# 是否编译单元测试
-option(UTILITY_BUILD_TEST "Enable build unit test" ON)
+# Build unit tests
+option(UTILITY_BUILD_TEST "Enable building unit tests" ON)
 
-# 是否支持Boost
+# Build shared libraries
+option(UTILITY_BUILD_SHARED_LIB "Enable building shared libraries" OFF)
+
+# Link runtime statically
+option(UTILITY_BUILD_STATIC_RUNTIME "Enable linking with runtime statically" OFF)
+
+# Enable Boost support
 option(UTILITY_SUPPORT_BOOST "Enable Boost support" ON)
 
-# 是否支持Qt
+# Enable Qt support
 option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
 
-# 是否支持WinXp
-option(UTILITY_SUPPORT_WINXP "Enable WinXP support" OFF)
-
-# 是否编译动态库
-option(UTILITY_BUILD_SHARED_LIB "Enable build shared libraries" OFF)
-
-# 是否启用静态运行时
-option(UTILITY_ENABLE_STATIC_RUNTIME "Enable link with runtime statically" OFF)
+# Enable WinXP compatibility
+option(UTILITY_SUPPORT_WINXP "Enable WinXP compatibility" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,7 +51,7 @@ else()
 endif()
 
 # 静态运行时
-if(MSVC AND UTILITY_ENABLE_STATIC_RUNTIME)
+if(MSVC AND UTILITY_BUILD_STATIC_RUNTIME)
     foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
     endforeach(flag_var)
@@ -90,7 +90,7 @@ if(UTILITY_SUPPORT_BOOST)
     if(MSVC)
         set(UTILITY_BOOST_SUPPORT_AUTOLINK ON)
         set(Boost_USE_STATIC_LIBS ON)
-        set(Boost_USE_STATIC_RUNTIME ${UTILITY_ENABLE_STATIC_RUNTIME})
+        set(Boost_USE_STATIC_RUNTIME ${UTILITY_BUILD_STATIC_RUNTIME})
     endif()
 	
 	if (NOT Boost_INCLUDE_DIRS)
@@ -133,7 +133,7 @@ if(UTILITY_BUILD_TEST)
 
     # 找不到尝试编译
     if(NOT GTest_NOTFOUND)
-        if(UTILITY_ENABLE_STATIC_RUNTIME)
+        if(UTILITY_BUILD_STATIC_RUNTIME)
             set(gtest_force_shared_crt OFF)
         else()
             set(gtest_force_shared_crt ON)
