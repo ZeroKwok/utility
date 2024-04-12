@@ -13,7 +13,7 @@ echo on
 mkdir build_vs2019
 pushd build_vs2019
 cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_static_x86_%ProjectLibSufix%" ^
-        -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_ENABLE_STATIC_RUNTIME=ON -DUTILITY_SUPPORT_WINXP=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
+        -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_BUILD_STATIC_RUNTIME=ON -DUTILITY_SUPPORT_WINXP=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
 cmake --build   . --config Debug
 cmake --build   . --config RelWithDebInfo
 cmake --install . --config Debug
@@ -29,7 +29,7 @@ echo on
 mkdir build_vs2019
 pushd build_vs2019
 cmake -G %ProjectGenerator32Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_dynamic_x86_%ProjectLibSufix%" ^
-        -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_ENABLE_STATIC_RUNTIME=OFF -DUTILITY_SUPPORT_WINXP=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
+        -DUTILITY_SUPPORT_QT=OFF  -DUTILITY_BUILD_STATIC_RUNTIME=OFF -DUTILITY_SUPPORT_WINXP=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
 cmake --build   . --config Debug
 cmake --build   . --config RelWithDebInfo
 cmake --install . --config Debug
@@ -43,7 +43,7 @@ REM REM 生成静态运行时64位版本
 REM echo on
 REM mkdir build_vs2019
 REM pushd build_vs2019
-REM cmake -G %ProjectGenerator64Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_static_x64_%ProjectLibSufix%" -DUTILITY_SUPPORT_QT=ON  -DUTILITY_ENABLE_STATIC_RUNTIME=ON -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
+REM cmake -G %ProjectGenerator64Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_static_x64_%ProjectLibSufix%" -DUTILITY_SUPPORT_QT=ON  -DUTILITY_BUILD_STATIC_RUNTIME=ON -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
 REM cmake --build   . --config Debug
 REM cmake --build   . --config RelWithDebInfo
 REM cmake --install . --config Debug
@@ -58,7 +58,7 @@ REM REM 生成动态运行时64位版本
 REM echo on
 REM mkdir build_vs2019
 REM pushd build_vs2019
-REM cmake -G %ProjectGenerator64Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_dynamic_x64_%ProjectLibSufix%" -DUTILITY_SUPPORT_QT=ON  -DUTILITY_ENABLE_STATIC_RUNTIME=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
+REM cmake -G %ProjectGenerator64Bit% ../.. -DCMAKE_INSTALL_PREFIX:PATH="../%ProjectName%_%ProjectVersion%_dynamic_x64_%ProjectLibSufix%" -DUTILITY_SUPPORT_QT=ON  -DUTILITY_BUILD_STATIC_RUNTIME=OFF -DUTILITY_BUILD_TEST=OFF -DCMAKE_PREFIX_PATH:STRING="%ProjectDependPath%"
 REM cmake --build   . --config Debug
 REM cmake --build   . --config RelWithDebInfo
 REM cmake --install . --config Debug
