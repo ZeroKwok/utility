@@ -1,6 +1,6 @@
 @echo off
 set ProjectName=utility
-set ProjectVersion=0.2.1
+set ProjectVersion=0.2.2
 set ProjectGenerator32Bit="Visual Studio 10 2010" -A Win32
 set ProjectGenerator64Bit="Visual Studio 10 2010" -A x64
 set ProjectLibSufix=vc10.0

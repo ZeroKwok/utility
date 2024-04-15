@@ -1,6 +1,6 @@
 @echo off
 set ProjectName=utility
-set ProjectVersion=0.2.1
+set ProjectVersion=0.2.2
 set ProjectGenerator32Bit="Visual Studio 16 2019" -A Win32 -T v141_xp
 set ProjectGenerator64Bit="Visual Studio 16 2019" -A x64 -T v141_xp
 set ProjectLibSufix=vc14.1_xp
