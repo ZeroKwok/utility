@@ -1,0 +1,40 @@
+// This file is part of the utility project.
+// Copyright (c) 2020-2024 zero <zero.kwok@foxmail.com>
+//
+// For the full copyright and license information, please view the LICENSE
+// file that was distributed with this source code.
+
+#ifndef define_h__
+#define define_h__
+
+#define UTILITY_VERSION        (${PROJECT_VERSION_MAJOR} << 16 | ${PROJECT_VERSION_MINOR} << 8 | ${PROJECT_VERSION_PATCH})
+#define UTILITY_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+
+#if defined(UTILITY_BUILD_SHARED_LIB) && defined(UTILITY_USING_SHARED_LIB)
+#   error "Cannot build and using shared lib at the same time"
+#   error "Please define only one of UTILITY_BUILD_SHARED_LIB or UTILITY_USING_SHARED_LIB"
+#endif
+
+#if defined(UTILITY_BUILD_SHARED_LIB)                 // build shared lib
+#   define UTILITY_API __declspec(dllexport)   
+#elif defined(UTILITY_USING_SHARED_LIB)               // using shared lib
+#   define UTILITY_API __declspec(dllimport)   
+#else                                                 // build/using static lib
+#   define UTILITY_API
+#endif
+
+// Defined WINNT version.
+// https://docs.microsoft.com/zh-cn/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160&viewFallbackFrom=vs-2017
+#if defined(WIN32) || defined(_WIN32)
+#   ifndef _WIN32_WINNT
+#       define _WIN32_WINNT _WIN32_WINNT_WIN7 // Windows 7 SP1
+#   endif
+#endif
+
+// 检查是否支持C++ 17, 不支持则报错 
+#if __cplusplus < 201703L
+#   error "C++17 is required to compile this project"
+#endif
+
+#endif // define_h__
+
