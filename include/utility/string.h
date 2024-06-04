@@ -4,15 +4,11 @@
 // For the full copyright and license information, please view the LICENSE
 // file that was distributed with this source code.
 
-#ifndef error_h__
-#define error_h__
+#ifndef string_h__
+#define string_h__
 
 #include "config.h"
+#include "string_util.h"
+#include "string_conv.h"
 
-namespace UTILITY_NAMESPACE {
-
-
-
-} // namespace UTILITY_NAMESPACE
-
-#endif // error_h__
+#endif // string_h__
