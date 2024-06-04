@@ -7,10 +7,16 @@
 #ifndef filepath_h__
 #define filepath_h__
 
-namespace util {
+#include "error.h"
+#include <filesystem>
 
-    typedef path std::filesystem::path;
+namespace UTILITY_NAMESPACE {
 
-} // util
+typedef std::filesystem::path path;
+
+UTILITY_API path path_from_utf8(const std::string& path);
+UTILITY_API path path_from_module(intptr_t module = 0);
+
+} // UTILITY_NAMESPACE
 
 #endif // filepath_h__

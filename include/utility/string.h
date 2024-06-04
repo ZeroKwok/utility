@@ -4,11 +4,15 @@
 // For the full copyright and license information, please view the LICENSE
 // file that was distributed with this source code.
 
-#ifndef utility_h__
-#define utility_h__
+#ifndef error_h__
+#define error_h__
 
-#include "error.h"
-#include "filepath.h"
-#include "filesystem.h"
+#include "config.h"
 
-#endif // utility_h__
+namespace UTILITY_NAMESPACE {
+
+
+
+} // namespace UTILITY_NAMESPACE
+
+#endif // error_h__
