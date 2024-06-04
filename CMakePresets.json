@@ -1,0 +1,89 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "utility-base",
+            "description": "Base configuration inherited by all presets.",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_PREFIX_PATH": "G:/local/libraries/boost/boost_1_69_0-msvc-14.1;G:/local/libraries/qt/5.15.2/5.15.2/msvc2019;",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "value": "G:/local/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                    "type": "FILEPATH"
+                }
+            }
+        },
+        {
+            "name": "utility-vs2019-x86",
+            "displayName": "utility vs2019 x86 debug",
+            "description": "",
+            "inherits": "utility-base",
+            "generator": "Visual Studio 16 2019",
+            "architecture": {
+                "value": "Win32",
+                "strategy": "set"
+            }
+        },
+        {
+            "name": "utility-vs2019-x86-release",
+            "displayName": "utility vs2019 x86 release",
+            "description": "",
+            "inherits": "utility-vs2019-x86",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "utility-vs2019-x64",
+            "displayName": "utility vs2019 x64 debug",
+            "description": "",
+            "inherits": "utility-base",
+            "generator": "Visual Studio 16 2019"
+        },
+        {
+            "name": "utility-vs2019-x64-release",
+            "displayName": "utility vs2019 x64 release",
+            "description": "",
+            "inherits": "utility-vs2019-x64",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "utility-Ninja-x86",
+            "displayName": "utility Ninja x86 debug",
+            "description": "",
+            "inherits": "utility-base",
+            "generator": "Ninja",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "environment": {
+                "VCToolsVersion": "14.20"
+            },
+            "toolset": {
+                "value": "host=x86,version=14.2",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_MAKE_PROGRAM": "G:/local/vcpkg/downloads/tools/perl/5.38.0.1/c/bin/ninja.exe",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "utility-Ninja-x86-release",
+            "displayName": "utility Ninja x86 release",
+            "description": "",
+            "inherits": "utility-Ninja-x86",
+
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        }
+    ]
+}
