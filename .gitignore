@@ -1,9 +1,9 @@
 .vs
+.vscode
 out
-WinReg
-CMakeSettings*
-utility.hpp
-discard
+bin
 build/*
-!build/msvc14.2/ALL_BUILD.*
-!build/msvc14.2/utility.sln
+installed
+CMakeSettings.json
+CMakePresets.json
+
