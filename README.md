@@ -27,7 +27,6 @@ cmake --install .
 
 int main()
 {
-    util::();
     return 0;
 }
 ```
