@@ -16,27 +16,25 @@ namespace UTILITY_NAMESPACE {
 enum error
 {
     kSucceed                             = 0x00, //!< 成功
-    kUnknownError                        = 0x01, //!< 未知错误
-    kInvalidParam                        = 0x02, //!< 参数错误
-    kRuntimeError                        = 0x03, //!< 运行时错误
-    kOutOfMemory                         = 0x04, //!< 内存不足
-    kPermissionDenied                    = 0x05, //!< 权限不足
+    kInvalidParam                        = 0x01, //!< 参数错误
+    kRuntimeError                        = 0x02, //!< 运行时错误
+    kMemoryError                         = 0x03, //!< 内存错误
+    kPermissionError                     = 0x04, //!< 权限错误
+    kInterruptedError                    = 0x05, //!< 中断错误, 用户取消/信号中断
 
-    kOperationFailed                     = 0x2a, //!< 操作失败
-    kOperationInterrupted                = 0x2b, //!< 操作中断, 用户取消
+    kFilesystemError                     = 0x21, //!< 文件系统错误
+    kFilesystemNoSpace                   = 0x22, //!< 文件系统空间不足
+    kFilesystemNotWritable               = 0x23, //!< 文件系统不可写, kPermissionError 的具体化
+    kFilesystemNotAccessible             = 0x24, //!< 文件系统不可访问, kPermissionError 的具体化
+    kFilesystemNotSupportLargeFiles      = 0x25, //!< 文件系统不支持大文件, 一般为超过4GB的文件
+    kFilesystemUnavailable               = 0x26, //!< 文件系统不可用
+    kFilesystemIOError                   = 0x27, //!< 文件系统IO错误
+    kFilesystemNetworkError              = 0x28, //!< 文件系统网络错误
+    kFilesystemPathTooLong               = 0x29, //!< 文件系统路径太长
 
-    kFilesystemError                     = 0x51, //!< 文件系统错误
-    kFilesystemIOError                   = 0x52, //!< 文件系统IO错误
-    kFilesystemUnavailable               = 0x54, //!< 文件系统不可用, 如U盘突然被拔出
-    kFilesystemNoSpace                   = 0x55, //!< 本地磁盘空间不足
-    kFilesystemNotSupportLargeFiles      = 0x53, //!< 文件系统不支持大文件, 一般为超过4GB的文件
-    kFilesystemNetworkError              = 0x56, //!< 文件系统网络错误
-
-    kFileNotFound                        = 0x61, //!< 文件未找到
-    kFileNotWritable                     = 0x62, //!< 文件不可写
-    kFilePathTooLong                     = 0x63, //!< 文件路径太长
-    kFileWasUsedByOtherProcesses         = 0x64, //!< 文件被其他进程使用
-    kFileIsMalformed                     = 0x65, //!< 文件损坏
+    kFileNotFound                        = 0x41, //!< 文件未找到
+    kFileIsMalformed                     = 0x42, //!< 文件损坏
+    kFileWasUsedByOtherProcesses         = 0x43, //!< 文件被其他进程使用
 
     kNetworkError                        = 0x81, //!< 网络错误
     kNetworkTimeout                      = 0x82, //!< 网络超时
