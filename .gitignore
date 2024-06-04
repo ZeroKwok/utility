@@ -4,6 +4,7 @@ out
 bin
 build/*
 installed
+include/utility/config.h
+src/resource.rc
 CMakeSettings.json
-CMakePresets.json
 
