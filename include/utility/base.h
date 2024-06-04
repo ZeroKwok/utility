@@ -105,7 +105,7 @@
 #   error Please set up your byte order config.h.
 #endif
 
-// Refer: https://github1s.com/fmtlib/fmt/blob/master/include/fmt/base.h
+// Refer: https://github.com/fmtlib/fmt/blob/master/include/fmt/base.h
 #ifdef __has_feature
 #  define __HAS_FEATURE(x) __has_feature(x)
 #else
@@ -149,11 +149,11 @@
 // or an unspecified value strictly larger than 202302L for the experimental languages enabled by -std=c++26 and -std=gnu++26.
 
 #ifdef _MSVC_LANG
-#  define __CPLUSPLUS _MSVC_LANG
+#    define __CPLUSPLUS _MSVC_LANG
 #elif defined(_MSC_VER) && _MSC_VER >= 1600
-#  define __CPLUSPLUS 201103L
+#    define __CPLUSPLUS 201103L
 #else
-#  define __CPLUSPLUS __cplusplus
+#    define __CPLUSPLUS __cplusplus
 #endif
 
 #if __CPLUSPLUS >= 201103L
