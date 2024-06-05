@@ -99,7 +99,7 @@ file(GLOB SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 # 填充配置
-set(UTILITY_BUILD_STRING \${UTILITY_BUILD_STRING})
+set(PROJECT_BUILD_STRING \${PROJECT_BUILD_STRING})
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h.in" 
     "${CMAKE_BINARY_DIR}/config.h.tmp")

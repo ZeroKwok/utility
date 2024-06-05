@@ -29,6 +29,6 @@ print(f'git-build-gen: build: "{build}", process: "{sys.argv[1]}" -> "{sys.argv[
 with open(sys.argv[1], 'rb') as src:
     with open(sys.argv[2], 'wb') as dst:
         data = src.read().decode()
-        data = string.Template(data).safe_substitute(UTILITY_BUILD_STRING=build)
+        data = string.Template(data).safe_substitute(PROJECT_BUILD_STRING=build)
         dst.write(data.encode())
 print(f"git-build-gen: finished!")
