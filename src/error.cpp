@@ -5,6 +5,7 @@
 // file that was distributed with this source code.
 
 #include "utility/error.h"
+#include "utility/string.h"
 #include <format>
 
 #if OS_WIN
@@ -21,7 +22,7 @@ namespace UTILITY_NAMESPACE {
 std::string error_category::message(int ev) const {
     if (ev == kSucceed)
         return "Succeed";
-    return std::format("Error: 0x{:#08x}", ev);
+    return sformat("Error: 0x%08x", ev);
 }
 
 #if OS_WIN
@@ -97,7 +98,7 @@ std::error_code make_error_from_native(
     }
 
     case ERROR_ACCESS_DENIED:
-        return make_error(kFileNotWritable);
+        return make_error(kPermissionError);
 
     case ERROR_PATH_NOT_FOUND:
     case ERROR_FILE_NOT_FOUND:
@@ -109,7 +110,7 @@ std::error_code make_error_from_native(
         return make_error(kFilesystemUnavailable);
 
     case ERROR_INVALID_NAME:    // 无效文件名, 语法无效或太长, 这里排除bug那么只剩下路径过长
-        return make_error(kFilePathTooLong);
+        return make_error(kFilesystemPathTooLong);
 
     default:
         if (win::is_network_error(ecode))
