@@ -172,6 +172,24 @@
 #    define HAS_CPP20    1
 #endif
 
+// __GCC_VERSION
+#ifdef __GNUC__
+#    define __GCC_VERSION_AT_LEAST(x,y) (__GNUC__ > (x) || __GNUC__ == (x) && __GNUC_MINOR__ >= (y))
+#    define __GCC_VERSION_AT_MOST(x,y)  (__GNUC__ < (x) || __GNUC__ == (x) && __GNUC_MINOR__ <= (y))
+#else
+#    define __GCC_VERSION_AT_LEAST(x,y) 0
+#    define __GCC_VERSION_AT_MOST(x,y)  0
+#endif
+
+// __DEPRECATED
+#if __GCC_VERSION_AT_LEAST(3,1)
+#    define __DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#    define __DEPRECATED __declspec(deprecated)
+#else
+#    define __DEPRECATED
+#endif
+
 #if defined(COMPILER_MSVC)
 #   if _MSC_VER > 1600 // vs2010及以前的版本使用 msinttypes/inttypes.h
 #      include <inttypes.h>
@@ -213,7 +231,6 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
 template <typename T, size_t N>
 char (&ArraySizeHelper(const T (&array)[N]))[N];
 #endif
-
 #define arraysize(array) (sizeof(ArraySizeHelper(array)))
 
 // MSVC 
@@ -224,46 +241,46 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 // https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B
 // https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170
 // 
-                                  // _MSC_VER == 1932 (Visual Studio 2022 version 17.2      MSVC++ 14.32)
-                                  // _MSC_VER == 1931 (Visual Studio 2022 version 17.1      MSVC++ 14.31)
-#   define  _MSVC_143       1930  // _MSC_VER == 1930 (Visual Studio 2022 RTW (17.0)        MSVC++ 14.30)
+                                   // _MSC_VER == 1932 (Visual Studio 2022 version 17.2      MSVC++ 14.32)
+                                   // _MSC_VER == 1931 (Visual Studio 2022 version 17.1      MSVC++ 14.31)
+#   define  __MSVC_143       1930  // _MSC_VER == 1930 (Visual Studio 2022 RTW (17.0)        MSVC++ 14.30)
 
-                                  // _MSC_VER == 1929 (Visual Studio 2019 Version 16.10/11  MSVC++ 14.29)
-                                  // _MSC_VER == 1928 (Visual Studio 2019 Version 16.8/9    MSVC++ 14.28)
-                                  // _MSC_VER == 1927 (Visual Studio 2019 Version 16.7      MSVC++ 14.27)
-                                  // 
-                                  // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
-                                  // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
-                                  // _MSC_VER == 1924 (Visual Studio 2019 Version 16.4 MSVC++ 14.24)
-                                  // _MSC_VER == 1923 (Visual Studio 2019 Version 16.3 MSVC++ 14.23)
-                                  // _MSC_VER == 1922 (Visual Studio 2019 Version 16.2 MSVC++ 14.22)
-                                  // _MSC_VER == 1921 (Visual Studio 2019 Version 16.1 MSVC++ 14.21)
+                                   // _MSC_VER == 1929 (Visual Studio 2019 Version 16.10/11  MSVC++ 14.29)
+                                   // _MSC_VER == 1928 (Visual Studio 2019 Version 16.8/9    MSVC++ 14.28)
+                                   // _MSC_VER == 1927 (Visual Studio 2019 Version 16.7      MSVC++ 14.27)
+                                   // 
+                                   // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
+                                   // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
+                                   // _MSC_VER == 1924 (Visual Studio 2019 Version 16.4 MSVC++ 14.24)
+                                   // _MSC_VER == 1923 (Visual Studio 2019 Version 16.3 MSVC++ 14.23)
+                                   // _MSC_VER == 1922 (Visual Studio 2019 Version 16.2 MSVC++ 14.22)
+                                   // _MSC_VER == 1921 (Visual Studio 2019 Version 16.1 MSVC++ 14.21)
 
-#   define  _MSVC_142       1920  // _MSC_VER == 1920 (Visual Studio 2019 Version 16.0 MSVC++ 14.20)
+#   define  __MSVC_142       1920  // _MSC_VER == 1920 (Visual Studio 2019 Version 16.0 MSVC++ 14.20)
 
-                                  // _MSC_VER == 1916 (Visual Studio 2017 version 15.9 MSVC++ 14.16)
-                                  // _MSC_VER == 1915 (Visual Studio 2017 version 15.8 MSVC++ 14.15)
-                                  // _MSC_VER == 1914 (Visual Studio 2017 version 15.7 MSVC++ 14.14)
-                                  // _MSC_VER == 1913 (Visual Studio 2017 version 15.6 MSVC++ 14.13)
-                                  // _MSC_VER == 1912 (Visual Studio 2017 version 15.5 MSVC++ 14.12)
-                                  // _MSC_VER == 1911 (Visual Studio 2017 version 15.3 MSVC++ 14.11)
+                                   // _MSC_VER == 1916 (Visual Studio 2017 version 15.9 MSVC++ 14.16)
+                                   // _MSC_VER == 1915 (Visual Studio 2017 version 15.8 MSVC++ 14.15)
+                                   // _MSC_VER == 1914 (Visual Studio 2017 version 15.7 MSVC++ 14.14)
+                                   // _MSC_VER == 1913 (Visual Studio 2017 version 15.6 MSVC++ 14.13)
+                                   // _MSC_VER == 1912 (Visual Studio 2017 version 15.5 MSVC++ 14.12)
+                                   // _MSC_VER == 1911 (Visual Studio 2017 version 15.3 MSVC++ 14.11)
 
-#   define  _MSVC_141       1910  // _MSC_VER == 1910 (Visual Studio 2017 version 15.0 MSVC++ 14.1)
-#   define  _MSVC_140       1900  // _MSC_VER == 1900 (Visual Studio 2015 version 14.0 MSVC++ 14.0)
-#   define  _MSVC_120       1800  // _MSC_VER == 1800 (Visual Studio 2013 version 12.0 MSVC++ 12.0)
-#   define  _MSVC_110       1700  // _MSC_VER == 1700 (Visual Studio 2012 version 11.0 MSVC++ 11.0)
-#   define  _MSVC_100       1600  // _MSC_VER == 1600 (Visual Studio 2010 version 10.0 MSVC++ 10.0)
-#   define  _MSVC_90        1500  // _MSC_VER == 1500 (Visual Studio 2008 version 9.0  MSVC++ 9.0 )
-#   define  _MSVC_80        1400  // _MSC_VER == 1400 (Visual Studio 2005 version 8.0  MSVC++ 8.0 )
+#   define  __MSVC_141       1910  // _MSC_VER == 1910 (Visual Studio 2017 version 15.0 MSVC++ 14.1)
+#   define  __MSVC_140       1900  // _MSC_VER == 1900 (Visual Studio 2015 version 14.0 MSVC++ 14.0)
+#   define  __MSVC_120       1800  // _MSC_VER == 1800 (Visual Studio 2013 version 12.0 MSVC++ 12.0)
+#   define  __MSVC_110       1700  // _MSC_VER == 1700 (Visual Studio 2012 version 11.0 MSVC++ 11.0)
+#   define  __MSVC_100       1600  // _MSC_VER == 1600 (Visual Studio 2010 version 10.0 MSVC++ 10.0)
+#   define  __MSVC_90        1500  // _MSC_VER == 1500 (Visual Studio 2008 version 9.0  MSVC++ 9.0 )
+#   define  __MSVC_80        1400  // _MSC_VER == 1400 (Visual Studio 2005 version 8.0  MSVC++ 8.0 )
 
 // noexcept
 // https://zh.cppreference.com/w/cpp/compiler_support/11
-#   if _MSC_VER < _MSVC_140 
+#   if _MSC_VER < __MSVC_140 
 #       define noexcept throw()
 #   endif
 
 // nullptr
-#   if _MSC_VER <= _MSVC_100 
+#   if _MSC_VER <= __MSVC_100 
 #      ifndef nullptr
 #          define nullptr NULL
 #      endif
