@@ -80,8 +80,8 @@ template<class _TString>
 inline std::pair<_TString, _TString> _right_in_half(
     const _TString& target, const _TString& mark)
 {
-    _TString::size_type index;
-    if ((index = target.rfind(mark)) != _TString::npos)
+    auto index = target.rfind(mark);
+    if (index != _TString::npos)
     {
         return std::make_pair(
             target.substr(0, index),
@@ -94,8 +94,8 @@ template<class _TString>
 inline std::pair<_TString, _TString> _left_in_half(
     const _TString& target, const _TString& mark)
 {
-    _TString::size_type index;
-    if ((index = target.find(mark)) != _TString::npos)
+    auto index = target.find(mark);
+    if (index != _TString::npos)
     {
         return std::make_pair(
             target.substr(0, index),

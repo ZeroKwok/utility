@@ -14,10 +14,10 @@ namespace UTILITY_NAMESPACE {
 
 /*!
  *   /brief 宽字节, 多字节字符版本的格式化
- *   /note 弃用, 请选择 std::format 或 fmt::format
+ *   /note  弃用, 请选择 std::format 或 fmt::format.
  */
-UTILITY_API std::string  sformat(const char * format, ...);
-UTILITY_API std::wstring sformat(const wchar_t * format, ...);
+UTILITY_API __DEPRECATED std::string  sformat(const char * format, ...);
+UTILITY_API __DEPRECATED std::wstring sformat(const wchar_t * format, ...);
 
 /*!
  *   /brief 字符串替换
