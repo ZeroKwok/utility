@@ -56,6 +56,10 @@ UTILITY_API std::string  utf8(const std::string& string);
 UTILITY_API std::wstring wstr(const std::string& string);
 UTILITY_API std::wstring wstr_u8(const std::string& string);
 
+UTILITY_API std::string  str(const std::filesystem::path& path);
+UTILITY_API std::wstring wstr(const std::filesystem::path& path);
+UTILITY_API std::string  utf8(const std::filesystem::path& path);
+
 #ifdef UTILITY_SUPPORT_QT
 
 UTILITY_API std::string  str (const QString& string);
@@ -63,8 +67,9 @@ UTILITY_API std::string  utf8(const QString& string);
 UTILITY_API std::wstring wstr(const QString& string);
 
 UTILITY_API QString qstr(const std::string& string);
-UTILITY_API QString qstr(const std::wstring& string);
+UTILITY_API QString qstr(const std::string& string);
 UTILITY_API QString qstr_u8(const std::wstring& string);
+UTILITY_API QString qstr(const std::filesystem::path& path);
 
 #endif // UTILITY_SUPPORT_QT
 
