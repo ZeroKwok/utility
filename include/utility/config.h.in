@@ -28,6 +28,7 @@
 
 #ifndef UTILITY_NAMESPACE
 #   define UTILITY_NAMESPACE util
+#   define UTILITY_FS_NAMESPACE ufs
 #   define UTILITY_BEGIN_NAMESPACE namespace UTILITY_NAMESPACE {
 #   define UTILITY_END_NAMESPACE }
 #else

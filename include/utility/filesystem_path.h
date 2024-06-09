@@ -16,19 +16,23 @@
 #include <filesystem>
 
 #ifdef OS_WIN
+#   include <shlobj.h>
 #   include <windows.h>
+#   include <Knownfolders.h>
 #endif
 
-namespace UTILITY_NAMESPACE {
+namespace UTILITY_FS_NAMESPACE {
 
-typedef std::filesystem::path path;
-
-#ifdef UTILITY_SUPPORT_QT
-/*!
- *  \brief 从 QString 字符串构造文件路径
- */
-UTILITY_API path path_from(const QString& str);
-#endif // UTILITY_SUPPORT_QT
+// 导入 std::filesystem;
+using std::filesystem::path;
+using std::filesystem::absolute;
+using std::filesystem::relative;
+using std::filesystem::proximate;
+using std::filesystem::canonical;
+using std::filesystem::weakly_canonical;
+using std::filesystem::equivalent;
+using std::filesystem::current_path;
+using std::filesystem::temp_directory_path;
 
 /*!
  *  \brief 从 UTF-8 编码的字符串构造文件路径
@@ -59,9 +63,7 @@ UTILITY_API path path_from_module_dir(const path& stems, std::error_code& error)
 
 /*!
  *  \brief  返回系统的临时目录
- *  \return 在 Windows 中相当于环境变量 "%Temp%", 而 Unix 相当于 "$TMPDIR".
- *  \note   在 Unix-Like 中若不存在 "TMPDIR" 环境变量，则尝试匹配 "P_tmpdir" 宏的值，若编译平台没有提供该定义，
- *          则将返回 “/tmp”.
+ *  \note   std::filesystem::temp_directory_path()
  */
 UTILITY_API path path_from_temp();
 UTILITY_API path path_from_temp(std::error_code& error) noexcept;
@@ -77,6 +79,13 @@ UTILITY_API path path_from_home(std::error_code& error) noexcept;
 UTILITY_API path path_from_home(const path& stems);
 UTILITY_API path path_from_home(const path& stems, std::error_code& error) noexcept;
 
+#ifdef UTILITY_SUPPORT_QT
+/*!
+ *  \brief 从 QString 字符串构造文件路径
+ */
+UTILITY_API path path_from(const QString& str);
+#endif // UTILITY_SUPPORT_QT
+
 /*!
  *  \brief 判断路径是否可写
  *  \note  若指定路径不存在, 则向上查找第一个存在的父目录并判断是否可写.
@@ -84,7 +93,6 @@ UTILITY_API path path_from_home(const path& stems, std::error_code& error) noexc
  */
 UTILITY_API bool path_is_writable(const path& path);
 UTILITY_API bool path_is_writable(const path& path, std::error_code& error) noexcept;
-
 
 /*!
  *  \brief 返回一个递增后的文件名
@@ -127,6 +135,8 @@ UTILITY_API path filename_trim(const path& path, const std::string& placeholder 
 //
 #if OS_WIN
 
+namespace win {
+
 /*!
  *  \brief 获得系统路径, 弃用, 建议使用 KnownFolders 版本代替
  *  
@@ -166,8 +176,10 @@ UTILITY_API path path_from_sysdir(REFKNOWNFOLDERID rfid, std::error_code& error)
 UTILITY_API void path_open_with_explorer(const path& path, bool select = true);
 UTILITY_API void path_open_with_explorer(const path& path, bool select, std::error_code& error) noexcept;
 
+} // win
+
 #endif // OS_WIN
 
-} // UTILITY_NAMESPACE
+} // UTILITY_FS_NAMESPACE
 
 #endif // filesystem_path_h__

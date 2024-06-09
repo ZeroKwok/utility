@@ -15,29 +15,185 @@
 #include "error.h"
 #include "filesystem_path.h"
 
-namespace UTILITY_NAMESPACE {
+namespace UTILITY_FS_NAMESPACE {
 
-//! 文件系统类型
-enum fstype
+// 导入 std::filesystem;
+using std::filesystem::filesystem_error;
+using std::filesystem::copy_options;
+using std::filesystem::copy;
+using std::filesystem::copy_file;
+using std::filesystem::copy_symlink;
+using std::filesystem::rename;
+
+using std::filesystem::create_directory;
+using std::filesystem::create_directories;
+using std::filesystem::create_hard_link;
+using std::filesystem::create_symlink;
+using std::filesystem::create_directory_symlink;
+
+using std::filesystem::remove;
+using std::filesystem::remove_all;
+
+using std::filesystem::exists;
+using std::filesystem::file_size;
+using std::filesystem::resize_file;
+
+using std::filesystem::space_info;
+using std::filesystem::space;
+
+using std::filesystem::file_time_type;
+using std::filesystem::last_write_time;
+
+using std::filesystem::hard_link_count;
+using std::filesystem::read_symlink;
+
+using std::filesystem::file_type;
+using std::filesystem::file_status;
+using std::filesystem::status;
+using std::filesystem::symlink_status;
+
+using std::filesystem::is_block_file;
+using std::filesystem::is_character_file;
+using std::filesystem::is_directory;
+using std::filesystem::is_empty;
+using std::filesystem::is_fifo;
+using std::filesystem::is_other;
+using std::filesystem::is_regular_file;
+using std::filesystem::is_socket;
+using std::filesystem::is_symlink;
+using std::filesystem::status_known;
+
+using std::filesystem::directory_options;
+using std::filesystem::directory_iterator;
+using std::filesystem::recursive_directory_iterator;
+
+using std::filesystem::perms;
+using std::filesystem::perm_options;
+using std::filesystem::permissions;
+
+/*!
+ *  \brief 文件的不透明对象
+ */
+typedef struct _file* file;
+typedef uint64_t      size;
+
+/*!
+ *  \brief 打开或创建指定的文件
+ * 
+ *  \param name 文件名, 如果是相对路径则相对于进程的当前目录.
+ *  \param mode 打开文件的标识符(定义在 fcntl.h)
+ *         O_RDONLY   open for reading only.
+ *         O_WRONLY   open for writing only.
+ *         O_RDWR     open for reading and writing.
+ * 
+ *         O_APPEND   writes done at eof.
+ *         O_CREAT    create and open file.
+ *         O_TRUNC    open and truncate.
+ *         O_EXCL     open only if file doesn't already exist.
+ * 
+ *  \param error 错误发生时, 将存储具体的错误信息(std::system_category).
+ *  \return 失败返回 nullptr, 成功返回文件的不透明对象, 需要显示通过 file_close() 关闭文件.
+ * 
+ *  \note  1. 如果 name 指向符号链接, 则将进一步解析指向的文件.
+ *         2. 如果 没有 error 参数, 那么错误时将抛出异常.
+ *         3. 对于 POSIX 平台, 直接调用 open(), 默认创建权限采用 666;
+ *         4. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
+ */
+UTILITY_API file open(const path& name, int mode);
+UTILITY_API file open(const path& name, int mode, std::error_code& error) noexcept;
+
+/*!
+ *  \brief 关闭file指向的文件
+ */
+UTILITY_API void close(file& file) noexcept;
+
+/*!
+ *  \brief 从文件读取内容
+ *  \param error 错误发生时, 将存储具体的错误信息(std::system_category).
+ *  \return 大于 0 表示实际读取的字节数, 0 表示达到文件末尾(end of file), -1 表示发生了错误.
+ *  \note  1. 若文件实际内容小于要读取的内容不视为错误, 填充对应的缓冲区后返回实际读取的字节数.
+ *         2. 对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
+ */
+UTILITY_API size read(const file& file, char* data, int size);
+UTILITY_API size read(const file& file, char* data, int size, std::error_code& error) noexcept;
+
+/*!
+ *  \brief 将内容写入文件
+ *  \return 返回实际写入的字节数, -1 表示发生了错误.
+ *  \note  对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
+ */
+UTILITY_API size write(file& file, const char *data, int size);
+UTILITY_API size write(file& file, const void *data, int size, std::error_code& error) noexcept;
+
+/*!
+ *  \brief 设置文件指针
+ * 
+ *  \param file 文件句柄
+ *  \param offset 文件指针相对于whence的偏移量, 支持4GB以上大文件.
+ *  \param whence 文件指针偏移量的参考位置, 取下列值之一:
+ *                1. SEEK_SET  = 0 文件的开始位置
+ *                2. SEEK_CUR  = 1 文件指针的当前位置
+ *                3. SEEK_END  = 2 文件的末尾
+ */
+UTILITY_API void seek(file& file, size offset, int whence = SEEK_SET);
+UTILITY_API void seek(file& file, size offset, int whence, std::error_code& error) noexcept;
+
+/*!
+ *  \brief 查询文件当前指针相对于文件开始位置的偏移量
+ */
+UTILITY_API size tell(const file& file);
+UTILITY_API size tell(const file& file, std::error_code& error) noexcept;
+
+/*!
+ *  \brief 查询文件的大小
+ *  \see std::filesystem::file_size()
+ */
+UTILITY_API size file_size(const file& file);
+UTILITY_API size file_size(const file& file, std::error_code& error) noexcept;
+
+/*!
+ *  \brief 文件时间
+ * 
+ *  \note  1. 使用 epoch 时间戳, 单位是秒, 即 UTC 1970-01-01 00:00:00 到现在的秒数.
+ *         2. 由于在某些 Unix-Like 系统中没有文件创建时间, 取而代之的是文件状态改变时间, 
+ *            故在此类系统上 create_time 无效, 无效时间将被设置为 -1.
+ */
+struct ftime
 {
-    kFSTypeUnknown   = 0,
-    kFSTypeFAT       = 1,
-    kFSTypeFAT16     = 2,
-    kFSTypeFAT32     = 3,
-    kFSTypeexFAT     = 4,
-    kFSTypeNTFS      = 5,
-    kFSTypeCDFS      = 6,
+    int64_t create_time;   //!< 创建时间, 在不支持创建时间的平台上为 -1.
+    int64_t access_time;   //!< 访问时间
+    int64_t modify_time;   //!< 修改时间
+    int64_t change_time;   //!< 改变时间, 仅 Unix-Like 平台有效, 否则为 -1.
 };
 
 /*!
- *  \brief 获取路径所在的文件系统类型.
- *  
- *  \note  暂不支持Unix-like.
+ *  \brief 返回文件时间
+ * 
+ *  \see   file_time(const path& name).
  */
-UTILITY_API fstype path_filesystem(const path& path);
-UTILITY_API fstype path_filesystem(const path& path, std::error_code& error) noexcept;
+UTILITY_API ftime time(const file& file);
+UTILITY_API ftime time(const file& file, std::error_code& error) noexcept;
+UTILITY_API ftime time(const path& name);
+UTILITY_API ftime time(const path& name, std::error_code& error) noexcept;
 
+/*!
+ *  \brief 设置文件时间
+ * 
+ *  \see   set_time(const path& name, const ftime& time).
+ */
+UTILITY_API void set_time(const file& file, const ftime& time);
+UTILITY_API void set_time(const file& file, const ftime& time, std::error_code& error) noexcept;
+UTILITY_API void set_time(const path& name, const ftime& time);
+UTILITY_API void set_time(const path& name, const ftime& time, std::error_code& error) noexcept;
 
-} // UTILITY_NAMESPACE
+/*!
+ *  \brief 返回当前进程对name指向的文件是否可写
+ * 
+ *  \note  如果 name 指向符号链接, 则将进一步解析其内容指向的文件.
+ */
+UTILITY_API bool is_writable(const path& name);
+UTILITY_API bool is_writable(const path& name, std::error_code& error) noexcept;
+
+} // UTILITY_FS_NAMESPACE
 
 #endif // filesystem_path_h__
