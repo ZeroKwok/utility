@@ -183,11 +183,14 @@
 
 // __DEPRECATED
 #if __GCC_VERSION_AT_LEAST(3,1)
-#    define __DEPRECATED __attribute__((deprecated))
+#    define __DEPRECATED __attribute__ ((__deprecated__))
+#    define __DEPRECATED_X(text) __attribute__((__deprecated__(text)))
 #elif defined(_MSC_VER)
 #    define __DEPRECATED __declspec(deprecated)
+#    define __DEPRECATED_X(text) __declspec(deprecated(text))
 #else
 #    define __DEPRECATED
+#    define __DEPRECATED_X(text)
 #endif
 
 #if defined(COMPILER_MSVC)
