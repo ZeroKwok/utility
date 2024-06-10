@@ -21,7 +21,12 @@
 #   include <Knownfolders.h>
 #endif
 
-namespace UTILITY_FS_NAMESPACE {
+#ifdef UTILITY_SUPPORT_QT
+#   include <QString>
+#endif // UTILITY_SUPPORT_QT
+
+namespace UTILITY_NAMESPACE {
+namespace fs {
 
 // 导入 std::filesystem;
 using std::filesystem::path;
@@ -38,6 +43,13 @@ using std::filesystem::temp_directory_path;
  *  \brief 从 UTF-8 编码的字符串构造文件路径
  */
 UTILITY_API path path_from_utf8(const std::string& str);
+
+#ifdef UTILITY_SUPPORT_QT
+/*!
+ *  \brief 从 QString 字符串构造文件路径
+ */
+UTILITY_API path path_from(const QString& str);
+#endif // UTILITY_SUPPORT_QT
 
 /*!
  *  \brief 返回模块目录的路径工厂函数
@@ -58,8 +70,8 @@ UTILITY_API path path_from_module_dir(intptr_t module, std::error_code& error) n
  *  \brief 返回模块目录的便捷API
  *  \note  相当于: path_append(path_from_module_dir(0, ferr), stems);
  */
-UTILITY_API path path_from_module_dir(const path& stems);
-UTILITY_API path path_from_module_dir(const path& stems, std::error_code& error) noexcept;
+UTILITY_API path path_from_module_dir(intptr_t module, const path& stems);
+UTILITY_API path path_from_module_dir(intptr_t module, const path& stems, std::error_code& error) noexcept;
 
 /*!
  *  \brief  返回系统的临时目录
@@ -78,13 +90,6 @@ UTILITY_API path path_from_home();
 UTILITY_API path path_from_home(std::error_code& error) noexcept;
 UTILITY_API path path_from_home(const path& stems);
 UTILITY_API path path_from_home(const path& stems, std::error_code& error) noexcept;
-
-#ifdef UTILITY_SUPPORT_QT
-/*!
- *  \brief 从 QString 字符串构造文件路径
- */
-UTILITY_API path path_from(const QString& str);
-#endif // UTILITY_SUPPORT_QT
 
 /*!
  *  \brief 判断路径是否可写
@@ -109,7 +114,7 @@ UTILITY_API path filename_increment(const path& path, bool ignore_extension = fa
  *         aux          -> (aux)
  *         read/me.txt  -> readme.txt
  *         readme.?txt  -> readme.txt
- *      若placeholder为".", 则:
+ *      若 placeholder 为 ".", 则:
  *         nul          -> (nul)
  *         aux          -> (aux)
  *         read/me.txt  -> read.me.txt
@@ -180,6 +185,7 @@ UTILITY_API void path_open_with_explorer(const path& path, bool select, std::err
 
 #endif // OS_WIN
 
-} // UTILITY_FS_NAMESPACE
+} // fs
+} // UTILITY_NAMESPACE
 
 #endif // filesystem_path_h__

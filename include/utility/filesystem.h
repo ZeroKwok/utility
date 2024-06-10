@@ -15,7 +15,11 @@
 #include "error.h"
 #include "filesystem_path.h"
 
-namespace UTILITY_FS_NAMESPACE {
+#include <stdio.h>
+#include <fcntl.h>
+
+namespace UTILITY_NAMESPACE {
+namespace fs {
 
 // 导入 std::filesystem;
 using std::filesystem::filesystem_error;
@@ -82,20 +86,19 @@ typedef uint64_t      size;
  * 
  *  \param name 文件名, 如果是相对路径则相对于进程的当前目录.
  *  \param mode 打开文件的标识符(定义在 fcntl.h)
- *         O_RDONLY   open for reading only.
- *         O_WRONLY   open for writing only.
- *         O_RDWR     open for reading and writing.
- * 
- *         O_APPEND   writes done at eof.
- *         O_CREAT    create and open file.
- *         O_TRUNC    open and truncate.
- *         O_EXCL     open only if file doesn't already exist.
+ *         - O_RDONLY: 仅打开用于读取。
+ *         - O_WRONLY: 仅打开用于写入。
+ *         - O_RDWR: 打开用于读取和写入。
+ *         - O_APPEND: 追加写入到文件末尾。
+ *         - O_CREAT: 如果文件不存在，则创建文件。
+ *         - O_TRUNC: 打开并截断文件。
+ *         - O_EXCL: 仅在文件不存在时打开文件。
  * 
  *  \param error 错误发生时, 将存储具体的错误信息(std::system_category).
  *  \return 失败返回 nullptr, 成功返回文件的不透明对象, 需要显示通过 file_close() 关闭文件.
  * 
  *  \note  1. 如果 name 指向符号链接, 则将进一步解析指向的文件.
- *         2. 如果 没有 error 参数, 那么错误时将抛出异常.
+ *         2. 如果 没有 error 参数, 那么错误时将抛出异常(filesystem_error).
  *         3. 对于 POSIX 平台, 直接调用 open(), 默认创建权限采用 666;
  *         4. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
  */
@@ -105,7 +108,7 @@ UTILITY_API file open(const path& name, int mode, std::error_code& error) noexce
 /*!
  *  \brief 关闭file指向的文件
  */
-UTILITY_API void close(file& file) noexcept;
+UTILITY_API void close(const file& file) noexcept;
 
 /*!
  *  \brief 从文件读取内容
@@ -194,6 +197,12 @@ UTILITY_API void set_time(const path& name, const ftime& time, std::error_code& 
 UTILITY_API bool is_writable(const path& name);
 UTILITY_API bool is_writable(const path& name, std::error_code& error) noexcept;
 
-} // UTILITY_FS_NAMESPACE
+} // fs
+} // UTILITY_NAMESPACE
+
+#include "filesystem_file_guard.h"
+
+// 引入缩写的名称空间
+namespace UTILITY_FS_NAMESPACE { using namespace UTILITY_NAMESPACE::fs; }
 
 #endif // filesystem_path_h__
