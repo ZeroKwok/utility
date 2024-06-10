@@ -6,10 +6,22 @@
 
 #include "filesystem_p.h"
 
-#ifdef OS_WIN
-
 namespace UTILITY_NAMESPACE {
+namespace fs {
 
-} // namespace UTILITY_NAMESPACE
+file open(const path& name, int mode) {
+    return {};
+}
 
-#endif // OS_WIN
+file open(const path& name, int mode, std::error_code& error) noexcept
+{
+    return {};
+}
+
+void close(const file& file) noexcept {
+    
+}
+
+} // fs
+} // UTILITY_NAMESPACE
+
