@@ -9,19 +9,6 @@
 namespace UTILITY_NAMESPACE {
 namespace fs {
 
-file open(const path& name, int mode) {
-    return {};
-}
-
-file open(const path& name, int mode, std::error_code& error) noexcept
-{
-    return {};
-}
-
-void close(const file& file) noexcept {
-    
-}
-
 } // fs
 } // UTILITY_NAMESPACE
 
