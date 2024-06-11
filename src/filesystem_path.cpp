@@ -503,7 +503,7 @@ std::wstring filename_trim(
     return _filename_trim(filename, placeholder);
 }
 
-path filename_trim(const path& path, const std::string& placeholder) noexcept {
+path path_filename_trim(const path& path, const std::string& placeholder) noexcept {
     return path.parent_path() / _filename_trim(path.filename().wstring(), wstr(placeholder));
 }
 

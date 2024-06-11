@@ -133,7 +133,7 @@ UTILITY_API std::wstring filename_trim(const std::wstring& filename, const std::
  *  \brief 文件名裁剪, 使文件名合法化
  *  \note  同字符串版类似，唯一区别, 在于仅将最后一个路径分隔符之后的内容视为文件名.
  */
-UTILITY_API path filename_trim(const path& path, const std::string& placeholder = "") noexcept;
+UTILITY_API path path_filename_trim(const path& path, const std::string& placeholder = "") noexcept;
 
 //
 // windows 方面的扩展
