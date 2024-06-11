@@ -99,15 +99,6 @@ UTILITY_API std::wstring wstr(const std::string& string);
 //! @brief Convert UTF-8 string to std::wstring.
 UTILITY_API std::wstring wstr_u8(const std::string& string); 
 
-//! @brief Convert filesystem path to std::string.
-UTILITY_API std::string  str(const std::filesystem::path& path); 
-
-//! @brief Convert filesystem path to std::wstring.
-UTILITY_API std::wstring wstr(const std::filesystem::path& path); 
-
-//! @brief Convert filesystem path to UTF-8 string.
-UTILITY_API std::string  utf8(const std::filesystem::path& path); 
-
 #ifdef UTILITY_SUPPORT_QT
 
 //! @brief Convert QString to std::string.
@@ -127,10 +118,6 @@ UTILITY_API QString qstr(const std::wstring& string);
 
 //! @brief Convert UTF-8 string to QString.
 UTILITY_API QString qstr_u8(const std::string& string); 
-
-//! @brief Convert filesystem path to QString.
-UTILITY_API QString qstr(const std::filesystem::path& path); 
-
 
 #endif // UTILITY_SUPPORT_QT
 

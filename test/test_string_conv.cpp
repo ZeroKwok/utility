@@ -141,11 +141,6 @@ TEST(StringConversionTest, Str) {
     std::wstring wstrInput = L"Test";
     std::string output = str(wstrInput);
     EXPECT_EQ(output, "Test");
-
-    // Test converting string to string (no conversion)
-    std::string strInput = "Test";
-    output = str(strInput);
-    EXPECT_EQ(output, "Test");
 }
 
 // Test cases for str_u8 function
@@ -179,11 +174,6 @@ TEST(StringConversionTest, Wstr) {
     std::string strInput = "Test";
     std::wstring output = wstr(strInput);
     EXPECT_EQ(output, L"Test");
-
-    // Test converting wstring to wstring (no conversion)
-    std::wstring wstrInput = L"Test";
-    output = wstr(wstrInput);
-    EXPECT_EQ(output, L"Test");
 }
 
 // Test cases for wstr_u8 function
@@ -192,30 +182,6 @@ TEST(StringConversionTest, WstrU8) {
     std::string utf8Input = (const char*)u8"你好";
     std::wstring output = wstr_u8(utf8Input);
     EXPECT_EQ(output, L"你好");
-}
-
-// Test cases for str function with filesystem path
-TEST(StringConversionTest, StrFileSystemPath) {
-    // Test converting filesystem path to string
-    std::filesystem::path path = "test.txt";
-    std::string output = str(path);
-    EXPECT_EQ(output, "test.txt");
-}
-
-// Test cases for wstr function with filesystem path
-TEST(StringConversionTest, WstrFileSystemPath) {
-    // Test converting filesystem path to wstring
-    std::filesystem::path path = "test.txt";
-    std::wstring output = wstr(path);
-    EXPECT_EQ(output, L"test.txt");
-}
-
-// Test cases for utf8 function with filesystem path
-TEST(StringConversionTest, Utf8FileSystemPath) {
-    // Test converting filesystem path to UTF-8 string
-    std::filesystem::path path = L"你好.txt";
-    std::string output = utf8(path);
-    EXPECT_EQ(output, (const char*)u8"你好.txt");
 }
 
 #ifdef UTILITY_SUPPORT_QT
@@ -250,6 +216,8 @@ TEST(StringConversionTest, QstrStdString) {
     std::string str = "Test";
     QString output = qstr(str);
     EXPECT_EQ(output, "Test");
+
+    EXPECT_EQ(qstr("Test"), "Test");
 }
 
 // Test cases for qstr function with std::wstring
@@ -257,7 +225,8 @@ TEST(StringConversionTest, QstrStdWstring) {
     // Test converting std::wstring to QString
     std::wstring wstr = L"你好";
     QString output = qstr(wstr);
-    EXPECT_EQ(output, (const char*)u8"你好");
+    EXPECT_EQ(output, L"你好");
+    EXPECT_EQ(qstr(L"你好"), L"你好");
 }
 
 // Test cases for qstr_u8 function with std::string
@@ -266,14 +235,6 @@ TEST(StringConversionTest, QstrU8StdString) {
     std::string utf8str = (const char*)u8"你好";
     QString output = qstr_u8(utf8str);
     EXPECT_EQ(output, (const char*)u8"你好");
-}
-
-// Test cases for qstr function with filesystem path
-TEST(StringConversionTest, QstrFileSystemPath) {
-    // Test converting filesystem path to QString
-    std::filesystem::path path = "test.txt";
-    QString output = qstr(path);
-    EXPECT_EQ(output, "test.txt");
 }
 
 #endif // UTILITY_SUPPORT_QT

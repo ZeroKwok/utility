@@ -46,14 +46,6 @@ std::string str(const std::filesystem::path& path) {
     return path.string();
 }
 
-std::wstring wstr(const std::filesystem::path& path) {
-    return path.wstring();
-}
-
-std::string utf8(const std::filesystem::path& path) {
-    return utf8(path.wstring());
-}
-
 #ifdef UTILITY_SUPPORT_QT
 
 std::string str (const QString& string) {
@@ -114,10 +106,6 @@ QString qstr(const std::wstring& string)
 
 QString qstr_u8(const std::string& string) {
     return QString::fromUtf8(string.c_str(), string.size());
-}
-
-QString qstr(const std::filesystem::path& path) {
-    return qstr(path.wstring());
 }
 
 #endif // UTILITY_SUPPORT_QT
