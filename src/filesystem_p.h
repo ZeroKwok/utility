@@ -25,6 +25,13 @@ inline filesystem_error MakeFSError(
     return filesystem_error(what, path1, path2, ecode);
 }
 
+#if OS_WIN
+struct _file {
+    int flags = 0;
+    HANDLE fd = nullptr;
+};
+#endif
+
 } // fs
 } // UTILITY_NAMESPACE
 

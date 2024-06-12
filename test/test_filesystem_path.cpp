@@ -111,8 +111,10 @@ TEST(PathFromHomeTest, HomePathWithError) {
 TEST(PathIsWritableTest, WritablePath) {
     path temp_file = path_from_temp("test_file.txt");
     std::ofstream(temp_file).close();
-    EXPECT_TRUE(path_is_writable(temp_file));
+    EXPECT_FALSE(path_is_writable(temp_file));
     remove(temp_file);
+    
+    EXPECT_TRUE(path_is_writable(path_from_temp()));
 }
 
 TEST(PathIsWritableTest, NonWritablePath) {

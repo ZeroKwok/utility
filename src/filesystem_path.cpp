@@ -218,7 +218,7 @@ bool path_is_writable(const path& path) {
     std::error_code ecode;
     const auto& result = path_is_writable(path, ecode);
     if (ecode)
-        throw MakeFSError(ecode, "Can't get home path");
+        throw MakeFSError(ecode, "Can't get home path", path);
     return result;
 }
 
@@ -231,6 +231,9 @@ bool path_is_writable(const path& path, std::error_code& error) noexcept
     auto dir = path;
     while (!exists(dir, error))
         dir = dir.parent_path();
+
+    if (!is_directory(dir, error))
+        return false;
 
     auto file = dir / L".utility{2bcb023e-23f9-42f4-87f7-90d94005accb}";
     do

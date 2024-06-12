@@ -86,21 +86,22 @@ typedef uint64_t      size;
  * 
  *  \param name 文件名, 如果是相对路径则相对于进程的当前目录.
  *  \param mode 打开文件的标识符(定义在 fcntl.h)
- *         - O_RDONLY: 仅打开用于读取。
- *         - O_WRONLY: 仅打开用于写入。
- *         - O_RDWR: 打开用于读取和写入。
- *         - O_APPEND: 追加写入到文件末尾。
- *         - O_CREAT: 如果文件不存在，则创建文件。
- *         - O_TRUNC: 打开并截断文件。
- *         - O_EXCL: 仅在文件不存在时打开文件。
+ *         - O_RDONLY: 只读模式打开
+ *         - O_WRONLY: 只写模式打开
+ *         - O_RDWR:   读写模式打开
+ *         - O_APPEND: 追加写入到文件末尾
+ *         - O_CREAT: 如果文件不存在，则创建文件
+ *         - O_TRUNC: 打开并截断文件 (必须有写权限)
+ *         - O_EXCL: 仅在文件不存在时打开文件
  * 
  *  \param error 错误发生时, 将存储具体的错误信息(std::system_category).
  *  \return 失败返回 nullptr, 成功返回文件的不透明对象, 需要显示通过 file_close() 关闭文件.
  * 
- *  \note  1. 如果 name 指向符号链接, 则将进一步解析指向的文件.
- *         2. 如果 没有 error 参数, 那么错误时将抛出异常(filesystem_error).
- *         3. 对于 POSIX 平台, 直接调用 open(), 默认创建权限采用 666;
- *         4. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
+ *  \note  1. 仅支持二进制模式(O_BINARY)
+ *         2. 如果 name 指向符号链接, 则将进一步解析指向的文件.
+ *         3. 如果 没有 error 参数, 那么错误时将抛出异常(filesystem_error).
+ *         4. 对于 POSIX 平台, 直接调用 open(), 默认创建权限采用 666;
+ *         5. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
  */
 UTILITY_API file open(const path& name, int mode);
 UTILITY_API file open(const path& name, int mode, std::error_code& error) noexcept;
@@ -132,7 +133,7 @@ UTILITY_API size write(file& file, const void *data, int size, std::error_code& 
  *  \brief 设置文件指针
  * 
  *  \param file 文件句柄
- *  \param offset 文件指针相对于whence的偏移量, 支持4GB以上大文件.
+ *  \param offset 文件指针相对于 whence 的偏移量, 支持大文件.
  *  \param whence 文件指针偏移量的参考位置, 取下列值之一:
  *                1. SEEK_SET  = 0 文件的开始位置
  *                2. SEEK_CUR  = 1 文件指针的当前位置
