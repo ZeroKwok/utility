@@ -30,7 +30,7 @@ file open(const path& name, int oflag, std::error_code& error) noexcept
     }
 
     auto f = new _file{};
-    auto c = _wsopen(f, name.c_str(), oflag, _SH_DENYNO, 644, 0);
+    auto c = _wsopen(f, name.c_str(), oflag, _SH_DENYNO, 0644, 0);
 
     if (c != 0)
         error = MakeSysError(c);

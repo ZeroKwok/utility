@@ -12,8 +12,9 @@
 #ifndef filesystem_path_h__
 #define filesystem_path_h__
 
-#include "error.h"
+#include "config.h"
 #include <filesystem>
+#include <system_error>
 
 #ifdef OS_WIN
 #   include <shlobj.h>
@@ -23,7 +24,7 @@
 
 #ifdef UTILITY_SUPPORT_QT
 #   include <QString>
-#endif // UTILITY_SUPPORT_QT
+#endif
 
 namespace UTILITY_NAMESPACE {
 namespace fs {

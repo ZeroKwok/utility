@@ -78,7 +78,7 @@ static DWORD decode_access_flags(int const oflag) throw()
     }
 
     // This is unreachable, but the compiler can't tell.
-    return -1; // "Invalid open flag"
+    return -1;
 }
 
 static DWORD decode_open_create_flags(int const oflag) throw()
@@ -105,7 +105,7 @@ static DWORD decode_open_create_flags(int const oflag) throw()
     }
 
     // This is unreachable, but the compiler can't tell.
-    return -1; // "Invalid open flag"
+    return -1;
 }
 
 #ifndef _SH_DENYRW
@@ -156,7 +156,7 @@ enum : unsigned char
 };
 
 // The umask value
-static int _umaskval = 0666;
+static int _umaskval = 0002;
 
 static file_options decode_options(int const oflag, int const shflag, int const pmode) throw()
 {

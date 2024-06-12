@@ -12,7 +12,7 @@
 #ifndef filesystem_h__
 #define filesystem_h__
 
-#include "error.h"
+#include "config.h"
 #include "filesystem_path.h"
 
 #include <stdio.h>
