@@ -109,7 +109,7 @@ TEST(PathFromHomeTest, HomePathWithError) {
 
 // Tests for path_is_writable
 TEST(PathIsWritableTest, WritablePath) {
-    path temp_file = path_from_temp("test_file.txt");
+    path temp_file = path_from_temp("test_file_001.txt");
     std::ofstream(temp_file).close();
     EXPECT_FALSE(path_is_writable(temp_file));
     remove(temp_file);
