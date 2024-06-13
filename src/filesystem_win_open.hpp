@@ -289,7 +289,7 @@ int _wsopen(
     if ((options.crt_flags & (FDEV | FPIPE)) == 0 && (oflag & _O_APPEND))
         file->flags |= FAPPEND;
 
-    return true;
+    return 0;
 }
 
 int _close(struct _file* const file)
@@ -304,6 +304,9 @@ int _close(struct _file* const file)
         // https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
         if (!CloseHandle(file->fd))
             return GetLastError();
+
+        file->fd = INVALID_HANDLE_VALUE;
+        file->flags = 0;
     }
 
     return 0;

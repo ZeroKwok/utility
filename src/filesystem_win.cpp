@@ -12,7 +12,8 @@ namespace UTILITY_NAMESPACE {
 namespace fs {
 
 #include "filesystem_win_open.hpp"
-file open(const path& name, int mode) {
+file open(const path& name, int mode)
+{
     std::error_code ecode;
     const auto& result = open(name, mode, ecode);
     if (ecode)
@@ -29,23 +30,32 @@ file open(const path& name, int oflag, std::error_code& error) noexcept
         return {};
     }
 
-    auto f = new _file{};
-    auto c = _wsopen(f, name.c_str(), oflag, _SH_DENYNO, 0644, 0);
+    try
+    {
+        auto f = new _file{};
+        auto c = _wsopen(f, name.c_str(), oflag, _SH_DENYNO, 0644, 0);
 
-    if (c != 0)
-        error = MakeSysError(c);
+        if (c != 0) {
+            error = MakeSysError(c);
+            delete f;
+            return {};
+        }
+        return f;
+    }
+    catch (std::bad_alloc)
+    {
+        error = MakeSysError(ERROR_NOT_ENOUGH_MEMORY);
+    }
 
-    return f;
+    return {};
 }
 
-void close(const file& file) noexcept 
+void close(const file& file) noexcept
 {
     if (file == nullptr)
         return;
 
     _close(file);
-    file->flags = 0;
-    file->fd = nullptr;
     delete file;
 }
 
@@ -76,7 +86,7 @@ size read(const file& file, char* data, int size, std::error_code& error) noexce
     return bytes;
 }
 
-size write(file& file, const char *data, int size) 
+size write(const file& file, const char *data, int size) 
 {
     std::error_code ecode;
     const auto& result = write(file, data, size, ecode);
@@ -85,7 +95,7 @@ size write(file& file, const char *data, int size)
     return result;
 }
 
-size write(file& file, const void *data, int size, std::error_code& error) noexcept 
+size write(const file& file, const void *data, int size, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -103,7 +113,7 @@ size write(file& file, const void *data, int size, std::error_code& error) noexc
     return bytes;
 }
 
-void seek(file& file, size offset, int whence) 
+void seek(const file& file, size offset, int whence)
 {
     std::error_code ecode;
     seek(file, offset, whence, ecode);
@@ -111,7 +121,7 @@ void seek(file& file, size offset, int whence)
         throw MakeFSError(ecode, "Unable to seek the file pointer");
 }
 
-void seek(file& file, size offset, int whence, std::error_code& error) noexcept 
+void seek(const file& file, size offset, int whence, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -347,12 +357,15 @@ bool is_writable(const path& name, std::error_code& error) noexcept
         return false;
     }
 
-    if (!exists(name, error))
-        return path_is_writable(name, error);
+    // 如果文件不存在则, 直接返回, 不判断路径是否可写, 因为如果目录也不存在 path_is_writable() 
+    // 将尝试溯源, 直到根目录是否可写为止
+
+    //if (!exists(name, error))
+    //    return path_is_writable(name, error);
 
     auto fd = ::CreateFileW(
         name.c_str(),                       // lpFileName
-        GENERIC_READ | GENERIC_WRITE,       // dwDesiredAccess
+        GENERIC_WRITE,                      // dwDesiredAccess
         FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
         NULL,                               // lpSecurityAttributes
         OPEN_EXISTING,                      // dwCreationDisposition

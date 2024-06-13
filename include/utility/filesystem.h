@@ -126,8 +126,8 @@ UTILITY_API size read(const file& file, char* data, int size, std::error_code& e
  *  \return 返回实际写入的字节数, -1 表示发生了错误.
  *  \note  对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
  */
-UTILITY_API size write(file& file, const char *data, int size);
-UTILITY_API size write(file& file, const void *data, int size, std::error_code& error) noexcept;
+UTILITY_API size write(const file& file, const char *data, int size);
+UTILITY_API size write(const file& file, const void *data, int size, std::error_code& error) noexcept;
 
 /*!
  *  \brief 设置文件指针
@@ -139,8 +139,8 @@ UTILITY_API size write(file& file, const void *data, int size, std::error_code& 
  *                2. SEEK_CUR  = 1 文件指针的当前位置
  *                3. SEEK_END  = 2 文件的末尾
  */
-UTILITY_API void seek(file& file, size offset, int whence = SEEK_SET);
-UTILITY_API void seek(file& file, size offset, int whence, std::error_code& error) noexcept;
+UTILITY_API void seek(const file& file, size offset, int whence = SEEK_SET);
+UTILITY_API void seek(const file& file, size offset, int whence, std::error_code& error) noexcept;
 
 /*!
  *  \brief 查询文件当前指针相对于文件开始位置的偏移量
@@ -191,9 +191,10 @@ UTILITY_API void set_time(const path& name, const ftime& time);
 UTILITY_API void set_time(const path& name, const ftime& time, std::error_code& error) noexcept;
 
 /*!
- *  \brief 返回当前进程对name指向的文件是否可写
+ *  \brief 返回当前进程对 name 指向的文件是否可写
  * 
  *  \note  如果 name 指向符号链接, 则将进一步解析其内容指向的文件.
+ *         如果 name 不存在, 则返回 false, 并设置 error.
  */
 UTILITY_API bool is_writable(const path& name);
 UTILITY_API bool is_writable(const path& name, std::error_code& error) noexcept;

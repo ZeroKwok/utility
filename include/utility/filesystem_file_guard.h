@@ -17,7 +17,7 @@ namespace fs {
  */
 class UTILITY_API file_guard
 {
-    file _file = nullptr;
+    file _fd = nullptr;
 public:
     file_guard();
     ~file_guard();

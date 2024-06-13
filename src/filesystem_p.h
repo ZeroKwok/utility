@@ -28,7 +28,7 @@ inline filesystem_error MakeFSError(
 #if OS_WIN
 struct _file {
     int flags = 0;
-    HANDLE fd = nullptr;
+    HANDLE fd = INVALID_HANDLE_VALUE;
 };
 #endif
 

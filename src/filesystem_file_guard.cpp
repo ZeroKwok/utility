@@ -6,6 +6,7 @@
 
 #include "utility/filesystem.h"
 #include "utility/filesystem_file_guard.h"
+#include "filesystem_p.h"
 
 namespace UTILITY_NAMESPACE {
 namespace fs {
@@ -14,12 +15,12 @@ file_guard::file_guard()
 {}
 
 file_guard::file_guard(file_guard& right)
-    : _file(nullptr) {
-    std::swap(_file, right._file);
+    : _fd(nullptr) {
+    std::swap(_fd, right._fd);
 }
 
 file_guard::file_guard(const file& f)
-    : _file(f)
+    : _fd(f)
 {}
 
 file_guard::~file_guard() {
@@ -28,30 +29,30 @@ file_guard::~file_guard() {
 
 file_guard& file_guard::operator=(file_guard& right) {
     close();
-    std::swap(_file, right._file);
+    std::swap(_fd, right._fd);
     return *this;
 }
 
 #if __HAS_CPP11
 file_guard::file_guard(file_guard&& right)
-    : _file(nullptr) {
-    std::swap(_file, right._file);
+    : _fd(nullptr) {
+    std::swap(_fd, right._fd);
 }
 
 file_guard& file_guard::operator=(file_guard&& right){
     close();
-    std::swap(_file, right._file);
+    std::swap(_fd, right._fd);
 }
 #endif
 
 void file_guard::close() {
     if (valid())
-        fs::close(_file);
-    _file = nullptr;
+        fs::close(_fd);
+    _fd = nullptr;
 }
 
 bool file_guard::valid() const {
-    return _file != nullptr;
+    return _fd != nullptr;
 }
 
 file_guard::operator bool() const {
@@ -59,7 +60,7 @@ file_guard::operator bool() const {
 }
 
 file_guard::operator file() const {
-    return _file;
+    return _fd;
 }
 
 } // fs

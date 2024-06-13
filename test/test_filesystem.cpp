@@ -7,22 +7,42 @@
 using namespace util;
 using namespace util::fs;
 
+class FileOperationsTest : public ::testing::Test {
+public:
+    static void SetUpTestSuite()
+    {
+        std::error_code ecode;
+        remove_all(path_from_temp("utility"), ecode);
+        create_directories(path_from_temp("utility"), ecode);
+    }
+
+    static void TearDownTestSuite()
+    {
+        std::error_code ecode;
+        remove_all(path_from_temp("utility"), ecode);
+    }
+};
+
 // Helper function to create temporary file for testing
 path create_temp_file(const std::string& name) {
-    path temp_file = path_from_temp(name);
+    path temp_file = path_from_temp("utility") / name;
     std::ofstream(temp_file).close();
     return temp_file;
 }
 
+path get_temp_file(const std::string& name) {
+    return path_from_temp("utility") / name;
+}
+
 // Tests for open
-TEST(FileOperationsTest, OpenFileSuccess) {
+TEST_F(FileOperationsTest, OpenFileSuccess) {
     path temp_file = create_temp_file("test_file_002.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
     close(f);
 }
 
-TEST(FileOperationsTest, OpenFileFailure) {
+TEST_F(FileOperationsTest, OpenFileFailure) {
     std::error_code ec;
     file f = fs::open("/nonexistent/path/file.txt", O_RDWR | O_CREAT, ec);
     ASSERT_EQ(f, nullptr);
@@ -30,32 +50,35 @@ TEST(FileOperationsTest, OpenFileFailure) {
 }
 
 // Tests for close
-TEST(FileOperationsTest, CloseFile) {
+TEST_F(FileOperationsTest, CloseFile) {
     path temp_file = create_temp_file("test_file_003.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
     close(f);
-    // No direct way to test close, but no exceptions should be thrown
+    // No direct way to TEST_F close, but no exceptions should be thrown
 }
 
 // Tests for read
-TEST(FileOperationsTest, ReadFile) {
-    path temp_file = create_temp_file("test_file_004.txt");
+TEST_F(FileOperationsTest, ReadFile) {
+    path temp_file = get_temp_file("test_file_004.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
-    const char* write_data = "test data";
-    write(f, write_data, strlen(write_data));
+    const char* write_data = "TEST_F data";
+    int len = strlen(write_data);
+    int bytes_write = write(f, write_data, len);
+
+    EXPECT_EQ(len, bytes_write);
     seek(f, 0, SEEK_SET);
 
-    char read_data[10];
-    size bytes_read = read(f, read_data, 9);
-    read_data[bytes_read] = '\0';
-    EXPECT_EQ(std::string(read_data), "test data");
+    char read_data[1024] = {0};
+    size bytes_read = read(f, read_data, len);
+    EXPECT_EQ(bytes_read, len);
+    EXPECT_EQ(std::string(read_data), "TEST_F data");
     close(f);
 }
 
-TEST(FileOperationsTest, ReadFileError) {
-    path temp_file = create_temp_file("test_file_005.txt");
+TEST_F(FileOperationsTest, ReadFileError) {
+    path temp_file = get_temp_file("test_file_005.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
 
@@ -68,49 +91,76 @@ TEST(FileOperationsTest, ReadFileError) {
 }
 
 // Tests for write
-TEST(FileOperationsTest, WriteFile) {
-    path temp_file = create_temp_file("test_file_00.txt");
+TEST_F(FileOperationsTest, WriteFile) {
+    path temp_file = get_temp_file("test_file_006.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
 
-    const char* write_data = "test data";
-    size bytes_written = write(f, write_data, strlen(write_data));
-    EXPECT_EQ(bytes_written, strlen(write_data));
+    const char* write_data = "TEST_F data";
+    int len = strlen(write_data);
+    size bytes_written = write(f, write_data, len);
+    EXPECT_EQ(bytes_written, len);
 
     seek(f, 0, SEEK_SET);
-    char read_data[10];
-    size bytes_read = read(f, read_data, 9);
-    read_data[bytes_read] = '\0';
-    EXPECT_EQ(std::string(read_data), "test data");
+    char read_data[1024] = {0};
+    size bytes_read = read(f, read_data, len);
+    EXPECT_EQ(std::string(read_data), write_data);
+    EXPECT_EQ(bytes_read, bytes_written);
     close(f);
 }
 
 // Tests for seek and tell
-TEST(FileOperationsTest, SeekAndTell) {
-    path temp_file = create_temp_file("test_file_007.txt");
+TEST_F(FileOperationsTest, SeekAndTell) {
+    path temp_file = get_temp_file("test_file_007.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
 
-    const char* write_data = "test data";
-    write(f, write_data, strlen(write_data));
+    const char* write_data = "TEST_F data";
+    int len = strlen(write_data);
+    size bytes_written = write(f, write_data, len);
+    EXPECT_EQ(bytes_written, len);
+    EXPECT_EQ(tell(f), bytes_written);
 
-    seek(f, 5, SEEK_SET);
+    size fileSize = bytes_written;
+
+    seek(f, 7, SEEK_SET);
+    EXPECT_EQ(tell(f), 7);
+
+    char read_data[1024] = {0};
+    size bytes_read = read(f, read_data, 10);
+    EXPECT_EQ(std::string(read_data), "data");
+
+    seek(f, 0, SEEK_CUR);
+    EXPECT_EQ(tell(f), fileSize);
+
+    seek(f, 0, SEEK_SET);
+    EXPECT_EQ(tell(f), 0);
+
+    seek(f, 4, SEEK_SET);
+    EXPECT_EQ(tell(f), 4);
+
+    seek(f, 1, SEEK_CUR);
     EXPECT_EQ(tell(f), 5);
 
-    char read_data[5];
-    size bytes_read = read(f, read_data, 4);
-    read_data[bytes_read] = '\0';
-    EXPECT_EQ(std::string(read_data), "data");
+    seek(f, 15, SEEK_CUR);
+    EXPECT_EQ(tell(f), 20);
+
+    seek(f, 7, SEEK_SET);
+    EXPECT_EQ(tell(f), 7);
+
+    seek(f, 0, SEEK_END);
+    EXPECT_EQ(tell(f), fileSize);
+
     close(f);
 }
 
 // Tests for file_size
-TEST(FileOperationsTest, FileSize) {
-    path temp_file = create_temp_file("test_file_008.txt");
+TEST_F(FileOperationsTest, FileSize) {
+    path temp_file = get_temp_file("test_file_008.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
 
-    const char* write_data = "test data";
+    const char* write_data = "TEST_F data";
     write(f, write_data, strlen(write_data));
 
     EXPECT_EQ(file_size(f), strlen(write_data));
@@ -118,8 +168,8 @@ TEST(FileOperationsTest, FileSize) {
 }
 
 // Tests for time
-TEST(FileOperationsTest, FileTime) {
-    path temp_file = create_temp_file("test_file_009.txt");
+TEST_F(FileOperationsTest, FileTime) {
+    path temp_file = get_temp_file("test_file_009.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
 
@@ -131,8 +181,8 @@ TEST(FileOperationsTest, FileTime) {
 }
 
 // Tests for set_time
-TEST(FileOperationsTest, SetTime) {
-    path temp_file = create_temp_file("test_file_010.txt");
+TEST_F(FileOperationsTest, SetTime) {
+    path temp_file = get_temp_file("test_file_010.txt");
     file f = open(temp_file, O_RDWR | O_CREAT);
     ASSERT_NE(f, nullptr);
 
@@ -147,12 +197,15 @@ TEST(FileOperationsTest, SetTime) {
 }
 
 // Tests for is_writable
-TEST(FileOperationsTest, IsWritable) {
+TEST_F(FileOperationsTest, IsWritable) {
+    std::error_code ec;
     path temp_file = create_temp_file("test_file_012.txt");
-    EXPECT_TRUE(is_writable(temp_file));
+    auto writable = is_writable(temp_file, ec);
+    EXPECT_TRUE(writable);
+    EXPECT_FALSE(ec);
 }
 
-TEST(FileOperationsTest, IsNotWritable) {
+TEST_F(FileOperationsTest, IsNotWritable) {
     std::error_code ec;
     bool writable = is_writable("/nonexistent/path/file.txt", ec);
     EXPECT_FALSE(writable);
