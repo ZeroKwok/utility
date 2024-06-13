@@ -12,16 +12,17 @@ namespace UTILITY_NAMESPACE {
 namespace fs {
 
 #include "filesystem_win_open.hpp"
-file open(const path& name, int mode)
+
+file open(const path& name, int flag)
 {
     std::error_code ecode;
-    const auto& result = open(name, mode, ecode);
+    const auto& result = open(name, flag, ecode);
     if (ecode)
-        throw MakeFSError(ecode, "Can't open the file");
+        throw MakeFSError(ecode, "Can't open the file", name);
     return result;
 }
 
-file open(const path& name, int oflag, std::error_code& error) noexcept
+file open(const path& name, int flag, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -33,7 +34,7 @@ file open(const path& name, int oflag, std::error_code& error) noexcept
     try
     {
         auto f = new _file{};
-        auto c = _wsopen(f, name.c_str(), oflag, _SH_DENYNO, 0644, 0);
+        auto c = _wsopen(f, name.c_str(), flag, _SH_DENYNO, 0644, 0);
 
         if (c != 0) {
             error = MakeSysError(c);
@@ -74,13 +75,13 @@ size read(const file& file, char* data, int size, std::error_code& error) noexce
 
     if (file == nullptr) {
         error = MakeSysError(ERROR_INVALID_PARAMETER);
-        return {};
+        return 0;
     }
 
     unsigned bytes = 0; 
     auto r = _read(file, data, size, bytes);
 
-    if (r != 0) 
+    if (r != 0)
         error = MakeSysError(r);
 
     return bytes;
@@ -232,7 +233,7 @@ ftime time(const path& name)
     std::error_code ecode;
     const auto& result = time(name, ecode);
     if (ecode)
-        throw MakeFSError(ecode, "Unable to get the file time");
+        throw MakeFSError(ecode, "Unable to get the file time", name);
     return result;
 }
 
@@ -308,7 +309,7 @@ void set_time(const path& name, const ftime& time)
     std::error_code ecode;
     set_time(name, time, ecode);
     if (ecode)
-        throw MakeFSError(ecode, "Unable to set the file time");
+        throw MakeFSError(ecode, "Unable to set the file time", name);
 }
 
 void set_time(const path& name, const ftime& time, std::error_code& error) noexcept 
@@ -344,7 +345,7 @@ bool is_writable(const path& name)
     std::error_code ecode;
     const auto& result = is_writable(name, ecode);
     if (ecode)
-        throw MakeFSError(ecode, "Unable to get the file permissions");
+        throw MakeFSError(ecode, "Unable to get the file permissions", name);
     return result;
 }
 

@@ -85,7 +85,7 @@ typedef uint64_t      size;
  *  \brief 打开或创建指定的文件
  * 
  *  \param name 文件名, 如果是相对路径则相对于进程的当前目录.
- *  \param mode 打开文件的标识符(定义在 fcntl.h)
+ *  \param flag 打开文件的标识符(定义在 fcntl.h)
  *         - O_RDONLY: 只读模式打开
  *         - O_WRONLY: 只写模式打开
  *         - O_RDWR:   读写模式打开
@@ -103,8 +103,8 @@ typedef uint64_t      size;
  *         4. 对于 POSIX 平台, 直接调用 open(), 默认创建权限采用 666;
  *         5. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
  */
-UTILITY_API file open(const path& name, int mode);
-UTILITY_API file open(const path& name, int mode, std::error_code& error) noexcept;
+UTILITY_API file open(const path& name, int flag);
+UTILITY_API file open(const path& name, int flag, std::error_code& error) noexcept;
 
 /*!
  *  \brief 关闭file指向的文件
@@ -112,9 +112,9 @@ UTILITY_API file open(const path& name, int mode, std::error_code& error) noexce
 UTILITY_API void close(const file& file) noexcept;
 
 /*!
- *  \brief 从文件读取内容
+ *  \brief 读取文件, 无应用层缓冲的低级 I/O
  *  \param error 错误发生时, 将存储具体的错误信息(std::system_category).
- *  \return 大于 0 表示实际读取的字节数, 0 表示达到文件末尾(end of file), -1 表示发生了错误.
+ *  \return 表示实际读取的字节数
  *  \note  1. 若文件实际内容小于要读取的内容不视为错误, 填充对应的缓冲区后返回实际读取的字节数.
  *         2. 对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
  */
@@ -122,8 +122,8 @@ UTILITY_API size read(const file& file, char* data, int size);
 UTILITY_API size read(const file& file, char* data, int size, std::error_code& error) noexcept;
 
 /*!
- *  \brief 将内容写入文件
- *  \return 返回实际写入的字节数, -1 表示发生了错误.
+ *  \brief 写入文件, 无应用层缓冲的低级 I/O
+ *  \return 返回实际写入的字节数.
  *  \note  对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
  */
 UTILITY_API size write(const file& file, const char *data, int size);
