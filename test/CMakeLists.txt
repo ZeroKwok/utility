@@ -18,6 +18,7 @@ target_link_libraries(
     utility
     GTest::gtest_main
     )
+set_target_properties(utility_test PROPERTIES DEBUG_POSTFIX "d")
     
 include(GoogleTest)
 gtest_discover_tests(utility_test)
