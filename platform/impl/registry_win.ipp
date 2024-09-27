@@ -1061,9 +1061,9 @@ std::vector<std::wstring> registry_get_wkeys(
             // So I can build a wstring based on that length.
 
 #if _MSC_VER > _MSVC_100 
-            subkeyNames.emplace_back(nameBuffer.substr(subKeyNameLen));
+            subkeyNames.emplace_back(nameBuffer.substr(0, subKeyNameLen));
 #else
-            subkeyNames.push_back(nameBuffer.substr(subKeyNameLen));
+            subkeyNames.push_back(nameBuffer.substr(0, subKeyNameLen));
 #endif
         }
     }
