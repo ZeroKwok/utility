@@ -2,6 +2,8 @@
 
 - [x] util::bytes_into_file("filename", bytes)
     写入文件失败, 并会在当前目录下创建filename的文件夹.
+- [ ] util::path_filename_increment()
+  - 忽略扩展名 应对无扩展名的文件名中包含 . 的场景 
 - [ ] `UTILITY_SUPPORT_LONG_PATH` v0.3+
 - [ ] 模块间通用的错误处理及错误码
   - 通用错误码 v0.3.1
