@@ -5,14 +5,17 @@ option(UTILITY_ENABLE_AUTO_LINK "Enable auto link utility library support" OFF)
 
 project(utility_test)
 
+enable_testing()
+
 set(TEST_SOUCES
     #string.cpp
     #string_util.cpp
     #platform_cpu.cpp 
-    console_win.cpp
-    platform_util.cpp
+    #console_win.cpp
+    #platform_util.cpp
     #filesystem_file.cpp 
     filesystem_path.cpp 
+    #process.cpp 
     #common.cpp
     #common_unit.cpp 
     #common_math.cpp
@@ -32,7 +35,7 @@ set(TEST_SOUCES
 add_executable(${PROJECT_NAME} ${TEST_SOUCES})
 
 # 连接测试库
-target_link_libraries(${PROJECT_NAME} gtest_main)
+target_link_libraries(${PROJECT_NAME} PRIVATE GTest::gtest GTest::gtest_main)
 
 # 若没有启动自动连接支持
 if(NOT UTILITY_ENABLE_AUTO_LINK)
@@ -40,14 +43,14 @@ if(NOT UTILITY_ENABLE_AUTO_LINK)
     # 尝试查找是否安装utility, 优先使用安装的utility
     find_package(utility)
 
-    target_link_libraries(${PROJECT_NAME} 
+    target_link_libraries(${PROJECT_NAME} PRIVATE
         utility::string 
         utility::filesystem 
         utility::platform 
         utility::common)
 
     if(MSVC)
-        target_link_libraries(${PROJECT_NAME} utility::process)
+        target_link_libraries(${PROJECT_NAME} PRIVATE utility::process)
     endif()
 
     target_compile_definitions(${PROJECT_NAME} PRIVATE UTILITY_DISABLE_AUTO_LINK)

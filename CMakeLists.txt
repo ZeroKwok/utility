@@ -125,23 +125,26 @@ add_subdirectory(process)
 
 # 单元测试
 if(UTILITY_BUILD_TEST)
+    find_package(GTest CONFIG REQUIRED)
+
+    # 修改为使用 VCPKG 安装的的版本
     # enable_testing()
 
     # 添加GoogleTest支持
-    include(GoogleTest)
-    find_package(GTest 1.10.0)
+    # include(GoogleTest)
+    # find_package(GTest 1.10.0)
 
     # 找不到尝试编译
-    if(NOT GTest_NOTFOUND)
-        if(UTILITY_BUILD_STATIC_RUNTIME)
-            set(gtest_force_shared_crt OFF)
-        else()
-            set(gtest_force_shared_crt ON)
-        endif()
-        # 参考 googletest:CMakeLists.txt
-        message("gtest_force_shared_crt=${gtest_force_shared_crt}")
-        add_subdirectory(3rd/googletest-1.10.0)
-    endif()
+    #if(NOT GTest_NOTFOUND)
+    #    if(UTILITY_BUILD_STATIC_RUNTIME)
+    #        set(gtest_force_shared_crt OFF)
+    #    else()
+    #        set(gtest_force_shared_crt ON)
+    #    endif()
+    #    # 参考 googletest:CMakeLists.txt
+    #    message("gtest_force_shared_crt=${gtest_force_shared_crt}")
+    #    add_subdirectory(3rd/googletest-1.10.0)
+    #endif()
 
     add_subdirectory(unittest)
 endif()
