@@ -293,6 +293,12 @@ TEST(path_util, path_filename_trim)
 
     EXPECT_EQ(util::path_filename_trim("nul", "11"), "(nul)");
     EXPECT_EQ(util::path_filename_trim("aux", "11"), "(aux)");
+
+    EXPECT_EQ(util::path_filename_trim("con.mp3", "11"), "(con).mp3");
+    EXPECT_EQ(util::path_filename_trim("Con.mp3", "11"), "(Con).mp3");
+    EXPECT_EQ(util::path_filename_trim("Con.tar.gz", "11"), "(Con).tar.gz");
+    EXPECT_EQ(util::path_filename_trim("aux", "11"), "(aux)");
+
     EXPECT_EQ(util::path_filename_trim("read/me.txt", "11"), "read11me.txt");
     EXPECT_EQ(util::path_filename_trim("readme.?txt", "11"), "readme.11txt");
 

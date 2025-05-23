@@ -11,6 +11,7 @@
 #endif
 
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <string/string_util.h>
 #include <filesystem/path_util.h>
@@ -229,7 +230,7 @@ namespace detail {
 
         auto filename = _path_find_filename(path);
 
-        auto dot = filename.rfind(detail::dot);
+        auto dot = filename.find(detail::dot);
         if (dot != filename.npos)
             return filename.substr(0, dot);
 
@@ -287,7 +288,7 @@ namespace detail {
             "con", "prn", "aux", "nul", "com1", "com2",
             "com3", "com4", "com5", "com6", "com7", "com8",
             "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5",
-            "lpt6", "lpt7", "lpt8", "lpt9", ".", "..", 0 };
+            "lpt6", "lpt7", "lpt8", "lpt9", 0 }; // 以及 ".", "..", "..." 等等
 
         // 移除前后的空格
         auto result = boost::algorithm::trim_copy(filename);
@@ -321,25 +322,48 @@ namespace detail {
                 ++it;
         }
 
-        if (result.size() < 5)
+        auto dotPos = result.find(detail::dot);
+        auto extensionLength = 0;
+        if (dotPos != filename.npos)
+            extensionLength = result.size() - dotPos;
+
+        if (boost::algorithm::all(result, [](auto c) { return c == decltype(c)('.'); }))
         {
+            result = _TChar('(') + result + _TChar(')');
+        }
+        else if ((result.size() - extensionLength) < 5) // 仅处理文件名
+        {
+            // 非法文件名:
+            //   con.txt
+            //   CON.txt
+            //   Con.mp3
+            //   Con.gz.tar
             for (int i = 0; illegal_name[i] != 0; ++i)
             {
-                auto ch1_begin = result.begin();
-                auto ch1_end   = result.end();
-                auto ch2_begin = illegal_name[i];
+                //auto ch1_begin = result.begin();
+                //auto ch1_end   = result.end();
+                //auto ch2_begin = illegal_name[i];
 
-                for (; ch1_begin != ch1_end && *ch2_begin != 0; ++ch1_begin, ++ch2_begin)
-                {
-                    if (*ch1_begin != *ch2_begin)
-                        break;
-                }
+                //for (; ch1_begin != ch1_end && *ch2_begin != 0; ++ch1_begin, ++ch2_begin)
+                //{
+                //    if (*ch1_begin != *ch2_begin)
+                //        break;
+                //}
 
-                std::wstring aa;
-                if (ch1_begin == ch1_end && *ch2_begin == 0)
-                {
+                //std::wstring aa;
+                //if (ch1_begin == ch1_end && *ch2_begin == 0)
+                //{
+                //    result.insert(0, 1, '(');
+                //    result.append(1, ')');
+                //    break;
+                //}
+
+                if (boost::algorithm::iequals(result.substr(0, dotPos), illegal_name[i])) {
                     result.insert(0, 1, '(');
-                    result.append(1, ')');
+                    if (dotPos != filename.npos)
+                        result.insert(dotPos + 1, 1, ')');
+                    else
+                        result.append(1, ')');
                     break;
                 }
             }
