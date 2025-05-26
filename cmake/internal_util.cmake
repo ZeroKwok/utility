@@ -1,9 +1,9 @@
 function(install_pdb target_name)
 
-    set_target_properties(${target_name} PROPERTIES DEBUG_POSTFIX "d")
+    #set_target_properties(${target_name} PROPERTIES DEBUG_POSTFIX "d")
     set_target_properties(${target_name} PROPERTIES 
        PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-       COMPILE_PDB_NAME_DEBUG  "${target_name}d"
+       #COMPILE_PDB_NAME_DEBUG  "${target_name}d"
        COMPILE_PDB_NAME_RELEASE ${target_name}
        COMPILE_PDB_NAME_MINSIZEREL ${target_name}
        COMPILE_PDB_NAME_RELWITHDEBINFO ${target_name})
