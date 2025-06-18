@@ -1,0 +1,52 @@
+// This file is part of the utility project.
+// Copyright (c) 2018-2025 zero <zero.kwok@foxmail.com>
+//
+// For the full copyright and license information, please view the LICENSE
+// file that was distributed with this source code.
+
+#ifndef __config_h__
+#define __config_h__
+
+#include "base.h"
+
+#define UTILITY_VERSION        (${PROJECT_VERSION_MAJOR} << 16 | ${PROJECT_VERSION_MINOR} << 8 | ${PROJECT_VERSION_PATCH})
+#define UTILITY_VERSION_STRING "${PROJECT_VERSION}"
+#define UTILITY_BUILD_STRING   "${PROJECT_BUILD_STRING}"
+
+#if defined(UTILITY_BUILD_SHARED_LIB) && defined(UTILITY_USING_SHARED_LIB)
+#   error "Cannot build and using shared lib at the same time"
+#   error "Please define only one of UTILITY_BUILD_SHARED_LIB or UTILITY_USING_SHARED_LIB"
+#endif
+
+#if defined(UTILITY_BUILD_SHARED_LIB)
+#   define UTILITY_API __declspec(dllexport)          // build shared lib
+#elif defined(UTILITY_USING_STATIC_LIB) || defined(UTILITY_BUILD_STATIC_LIB)
+#   define UTILITY_API                                // build or using static lib
+#else
+#   define UTILITY_API __declspec(dllimport)          // using shared lib
+#endif
+
+#ifndef UTILITY_NAMESPACE
+#   define UTILITY_NAMESPACE util
+#   define UTILITY_FS_NAMESPACE ufs
+#   define UTILITY_BEGIN_NAMESPACE namespace UTILITY_NAMESPACE {
+#   define UTILITY_END_NAMESPACE }
+#else
+#   define UTILITY_BEGIN_NAMESPACE
+#   define UTILITY_END_NAMESPACE
+#endif
+
+// Defined WINNT version.
+// https://docs.microsoft.com/zh-cn/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160&viewFallbackFrom=vs-2017
+#if defined(WIN32) || defined(_WIN32)
+#   ifndef _WIN32_WINNT
+#       define _WIN32_WINNT _WIN32_WINNT_WIN7 // Windows 7 SP1
+#   endif
+#endif
+
+// 检查是否支持C++ 17, 不支持则报错 
+#ifndef HAS_CPP17
+#   error "C++17 is required to compile this project"
+#endif
+
+#endif // __config_h__
