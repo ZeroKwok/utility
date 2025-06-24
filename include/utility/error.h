@@ -8,6 +8,7 @@
 #define error_h__
 
 #include "config.h"
+#include <format>
 #include <filesystem>
 #include <system_error>
 
@@ -45,16 +46,25 @@ enum error
     kServerNotFound                      = 0xa2, //!< 服务不存在
 };
 
-class UTILITY_API std::error_category;
-class UTILITY_API error_category : public std::error_category {
+class error_category : public std::error_category
+{
 public:
-    static error_category& instance() {
+    static error_category &instance()
+    {
         static error_category _imp;
         return _imp;
     }
 
-    virtual const char* name() const noexcept { return "Error"; }
-    virtual std::string message(int ev) const;
+    virtual const char *name() const noexcept {
+        return "Error"; 
+    }
+
+    virtual std::string message(int ev) const
+    {
+        if (ev == kSucceed)
+            return "Succeed";
+        return std::format("Error: {:#010x}", ev);
+    }
 };
 
 //! @brief 创建标准错误码对象.

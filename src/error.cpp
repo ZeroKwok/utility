@@ -6,7 +6,6 @@
 
 #include "utility/error.h"
 #include "utility/string.h"
-#include <format>
 
 #if OS_WIN
 #   include <Windows.h>
@@ -18,12 +17,6 @@
 #endif
 
 namespace UTILITY_NAMESPACE {
-
-std::string error_category::message(int ev) const {
-    if (ev == kSucceed)
-        return "Succeed";
-    return std::format("Error: {:#010x}", ev);
-}
 
 #if OS_WIN
 namespace win {
