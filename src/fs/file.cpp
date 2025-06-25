@@ -10,14 +10,14 @@
 namespace UTILITY_NAMESPACE {
 namespace fs {
 
-file::file()
+file::file() noexcept
 {}
 
-file::file(const fptr& f)
+file::file(const fptr& f) noexcept
     : _fd(f)
 {}
 
-file::~file() {
+file::~file() noexcept {
     close();
 }
 

@@ -26,15 +26,15 @@ class UTILITY_API file
     file(const file&) = delete;
     file& operator=(const file&) = delete;
 public:
-    file();
-    ~file();
+    file() noexcept;
+    ~file() noexcept;
 
     /*!
      * \brief 接管已有文件描述符
      * \param f 要接管的文件指针
      * \note 构造后原指针所有权转移
      */
-    file(const fptr& f); 
+    file(const fptr& f) noexcept; 
 
     /*!
      * \brief 移动构造
@@ -42,8 +42,8 @@ public:
      * \post 源对象变为无效状态
      * \return 当前对象引用
      */
-    file(file&& right);
-    file& operator=(file&& right);
+    file(file&& right) noexcept;
+    file& operator=(file&& right) noexcept;
 
     /*!
      * \brief 显式关闭文件

@@ -22,7 +22,7 @@
 #endif
 
 #include <algorithm>
-#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace UTILITY_NAMESPACE {
 namespace fs {
@@ -604,7 +604,7 @@ void path_open_with_explorer(
 {
     error.clear();
 
-    auto file = replace_copy(path.wstring(), L"/", L"\\");
+    auto file = boost::replace_all_copy(path.wstring(), L"/", L"\\");
     auto name = L"\"" + file + L"\"";
     auto param = L"/select, " + name;
 
