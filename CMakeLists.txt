@@ -78,16 +78,10 @@ endif()
 
 if(UTILITY_SUPPORT_BOOST)
     if(MSVC)
-        set(UTILITY_BOOST_SUPPORT_AUTOLINK ON)
         set(Boost_USE_STATIC_LIBS ON)
         set(Boost_USE_STATIC_RUNTIME ${UTILITY_BUILD_STATIC_RUNTIME})
     endif()
-
-    if (NOT Boost_INCLUDE_DIRS)
-        find_package(Boost REQUIRED)
-    else()
-        message("Has been defined: Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}")
-    endif()
+    find_package(Boost REQUIRED)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
     add_compile_definitions(BOOST_LIB_DIAGNOSTIC=1)
@@ -97,10 +91,10 @@ if(UTILITY_SUPPORT_QT)
     find_package(Qt5 REQUIRED Core)
 endif()
 
-file(GLOB INCLUDE_FILES 
+file(GLOB_RECURSE INCLUDE_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/*.hpp")
-file(GLOB SOURCE_FILES 
+file(GLOB_RECURSE SOURCE_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 

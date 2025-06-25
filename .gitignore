@@ -7,3 +7,4 @@ installed
 include/utility/config.h
 src/resource.rc
 CMakeSettings.json
+CMakeUserPresets.json
