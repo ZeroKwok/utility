@@ -1,4 +1,5 @@
-.PHONY: rebuild, build, reset, clean
+.PHONY: rebuild build reset clean
+
 rebuild: clean
 	@echo "Rebuilding..."
 	conan install . --output-folder=build --build=missing --profile=profiles/msvc-142-x86

@@ -16,9 +16,9 @@ def RunShell(cmd) -> str:
 
 print(f"git-build-gen: {sys.argv} ...")
 if len(sys.argv) < 3:
-    print("usage: git-build-gen.py <output_dir> <output_file>")
+    print("usage: git-build-gen.py <input_file> <output_file>")
     exit(1)
-    
+
 date   = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 dirty  = RunShell("git diff --quiet HEAD || echo -dirty")
 commit = RunShell("git rev-parse --short HEAD")
