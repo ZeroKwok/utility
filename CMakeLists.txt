@@ -106,8 +106,8 @@ configure_file(
 
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h
-    COMMAND python ./git-build-gen.py "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h"
-    DEPENDS "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/git-build-gen.py"
+    COMMAND python ./scripts/git-build-gen.py "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h"
+    DEPENDS "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/git-build-gen.py"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 list(APPEND SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h)
 
@@ -118,8 +118,8 @@ if(MSVC AND UTILITY_BUILD_SHARED_LIB)
         "${CMAKE_BINARY_DIR}/resource.rc.tmp")
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc
-        COMMAND python ./git-build-gen.py "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc"
-        DEPENDS "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/git-build-gen.py"
+        COMMAND python ./scripts/git-build-gen.py "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc"
+        DEPENDS "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/git-build-gen.py"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     list(APPEND SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc)
 endif()
