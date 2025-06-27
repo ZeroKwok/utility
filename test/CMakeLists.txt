@@ -12,7 +12,7 @@ find_package(GTest REQUIRED)
 file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 add_executable(utility_test ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} utility gtest::gtest GTest::gtest_main)
+target_link_libraries(${PROJECT_NAME} utility gtest::gtest)
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
 
 include(GoogleTest)
