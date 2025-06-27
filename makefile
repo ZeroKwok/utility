@@ -1,23 +1,18 @@
-.PHONY: rebuild build reset clean
+.PHONY: rebuild build clean test
 
 rebuild: clean
 	@echo "Rebuilding..."
 	conan install . --output-folder=build --build=missing --profile=profiles/msvc-142-x86
-	cd build && cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
-	cd build && cmake --build . --config Release
-	./bin/Release/utility_test.exe
+	conan build   . --output-folder=build --profile=profiles/msvc-142-x86
 
 build:
 	@echo "Building..."
-	cd build && cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
-	cd build && cmake --build . --config Release
-	./bin/Release/utility_test.exe
+	conan build   . --output-folder=build --profile=profiles/msvc-142-x86
 
-reset:
-	@echo "Resetting..."
-	rm -fr ./build/CMakeFiles
-	rm -fr ./build/CMakeCache.txt
+test: clean
+	@echo "Running tests..."
+	./bin/Release/utility_test.exe
 
 clean:
 	@echo "Cleaning..."
-	rm -r ./build
+	rm -folderr ./build
