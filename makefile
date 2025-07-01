@@ -1,13 +1,15 @@
 .PHONY: rebuild build clean test
 
+PROFILE ?= msvc-142-x86
+
 rebuild: clean
-	@echo "Rebuilding..."
-	conan install . --output-folder=build --build=missing --profile=profiles/msvc-142-x86
-	conan build   . --output-folder=build --profile=profiles/msvc-142-x86
+	@echo "Rebuilding ${PROFILE} ..."
+	conan install . --output-folder=build --build=missing --profile=profiles/${PROFILE}
+	conan build   . --output-folder=build --profile=profiles/${PROFILE}
 
 build:
-	@echo "Building..."
-	conan build   . --output-folder=build --profile=profiles/msvc-142-x86
+	@echo "Building ${PROFILE}..."
+	conan build   . --output-folder=build --profile=profiles/${PROFILE}
 
 test: clean
 	@echo "Running tests..."
@@ -15,4 +17,4 @@ test: clean
 
 clean:
 	@echo "Cleaning..."
-	rm -folderr ./build
+	rm -fr ./build
