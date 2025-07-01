@@ -32,7 +32,8 @@ class UtilityRecipe(ConanFile):
             self.requires("boost/1.88.0", options={"shared": False})
         if self.options.with_qt:
             self.requires("qt/5.15", options={"shared": True})
-        self.requires("gtest/1.16.0")
+        if self.options.with_tests:
+            self.requires("gtest/1.16.0")
 
     def build_requirements(self):
         self.tool_requires("cmake/3.22.6")
