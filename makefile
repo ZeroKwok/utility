@@ -19,6 +19,10 @@ test: clean
 	@echo "Running tests..."
 	./bin/Release/utility_test.exe
 
+install: clean
+	@echo "Installing..."
+	conan create . --profile=profiles/${PROFILE} $(OPTIONS)
+
 clean:
 	@echo "Cleaning..."
 	rm -fr ./build
