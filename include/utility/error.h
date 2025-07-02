@@ -46,14 +46,10 @@ enum error
     kServerNotFound                      = 0xa2, //!< 服务不存在
 };
 
-class error_category : public std::error_category
+class UTILITY_API error_category : public std::error_category
 {
 public:
-    static error_category &instance()
-    {
-        static error_category _imp;
-        return _imp;
-    }
+    static error_category &instance();
 
     virtual const char *name() const noexcept {
         return "Error"; 
