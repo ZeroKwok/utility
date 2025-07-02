@@ -1,6 +1,6 @@
 # utility
 
-提供一些在日常开发中经常用到，但没有在 C++ 标准库以及 Boost 中提供的功能，或者一些特定于某个平台的扩展功能。
+Provides features that are commonly used in daily development but not in the C++ standard library or Boost, or platform-specific extensions.
 
 ## Requirements
 
@@ -15,15 +15,23 @@
 ```bash
 git clone https://github.com/ZeroKwok/utility.git
 cd utility
-conan install . --output-folder=build --build=missing --profile=profiles/msvc-142-x86
-cmake --build build
-cmake --install build
+make rebuild && make test
+make install
 ```
+
+Configuration and compile types can be specified at build time, for example:
+
+`make rebuild PROFILE=msvc-142-x86-mt DEBUG=1`
 
 ## How to use
 
+```cmake
+find_package(utility REQUIRED)
+target_link_libraries(${PROJECT_NAME} utility)
+```
+
 ```cpp
-#include <utility/utility.hpp>
+#include <utility/utility.h>
 
 int main()
 {
