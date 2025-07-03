@@ -8,6 +8,7 @@
 #define filesystem_file_h__
 
 #include "utility/config.h"
+#include <system_error>
 
 namespace UTILITY_NAMESPACE {
 namespace fs {
@@ -27,6 +28,8 @@ class UTILITY_API file
     file& operator=(const file&) = delete;
 public:
     file() noexcept;
+
+    // \note 会尝试关闭文件, 如果失败则会忽略错误, 因此重要场合应该总是显示关闭文件
     ~file() noexcept;
 
     /*!
@@ -48,8 +51,10 @@ public:
     /*!
      * \brief 显式关闭文件
      * \note 若文件无效则无操作
+     * \throws std::filesystem_error 无法关闭文件时抛出异常
      */
     void close();
+    void close(std::error_code& ec) noexcept;
 
     //! \brief 检查文件是否有效
     bool valid() const;

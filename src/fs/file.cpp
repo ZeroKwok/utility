@@ -11,25 +11,30 @@ namespace UTILITY_NAMESPACE {
 namespace fs {
 
 file::file() noexcept
-{}
-
-file::file(const fptr& f) noexcept
-    : _fd(f)
-{}
-
-file::~file() noexcept {
-    close();
+{
 }
 
-file::file(file&& right) noexcept 
-    : _fd(right._fd) 
+file::file(const fptr &f) noexcept
+    : _fd(f)
+{
+}
+
+file::~file() noexcept
+{
+    std::error_code ec;
+    close(ec); // ignore error
+}
+
+file::file(file &&right) noexcept
+    : _fd(right._fd)
 {
     right._fd = nullptr;
 }
 
-file& file::operator=(file&& right) noexcept
+file &file::operator=(file &&right) noexcept
 {
-    if(this != &right) {
+    if (this != &right)
+    {
         close();
         _fd = right._fd;
         right._fd = nullptr;
@@ -37,21 +42,38 @@ file& file::operator=(file&& right) noexcept
     return *this;
 }
 
-void file::close() {
-    if (valid())
-        fs::close(_fd);
+void file::close()
+{
+    std::error_code ec;
+    close(ec);
+    if (ec)
+        throw ec;
+}
+
+void file::close(std::error_code &ec) noexcept
+{
+    ec.clear();
+    if (!valid())
+        return;
+
+    fs::close(_fd, ec);
+    if (ec)
+        return;
     _fd = nullptr;
 }
 
-bool file::valid() const {
+bool file::valid() const
+{
     return _fd != nullptr;
 }
 
-file::operator bool() const {
+file::operator bool() const
+{
     return valid();
 }
 
-file::operator fptr() const {
+file::operator fptr() const
+{
     return _fd;
 }
 
