@@ -110,7 +110,8 @@ UTILITY_API fptr open(const path& name, int flag, std::error_code& error) noexce
 /*!
  *  \brief 关闭file指向的文件
  */
-UTILITY_API void close(const fptr& file) noexcept;
+UTILITY_API void close(const fptr& file);
+UTILITY_API void close(const fptr& file, std::error_code& error) noexcept;
 
 /*!
  *  \brief 读取文件, 无应用层缓冲的低级 I/O

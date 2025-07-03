@@ -52,12 +52,25 @@ fptr open(const path& name, int flag, std::error_code& error) noexcept
     return {};
 }
 
-void close(const fptr& file) noexcept
+void close(const fptr& file)
+{
+    std::error_code ecode;
+    close(file,  ecode);
+    if (ecode)
+        throw MakeFSError(ecode, "Unable to close file");
+}
+
+void close(const fptr& file, std::error_code& error) noexcept
 {
     if (file == nullptr)
         return;
 
-    _close(file);
+    auto c = _close(file);
+    if (c != 0)
+    {
+        error = MakeSysError(c);
+        return;
+    }
     delete file;
 }
 
