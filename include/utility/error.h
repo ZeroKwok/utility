@@ -36,7 +36,7 @@ enum error
 
     kFileNotFound                        = 0x41, //!< 文件未找到
     kFileIsMalformed                     = 0x42, //!< 文件损坏
-    kFileWasUsedByOtherProcesses         = 0x43, //!< 文件被其他进程使用
+    kFileBusy                            = 0x43, //!< 文件繁忙, 可能被其他进程使用
 
     kNetworkError                        = 0x81, //!< 网络错误
     kNetworkTimeout                      = 0x82, //!< 网络超时

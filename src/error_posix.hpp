@@ -12,7 +12,6 @@
 
 namespace UTILITY_NAMESPACE
 {
-
     std::error_code make_error_from_native(
         const int ecode,
         const std::filesystem::path &filename,
@@ -25,16 +24,77 @@ namespace UTILITY_NAMESPACE
 
         switch (ecode)
         {
+        case 0:
+            return make_error(kSucceed);
+            
         case EACCES:
+        case EPERM:
             return make_error(kPermissionError);
-
+            
         case EINTR:
             return make_error(kInterruptedError);
-
+            
         case EINVAL:
             return make_error(kInvalidParam);
+            
+        case ENOMEM:
+            return make_error(kMemoryError);
+            
+        case ENOSYS:
+        case ENOTSUP:
+            return make_error(kNotSupported);
+            
+        // Filesystem related errors
+        case EIO:
+            return make_error(kFilesystemIOError);
+            
+        case ENOENT:
+            return make_error(kFileNotFound);
+            
+        case ENAMETOOLONG:
+            return make_error(kFilesystemPathTooLong);
+            
+        case EROFS: // Read-only filesystem
+            return make_error(kFilesystemNotWritable);
+            
+        case ENOSPC:
+            return make_error(kFilesystemNoSpace);
 
-            // TODO
+        case EFBIG:
+            return make_error(kFilesystemNotSupportLargeFiles);
+            
+        case EBUSY:
+            return make_error(kFileBusy);
+            
+        case ELOOP:
+            return make_error(kFilesystemError);
+            
+        // Network related errors
+        case ETIMEDOUT:
+            return make_error(kNetworkTimeout);
+            
+        case ECONNREFUSED:
+        case EHOSTUNREACH:
+        case ENETUNREACH:
+            return make_error(kNetworkError);
+            
+        case ECONNRESET:
+        case EPIPE:
+            return make_error(kNetworkIOError);
+
+        // Server related errors
+        case EHOSTDOWN:
+            return make_error(kServerError);
+            
+        case EADDRNOTAVAIL:
+            return make_error(kServerNotFound);
+            
+        case EISDIR:
+        case ENOTDIR:
+        case ENOTEMPTY:
+        case EMFILE:
+        case ENFILE:
+            return make_error(kFilesystemError);
         }
 
         return make_error(defaultCode);
