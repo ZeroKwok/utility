@@ -31,6 +31,11 @@ struct _file
     int flags = 0;
     HANDLE fd = INVALID_HANDLE_VALUE;
 };
+#else
+struct _file
+{
+    int fd = -1;
+};
 #endif
 
 } // fs
