@@ -131,34 +131,33 @@ size read(const fptr& file, char* data, int size, std::error_code& error) noexce
         return 0;
     }
 
-    // https://linux.die.net/man/2/read
-    //
-    // 如果成功，则返回读取的字节数（0表示文件结束）。
-    // 发生错误时，返回-1，并设置errno
-    //
-    // 返回值小于请求的字节数，不会出错, 这可能发生在到达文件末尾 EOF 或者文件被信号中断。
-
-    int bytes = retry_on_intr(::read, file->fid, data, static_cast<size_t>(size));
-    if (bytes == -1) {
-        error = MakeSysError(errno);
-        return 0;
-    }
-
-    // 数据小于请求的字节数, 防止被信号中断因此还需要再次读取, 直到明确到达EOF
-    while (bytes > 0 && bytes < size)
+    size_t result = 0;
+    size_t readBytes = 0;
+    do
     {
-        auto r = retry_on_intr(::read, file->fid, data + bytes, static_cast<size_t>(size - bytes));
-        if (r == 0)
-            return bytes;
-        else if (r == -1) {
-            error = MakeSysError(errno);
-            return bytes;
-        }
+        size_t wantedBytes = size - readBytes;
+        size_t chunkSize = 0x20000000;
+        if (chunkSize > wantedBytes)
+            chunkSize = wantedBytes;
 
-        bytes += r;
-    }
+        // https://linux.die.net/man/2/read
+        //
+        // 如果成功，则返回读取的字节数（0表示文件结束）。
+        // 发生错误时，返回-1，并设置errno
+        //
+        // 返回值小于请求的字节数，不会出错, 这可能发生在到达文件末尾 EOF 或者文件被信号中断。
+        // 数据小于请求的字节数, 防止被信号中断因此还需要再次读取, 直到明确到达EOF
 
-    return bytes;
+        result = ::read(file->fid, data + readBytes, chunkSize);
+    } 
+    while (result > 0 && (readBytes += result) < size);
+
+    if (result == 0) // EOF
+        return readBytes;
+    else if (result == -1)
+        error = MakeSysError(errno);
+
+    return readBytes;
 }
 
 size write(const fptr& file, const char *data, int size) 
