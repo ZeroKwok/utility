@@ -10,7 +10,7 @@
 #if OS_WIN
 #   include "error_win.hpp"
 #else
-#   include "error_posix.hpp"
+#   include "error_unix.hpp"
 #endif
 
 namespace UTILITY_NAMESPACE {

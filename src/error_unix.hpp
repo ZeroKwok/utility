@@ -4,8 +4,8 @@
 // For the full copyright and license information, please view the LICENSE
 // file that was distributed with this source code.
 
-#ifndef error_posix_h__
-#define error_posix_h__
+#ifndef error_unix_h__
+#define error_unix_h__
 
 #include <errno.h>
 #include "utility/error.h"
@@ -102,4 +102,4 @@ namespace UTILITY_NAMESPACE
 
 } // namespace UTILITY_NAMESPACE
 
-#endif // error_posix_h__
+#endif // error_unix_h__
