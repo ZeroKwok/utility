@@ -40,16 +40,16 @@ auto retry_on_intr(F&& f, Args&&... args)
 namespace UTILITY_NAMESPACE {
 namespace fs {
 
-fptr open(const path& name, int flag)
+fptr open(const path& name, int flag, int mode)
 {
     std::error_code ecode;
-    const auto& result = open(name, flag, ecode);
+    const auto& result = open(name, flag, mode, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Can't open the file", name);
     return result;
 }
 
-fptr open(const path& name, int flag, std::error_code& error) noexcept
+fptr open(const path& name, int flag, int mode, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -66,7 +66,7 @@ fptr open(const path& name, int flag, std::error_code& error) noexcept
         //
         // https://linux.die.net/man/2/open
 
-        auto fid = retry_on_intr(::open, name.string().c_str(), flag, 0644);
+        auto fid = retry_on_intr(::open, name.string().c_str(), flag, mode);
         if(fid == -1) // error
         {
             error = MakeSysError(errno);

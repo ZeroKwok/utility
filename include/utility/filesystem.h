@@ -98,14 +98,13 @@ typedef uint64_t      size;
  *  \param error 错误发生时, 将存储具体的错误信息(std::system_category).
  *  \return 失败返回 nullptr, 成功返回文件的不透明对象, 需要显示通过 file_close() 关闭文件.
  * 
- *  \note  1. 仅支持二进制模式(O_BINARY)
+ *  \note  1. 仅支持二进制模式(O_BINARY)、低级、无缓冲I/O.
  *         2. 如果 name 指向符号链接, 则将进一步解析指向的文件.
  *         3. 如果 没有 error 参数, 那么错误时将抛出异常(filesystem_error).
- *         4. 对于 POSIX 平台, 直接调用 open(), 默认创建权限采用 666;
- *         5. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
+ *         4. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
  */
-UTILITY_API fptr open(const path& name, int flag);
-UTILITY_API fptr open(const path& name, int flag, std::error_code& error) noexcept;
+UTILITY_API fptr open(const path& name, int flag, int mode);
+UTILITY_API fptr open(const path& name, int flag, int mode, std::error_code& error) noexcept;
 
 /*!
  *  \brief 关闭file指向的文件

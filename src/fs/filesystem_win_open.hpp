@@ -1,9 +1,3 @@
-// This file is part of the utility project.
-// Copyright (c) 2018-2025 zero <zero.kwok@foxmail.com>
-//
-// For the full copyright and license information, please view the LICENSE
-// file that was distributed with this source code.
-
 // #ifndef OS_WIN
 // #   define filesystem_win_open_h__
 // #endif
