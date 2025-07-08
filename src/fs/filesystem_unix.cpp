@@ -138,23 +138,19 @@ size read(const fptr& file, char* data, int size, std::error_code& error) noexce
         size_t wantedBytes = size - readBytes;
         size_t chunkSize = 0x20000000;
         if (chunkSize > wantedBytes)
-            chunkSize = wantedBytes;
-
-        // https://linux.die.net/man/2/read
-        //
-        // 如果成功，则返回读取的字节数（0表示文件结束）。
-        // 发生错误时，返回-1，并设置errno
-        //
-        // 返回值小于请求的字节数，不会出错, 这可能发生在到达文件末尾 EOF 或者文件被信号中断。
-        // 数据小于请求的字节数, 防止被信号中断因此还需要再次读取, 直到明确到达EOF
-
+        chunkSize = wantedBytes;
         result = ::read(file->fid, data + readBytes, chunkSize);
     } 
     while (result > 0 && (readBytes += result) < size);
+    
+    // https://linux.die.net/man/2/read
+    //
+    // 如果成功，则返回读取的字节数（0表示文件结束），发生错误时，返回-1，并设置errno
+    //
+    // 返回值小于请求的字节数，不会出错, 这可能发生在到达文件末尾 EOF 或者文件被信号中断。
+    // 数据小于请求的字节数, 防止被信号中断因此还需要再次读取, 直到明确到达EOF
 
-    if (result == 0) // EOF
-        return readBytes;
-    else if (result == -1)
+    if (result == -1 || (result != 0 && readBytes == 0))
         error = MakeSysError(errno);
 
     return readBytes;
@@ -178,10 +174,25 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
         return {};
     }
 
-    // TODO
-    error = make_error(kNotSupported);
+    size_t result = 0;
+    size_t wantedBytes = 0;
+    do
+    {
+        size_t wantedBytes = size - writtenBytes;
+        size_t chunkSize = 0x20000000;
+        if (chunkSize > wantedBytes)
+            chunkSize = wantedBytes;
+        result = ::write(file->fid, data + writtenBytes, chunkSize);
+    } while (result > 0 && (writtenBytes += result) < size);
 
-    return bytes;
+    // https://linux.die.net/man/3/write
+    //
+    // write() returns the number of bytes written, or -1 if an error occurred.
+
+    if (result == -1 || (size && writtenBytes == 0))
+        error = MakeSysError(errno);
+
+    return writtenBytes;
 }
 
 void seek(const fptr& file, size offset, int whence)
