@@ -244,8 +244,13 @@ size tell(const fptr& file, std::error_code& error) noexcept
         return {};
     }
 
-    // TODO
-    error = make_error(kNotSupported);
+    auto r = retry_on_intr(::lseek, file->fid, 0, SEEK_CUR);
+    if (pos == -1) {
+        error = MakeSysError(errno);
+        return -1;
+    }
+
+    return r;
 }
 
 size file_size(const fptr& file) {
@@ -265,9 +270,14 @@ size file_size(const fptr& file, std::error_code& error) noexcept
         return {};
     }
 
-    // TODO
-    error = make_error(kNotSupported);
-    return 0;
+    struct stat statbuf = { 0 };
+    auto r = retry_on_intr(::fstat, file->fid, &statbuf);
+    if (r == -1) {
+        error = MakeFSError(errno, "Unable to get the file size");
+        return {};
+    }
+
+    return statbuf.st_size;
 }
 
 ftime time(const fptr& file) 
