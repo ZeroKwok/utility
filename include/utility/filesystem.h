@@ -80,7 +80,7 @@ using std::filesystem::permissions;
  *  \brief 文件的不透明对象
  */
 typedef struct _file* fptr;
-typedef uint64_t      size;
+typedef int64_t       size;
 
 /*!
  *  \brief 打开或创建指定的文件
@@ -134,14 +134,15 @@ UTILITY_API size write(const fptr& file, const void *data, int size, std::error_
  *  \brief 设置文件指针
  * 
  *  \param file 文件句柄
- *  \param offset 文件指针相对于 whence 的偏移量, 支持大文件.
- *  \param whence 文件指针偏移量的参考位置, 取下列值之一:
+ *  \param offset 文件指针相对于 whence 的偏移位置（以字节为单位）, 支持大文件.
+ *  \param whence 文件指针偏移位置的参考点, 取下列值之一:
  *                1. SEEK_SET  = 0 文件的开始位置
  *                2. SEEK_CUR  = 1 文件指针的当前位置
  *                3. SEEK_END  = 2 文件的末尾
+ *  \return 返回新的从文件开始的偏移位置（以字节为单位）, 若发生错误则返回 -1.
  */
-UTILITY_API void seek(const fptr& file, size offset, int whence = SEEK_SET);
-UTILITY_API void seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept;
+UTILITY_API size seek(const fptr& file, size offset, int whence = SEEK_SET);
+UTILITY_API size seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept;
 
 /*!
  *  \brief 查询文件当前指针相对于文件开始位置的偏移量

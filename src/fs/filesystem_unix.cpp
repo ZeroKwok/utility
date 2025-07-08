@@ -195,25 +195,35 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
     return writtenBytes;
 }
 
-void seek(const fptr& file, size offset, int whence)
+size seek(const fptr& file, size offset, int whence)
 {
     std::error_code ecode;
-    seek(file, offset, whence, ecode);
+    auto r = seek(file, offset, whence, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to seek the file pointer");
+    return r;
 }
 
-void seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept
+size seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept
 {
     error.clear();
 
     if (file == nullptr) {
         error = MakeSysError(EINVAL);
-        return;
+        return -1;
     }
 
-    // TODO
-    error = make_error(kNotSupported);
+    // https://linux.die.net/man/2/lseek
+    // 
+    // lseek() returns the new position of the file pointer, or -1 if an error occurred.
+
+    auto r = retry_on_intr(::lseek, file->fid, offset, whence);
+    if (pos == -1) {
+        error = MakeSysError(errno);
+        return -1;
+    }
+
+    return r;
 }
 
 size tell(const fptr& file) 

@@ -128,27 +128,32 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
     return bytes;
 }
 
-void seek(const fptr& file, size offset, int whence)
+size seek(const fptr& file, size offset, int whence)
 {
     std::error_code ecode;
-    seek(file, offset, whence, ecode);
+    auto r = seek(file, offset, whence, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to seek the file pointer");
+    return r;
 }
 
-void seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept
+size seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept
 {
     error.clear();
 
     if (file == nullptr) {
         error = MakeSysError(ERROR_INVALID_PARAMETER);
-        return;
+        return -1;
     }
 
     __int64 offset_output;
     auto r = _lseeki64(file, offset, whence, offset_output);
-    if (r != 0) 
+    if (r != 0) {
         error = MakeSysError(r);
+        return -1;
+    }
+
+    return offset_output;
 }
 
 size tell(const fptr& file) 
