@@ -18,7 +18,6 @@ namespace UTILITY_NAMESPACE
 {
     namespace win
     {
-
         inline bool is_network_error(int ecode)
         {
             switch (ecode)
@@ -57,6 +56,53 @@ namespace UTILITY_NAMESPACE
             return false;
         }
 
+        enum fstype
+        {
+            None  = 0,
+            FAT   = 1,
+            FAT16 = 2,
+            FAT32 = 3,
+            exFAT = 4,
+            NTFS  = 5,
+            CDFS  = 6,
+            Other = 7
+        };
+
+        inline fstype filesystem_type(const std::filesystem::path& path, std::error_code& error)
+        {
+            auto root = path;
+            if (path.has_root_directory())
+                root = path.lexically_normal();
+            root = path.root_path();
+
+            std::wstring type(10, 0);
+            if (!GetVolumeInformationW(
+                root.wstring().c_str(), nullptr, 0, nullptr, nullptr, nullptr, 
+                &type[0], type.size()))
+            {
+                error = make_error_from_native(::GetLastError());
+                return None;
+            }
+
+            // FAT（FAT12\FAT16和FAT32）、NTFS、CDFS、exFAT、
+            // RAW、Ext、Btrfs、ZFS、HFS、 HFS+、ReiserFS、JFS、VMFS、XFS、UFS、VXFS、ReFS、WBFS、PFS
+            // 
+            if (type.starts_with(L"FAT16"))
+                return FAT16;
+            else if (type.starts_with(L"FAT32"))
+                return FAT32;
+            else if (type.starts_with(L"exFAT"))
+                return exFAT;
+            else if (type.starts_with(L"FAT"))
+                return FAT;
+            else if (type.starts_with(L"NTFS"))
+                return NTFS;    
+            else if (type.starts_with(L"CDFS"))
+                return CDFS;
+            else
+                return Other;
+        }
+
     } // namespace win
 
     std::error_code make_error_from_native(
@@ -70,19 +116,18 @@ namespace UTILITY_NAMESPACE
         {
             if (!filename.empty()) // 若文件名不为空, 则探测下是否是不支持大文件
             {
-#if 0
-            auto fstype = util::path_filesystem(filename);
-            if (fstype == util::FAT16 || fstype == util::FAT32)
-            {
-                namespace fs = std::filesystem;
-                auto fname = filename;
-                if (!fs::is_directory(fname))
-                    fname = fname.parent_path().lexically_normal();
-                fs::space_info space = fs::space(fname);
-                if (!ecode && space.free > 0x200000) // 2MB
-                    return make_error(kFilesystemNotSupportLargeFiles);
-            }
-#endif
+                std::error_code ec;
+                auto type = win::filesystem_type(filename, ec);
+                if (!ec && (type == win::FAT16 || type == win::FAT32))
+                {
+                    namespace fs = std::filesystem;
+                    auto path = filename;
+                    if (!fs::is_directory(path))
+                        path = path.parent_path().lexically_normal();
+                    fs::space_info space = fs::space(path, ec);
+                    if (!ec && space.free > 0x200000) // 2MB
+                        return make_error(kFilesystemNotSupportLargeFiles);
+                }
             }
 
             return make_error(kFilesystemNoSpace);
