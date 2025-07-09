@@ -238,7 +238,7 @@ bool path_is_writable(const path& path, std::error_code& error) noexcept
     auto file = dir / L".utility{2bcb023e-23f9-42f4-87f7-90d94005accb}";
     do
     {
-        close(open(file, O_WRONLY | O_CREAT, error));
+        close(open(file, O_WRONLY | O_CREAT, 0664, error));
         if (error) 
             break;
         remove(file, error);
