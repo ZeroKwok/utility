@@ -103,7 +103,7 @@ typedef int64_t       size;
  *         3. 如果 没有 error 参数, 那么错误时将抛出异常(filesystem_error).
  *         4. 对于 Windows 平台, 其通过 CreateFile() 模拟 POSIX open() 函数的行为.
  */
-UTILITY_API fptr open(const path& name, int flag, int mode);
+UTILITY_API fptr open(const path& name, int flag, int mode = 0664);
 UTILITY_API fptr open(const path& name, int flag, int mode, std::error_code& error) noexcept;
 
 /*!
