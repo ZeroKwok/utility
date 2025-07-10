@@ -8,20 +8,19 @@ cmake_minimum_required(VERSION 3.15)
 
 project(utility VERSION 0.3.0)
 
-# Build unit tests
-option(UTILITY_BUILD_TEST "Enable building unit tests" ON)
+option(UTILITY_BUILD_TEST           "Build unit tests" ON)
+option(UTILITY_BUILD_SHARED_LIB     "Build shared libraries" ON)
+option(UTILITY_BUILD_STATIC_RUNTIME "Link with static runtime" OFF)
+option(UTILITY_SUPPORT_BOOST        "Enable Boost support" ON)
+option(UTILITY_SUPPORT_QT           "Enable Qt support" OFF)
 
-# Build shared libraries
-option(UTILITY_BUILD_SHARED_LIB "Enable building shared libraries" ON)
-
-# Link runtime statically
-option(UTILITY_BUILD_STATIC_RUNTIME "Enable linking with runtime statically" OFF)
-
-# Enable Boost support
-option(UTILITY_SUPPORT_BOOST "Enable Boost support" ON)
-
-# Enable Qt support
-option(UTILITY_SUPPORT_QT "Enable Qt support" OFF)
+message(STATUS "Building Utility v${utility_VERSION}")
+message(STATUS "Build configuration:")
+message(STATUS "  Build tests ............ ${UTILITY_BUILD_TEST}")
+message(STATUS "  Build shared libs ...... ${UTILITY_BUILD_SHARED_LIB}")
+message(STATUS "  Static runtime ......... ${UTILITY_BUILD_STATIC_RUNTIME}")
+message(STATUS "  Boost support .......... ${UTILITY_SUPPORT_BOOST}")
+message(STATUS "  Qt support ............. ${UTILITY_SUPPORT_QT}")
 
 #
 # 配置项目环境
