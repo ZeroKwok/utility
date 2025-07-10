@@ -46,21 +46,21 @@ public:
 
 // Tests for open
 TEST_F(FileOperationsTest, OpenFileSuccess) {
-    fptr f = open(testFileName, O_RDWR | O_CREAT);
+    fptr f = open(testFileName, O_RDWR | O_CREAT, 0664);
     ASSERT_NE(f, nullptr);
     close(f);
 }
 
 TEST_F(FileOperationsTest, OpenFileFailure) {
     std::error_code ec;
-    fptr f = fs::open("/nonexistent/path/file.txt", O_RDWR | O_CREAT, ec);
+    fptr f = fs::open("/nonexistent/path/file.txt", O_RDWR | O_CREAT, 0664, ec);
     ASSERT_EQ(f, nullptr);
     ASSERT_TRUE(ec);
 }
 
 // Tests for close
 TEST_F(FileOperationsTest, CloseFile) {
-    fptr f = open(testFileName, O_RDWR | O_CREAT);
+    fptr f = open(testFileName, O_RDWR | O_CREAT, 0664);
     ASSERT_NE(f, nullptr);
     close(f);
     // No direct way to TEST_F close, but no exceptions should be thrown
@@ -76,7 +76,7 @@ TEST_F(FileOperationsTest, OpenReadOnly) {
     outfile.close();
 
     std::error_code ec;
-    auto testFile = open(testFileName, O_RDONLY, ec);
+    auto testFile = open(testFileName, O_RDONLY, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
 
@@ -98,7 +98,7 @@ TEST_F(FileOperationsTest, OpenReadOnly) {
 // Test open with O_WRONLY and O_CREAT
 TEST_F(FileOperationsTest, OpenWriteOnlyCreate) {
     std::error_code ec;
-    auto testFile = open(testFileName, O_WRONLY | O_CREAT, ec);
+    auto testFile = open(testFileName, O_WRONLY | O_CREAT, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
 
@@ -123,7 +123,7 @@ TEST_F(FileOperationsTest, OpenWriteOnlyCreate) {
 // Test open with O_RDWR and O_CREAT
 TEST_F(FileOperationsTest, OpenReadWriteCreate) {
     std::error_code ec;
-    auto testFile = open(testFileName, O_RDWR | O_CREAT, ec);
+    auto testFile = open(testFileName, O_RDWR | O_CREAT, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
 
@@ -150,12 +150,12 @@ TEST_F(FileOperationsTest, OpenReadWriteCreate) {
 TEST_F(FileOperationsTest, OpenAppend) {
     // First create the file
     std::error_code ec;
-    auto testFile = open(testFileName, O_WRONLY | O_CREAT, ec);
+    auto testFile = open(testFileName, O_WRONLY | O_CREAT, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     close(testFile);
 
     // Open the file in append mode
-    testFile = open(testFileName, O_WRONLY | O_APPEND, ec);
+    testFile = open(testFileName, O_WRONLY | O_APPEND, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
 
@@ -172,14 +172,14 @@ TEST_F(FileOperationsTest, OpenAppend) {
 TEST_F(FileOperationsTest, OpenTruncate) {
     // First create the file with some content
     std::error_code ec;
-    auto testFile = open(testFileName, O_WRONLY | O_CREAT, ec);
+    auto testFile = open(testFileName, O_WRONLY | O_CREAT, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     const char* data = "Initial content";
     write(testFile, data, strlen(data));
     close(testFile);
 
     // Open the file in truncate mode
-    testFile = open(testFileName, O_WRONLY | O_TRUNC, ec);
+    testFile = open(testFileName, O_WRONLY | O_TRUNC, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
 
@@ -190,7 +190,7 @@ TEST_F(FileOperationsTest, OpenTruncate) {
 
     // Verify the file is truncated
     char buffer[20];
-    testFile = open(testFileName, O_RDONLY, ec);
+    testFile = open(testFileName, O_RDONLY, 0664, ec);
     size bytesRead = read(testFile, buffer, sizeof(buffer), ec);
     EXPECT_EQ(bytesRead, 0);
     EXPECT_FALSE(ec);
@@ -202,13 +202,13 @@ TEST_F(FileOperationsTest, OpenTruncate) {
 TEST_F(FileOperationsTest, OpenExclusive) {
     // First create the file
     std::error_code ec;
-    auto testFile = open(testFileName, O_WRONLY | O_CREAT, ec);
+    auto testFile = open(testFileName, O_WRONLY | O_CREAT, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
     close(testFile);
 
     // Try to open the file exclusively
-    testFile = open(testFileName, O_WRONLY | O_CREAT | O_EXCL, ec);
+    testFile = open(testFileName, O_WRONLY | O_CREAT | O_EXCL, 0664, ec);
     EXPECT_EQ(testFile, nullptr);
     EXPECT_TRUE(ec);  // Expect file exists error
 }
@@ -216,7 +216,7 @@ TEST_F(FileOperationsTest, OpenExclusive) {
 // Test open with O_CREAT | O_EXCL for non-existent file
 TEST_F(FileOperationsTest, OpenCreateExclusiveNonExistent) {
     std::error_code ec;
-    auto testFile = open(testFileName, O_WRONLY | O_CREAT | O_EXCL, ec);
+    auto testFile = open(testFileName, O_WRONLY | O_CREAT | O_EXCL, 0664, ec);
     ASSERT_NE(testFile, nullptr);
     EXPECT_FALSE(ec);
 
