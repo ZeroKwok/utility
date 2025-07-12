@@ -14,7 +14,7 @@ namespace UTILITY_NAMESPACE
 {
     std::error_code make_error_from_native(
         const int ecode,
-        const std::filesystem::path &filename,
+        const std::filesystem::path &,
         const error defaultCode)
     {
         // errno 中的值只有在调用的返回值表示错误时, 才有意义(即，大多数系统调用返回 -1; 大多数库函数返回 -1 或 NULL);

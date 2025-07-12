@@ -70,11 +70,7 @@ namespace UTILITY_NAMESPACE
 
         inline fstype filesystem_type(const std::filesystem::path& path, std::error_code& error)
         {
-            auto root = path;
-            if (path.has_root_directory())
-                root = path.lexically_normal();
-            root = path.root_path();
-
+            auto root = path.lexically_normal().root_path();
             std::wstring type(10, 0);
             if (!GetVolumeInformationW(
                 root.wstring().c_str(), nullptr, 0, nullptr, nullptr, nullptr, 
@@ -87,18 +83,18 @@ namespace UTILITY_NAMESPACE
             // FAT（FAT12\FAT16和FAT32）、NTFS、CDFS、exFAT、
             // RAW、Ext、Btrfs、ZFS、HFS、 HFS+、ReiserFS、JFS、VMFS、XFS、UFS、VXFS、ReFS、WBFS、PFS
             // 
-            if (type.starts_with(L"FAT16"))
-                return FAT16;
+            if (type.starts_with(L"NTFS"))
+                return NTFS;
             else if (type.starts_with(L"FAT32"))
                 return FAT32;
-            else if (type.starts_with(L"exFAT"))
-                return exFAT;
+            else if (type.starts_with(L"FAT16"))
+                return FAT16;
             else if (type.starts_with(L"FAT"))
                 return FAT;
-            else if (type.starts_with(L"NTFS"))
-                return NTFS;    
             else if (type.starts_with(L"CDFS"))
                 return CDFS;
+            else if (type.starts_with(L"exFAT"))
+                return exFAT;
             else
                 return Other;
         }
@@ -112,9 +108,12 @@ namespace UTILITY_NAMESPACE
     {
         switch (ecode)
         {
-        case ERROR_DISK_FULL: // 磁盘空间不足或不支持大文件
+        case ERROR_SUCCESS:
+                return make_error(kSucceed);
+
+        case ERROR_DISK_FULL:       // 磁盘空间不足或不支持大文件
         {
-            if (!filename.empty()) // 若文件名不为空, 则探测下是否是不支持大文件
+            if (!filename.empty())  // 若文件名不为空, 则探测下是否是不支持大文件
             {
                 std::error_code ec;
                 auto type = win::filesystem_type(filename, ec);
@@ -123,8 +122,8 @@ namespace UTILITY_NAMESPACE
                     namespace fs = std::filesystem;
                     auto path = filename;
                     if (!fs::is_directory(path))
-                        path = path.parent_path().lexically_normal();
-                    fs::space_info space = fs::space(path, ec);
+                        path = path.lexically_normal().parent_path();
+                    auto space = fs::space(path, ec);
                     if (!ec && space.free > 0x200000) // 2MB
                         return make_error(kFilesystemNotSupportLargeFiles);
                 }
@@ -141,11 +140,11 @@ namespace UTILITY_NAMESPACE
             return make_error(kFileNotFound);
 
         case ERROR_WRONG_DISK:
-        case ERROR_FILE_INVALID:   // 文件所在的卷已被外部更改，因此打开的文件不再有效。
-        case ERROR_NO_SUCH_DEVICE: // 没有这样的设备, U 盘突然被拔出
+        case ERROR_FILE_INVALID:    // 文件所在的卷已被外部更改，因此打开的文件不再有效。
+        case ERROR_NO_SUCH_DEVICE:  // 没有这样的设备, U 盘突然被拔出
             return make_error(kFilesystemUnavailable);
 
-        case ERROR_INVALID_NAME: // 无效文件名, 语法无效或太长, 这里排除bug那么只剩下路径过长
+        case ERROR_INVALID_NAME:    // 无效文件名, 语法无效或太长, 这里排除bug那么只剩下路径过长
             return make_error(kFilesystemPathTooLong);
 
         default:

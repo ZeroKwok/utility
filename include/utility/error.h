@@ -74,7 +74,7 @@ inline std::error_code make_error(int ecode) {
 
 //! @brief 通过本地平台错误码创建错误码对象
 //! @param ecode 本地平台的错误码
-//! @param filename 如果是文件相关的错误, 则可以携带文件名, 这可以进一步探测错误原因
+//! @param filename 如果是文件相关的错误, 则可以携带文件名, 这可以进一步探测错误原因, 仅用于Windows平台.
 //! @param defaultCode 默认错误码
 //! @return 返回错误码对象
 UTILITY_API std::error_code make_error_from_native(
