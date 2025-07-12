@@ -17,7 +17,8 @@ build:
 
 test: clean
 	@echo "Running tests..."
-	./bin/Release/utility_test.exe
+	conan install . --output-folder=build --build=missing --profile=profiles/${PROFILE} $(OPTIONS) --options=utility/*:with_tests=True
+	conan build   . --output-folder=build --profile=profiles/${PROFILE} $(OPTIONS) --options=utility/*:with_tests=True
 
 install: clean
 	@echo "Installing..."

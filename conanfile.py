@@ -68,10 +68,10 @@ class UtilityRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
-        tc.variables["UTILITY_BUILD_SHARED_LIB"] = self.options.shared
-        tc.variables["UTILITY_SUPPORT_QT"] = self.options.with_qt
-        tc.variables["UTILITY_SUPPORT_BOOST"] = self.options.with_boost
-        tc.variables["UTILITY_BUILD_TEST"] = self.options.with_tests
+        tc.variables["UTILITY_BUILD_SHARED_LIB"] = 'ON' if self.options.shared else 'OFF'
+        tc.variables["UTILITY_SUPPORT_QT"] = 'ON' if self.options.with_qt else 'OFF'
+        tc.variables["UTILITY_SUPPORT_BOOST"] = 'ON' if self.options.with_boost else 'OFF'
+        tc.variables["UTILITY_BUILD_TEST"] = 'ON' if self.options.with_tests else 'OFF'
         tc.generate()
 
     def build(self):
