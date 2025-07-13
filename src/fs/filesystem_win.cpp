@@ -207,79 +207,89 @@ size file_size(const fptr& file, std::error_code& error) noexcept
     return 0;
 }
 
-ftime time(const fptr& file) 
+ftime file_time(const fptr& file) 
 {
     std::error_code ecode;
-    const auto& result = time(file, ecode);
+    const auto& result = file_time(file, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to get the file time");
     return result;
 }
 
-ftime time(const fptr& file, std::error_code& error) noexcept 
+inline file_time_type file_time_from(const FILETIME& t) noexcept {
+    return file_time_type{ file_time_type::duration{
+            (static_cast<int64_t>(t.dwHighDateTime) << 32) |
+             static_cast<int64_t>(t.dwLowDateTime) } };
+}
+
+inline FILETIME file_time_to(const std::optional<file_time_type> & t) {
+    if (!t)
+        return {};
+    int64_t tmp = t->time_since_epoch().count();
+    return *reinterpret_cast<const FILETIME*>(&tmp);
+}
+
+ftime file_time(const fptr& file, std::error_code& error) noexcept 
 {
     error.clear();
     
-    ftime ft = { -1, -1, -1, -1 };
-
     if (file == nullptr) {
         error = MakeSysError(ERROR_INVALID_PARAMETER);
-        return ft;
+        return {};
     }
+    //file_time_type{ file_time_type::duration{_Stats._Last_write_time} }
 
-    if (::GetFileTime(
-        file->fd,
-        (LPFILETIME)&ft.create_time,
-        (LPFILETIME)&ft.access_time,
-        (LPFILETIME)&ft.modify_time) == 0)
+    // FILETIME structure
+    // Contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+    // UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME: 0x019DB1DED53E8000
+    FILETIME ftCreate, ftAccess, ftWrite;
+    if (::GetFileTime(file->fd, &ftCreate, &ftAccess, &ftWrite) == 0)
     {
         error = MakeSysError(::GetLastError());
-        return ft;
+        return {};
     }
 
-    //  FILETIME structure
-    //  Contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
-    //  UNIX epoch (1970-01-01 00:00:00) expressed in Windows NT FILETIME: 0x019DB1DED53E8000
-    ft.create_time = (ft.create_time - 0x019DB1DED53E8000) / 10000000;
-    ft.access_time = (ft.access_time - 0x019DB1DED53E8000) / 10000000;
-    ft.modify_time = (ft.modify_time - 0x019DB1DED53E8000) / 10000000;
-
-    return ft;
+    return ftime{
+        file_time_from(ftWrite),
+        file_time_from(ftAccess),
+        file_time_from(ftCreate),
+    };
 }
 
-ftime time(const path& name) 
+ftime file_time(const path& name)
 {
     std::error_code ecode;
-    const auto& result = time(name, ecode);
+    const auto& result = file_time(name, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to get the file time", name);
     return result;
 }
 
-ftime time(const path& name, std::error_code& error) noexcept 
+ftime file_time(const path& name, std::error_code& error) noexcept
 {
     error.clear();
 
     if (name.empty()) {
         error = MakeSysError(ERROR_INVALID_PARAMETER);
-        return { -1, -1, -1, -1};
+        return {};
     }
 
-    auto f = _file {};
-    f.fd = ::CreateFileW(
+    auto fid = ::CreateFileW(
         name.c_str(),                       // lpFileName
         FILE_READ_ATTRIBUTES,               // dwDesiredAccess
-        FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                            // dwShareMode
         NULL,                               // lpSecurityAttributes
         OPEN_EXISTING,                      // dwCreationDisposition
         FILE_FLAG_BACKUP_SEMANTICS,         // dwFlagsAndAttributes
         NULL);                              // hTemplateFile
-    if (f.fd == INVALID_HANDLE_VALUE) {
+    if (fid == INVALID_HANDLE_VALUE) {
         error = MakeSysError(::GetLastError());
-        return { -1, -1, -1, -1};
+        return {};
     }
 
-    auto ft = time(&f, error);
+    _file f = { 0, fid };
+    auto ft = file_time(&f, error);
     if (::CloseHandle(f.fd)) {
         // nothing
     }
@@ -287,14 +297,14 @@ ftime time(const path& name, std::error_code& error) noexcept
     return ft;
 }
 
-void set_time(const fptr& file, const ftime& time) {
+void file_time(const fptr& file, const ftime& time) {
     std::error_code ecode;
-    set_time(file, time, ecode);
+    file_time(file, time, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to set the file time");
 }
 
-void set_time(const fptr& file, const ftime& time, std::error_code& error) noexcept 
+void file_time(const fptr& file, const ftime& time, std::error_code& error) noexcept
 {
     error.clear();
     if (file == nullptr) {
@@ -302,36 +312,32 @@ void set_time(const fptr& file, const ftime& time, std::error_code& error) noexc
         return;
     }
 
-    ftime ft = time;
-    if (ft.create_time != -1)
-        ft.create_time = ft.create_time * 10000000 + 0x019DB1DED53E8000;
-    if (ft.access_time != -1)
-        ft.access_time = ft.access_time * 10000000 + 0x019DB1DED53E8000;
-    if (ft.modify_time != -1)
-        ft.modify_time = ft.modify_time * 10000000 + 0x019DB1DED53E8000;
+    FILETIME ftTime[3] = {
+        file_time_to(time.creation),
+        file_time_to(time.last_access),
+        file_time_to(time.last_write),
+    };
 
     // If the function succeeds, the return value is nonzero.
     // If the function fails, the return value is zero. To get extended error information, 
     // call GetLastError.
-    if (::SetFileTime(
-        file->fd,
-        (const FILETIME*)&ft.create_time,
-        (const FILETIME*)&ft.access_time,
-        (const FILETIME*)&ft.modify_time) == 0)
-    {
+    if (::SetFileTime(file->fd, 
+        time.creation    ? &ftTime[0] : nullptr, 
+        time.last_access ? &ftTime[1] : nullptr, 
+        time.last_write  ? &ftTime[2] : nullptr) == 0) {
         error = MakeSysError(::GetLastError());
     }
 }
 
-void set_time(const path& name, const ftime& time) 
+void file_time(const path& name, const ftime& time)
 {
     std::error_code ecode;
-    set_time(name, time, ecode);
+    file_time(name, time, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to set the file time", name);
 }
 
-void set_time(const path& name, const ftime& time, std::error_code& error) noexcept 
+void file_time(const path& name, const ftime& time, std::error_code& error) noexcept
 {
     error.clear();
     if (name.empty()) {
@@ -339,21 +345,22 @@ void set_time(const path& name, const ftime& time, std::error_code& error) noexc
         return;
     }
 
-    auto f = _file {};
-    f.fd = ::CreateFileW(
+    auto fid = ::CreateFileW(
         name.c_str(),                       // lpFileName
         FILE_WRITE_ATTRIBUTES,              // dwDesiredAccess
-        FILE_SHARE_READ | FILE_SHARE_WRITE, // dwShareMode
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, 
+                                            // dwShareMode
         NULL,                               // lpSecurityAttributes
         OPEN_EXISTING,                      // dwCreationDisposition
         FILE_FLAG_BACKUP_SEMANTICS,         // dwFlagsAndAttributes
         NULL);                              // hTemplateFile
-    if (f.fd == INVALID_HANDLE_VALUE) {
+    if (fid == INVALID_HANDLE_VALUE) {
         error = MakeSysError(::GetLastError());
         return;
     }
 
-    set_time(&f, time, error);
+    _file f = { 0, fid };
+    file_time(&f, time, error);
     if (::CloseHandle(f.fd)) {
         return;
     }

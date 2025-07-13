@@ -16,6 +16,8 @@
 #include "fs/file.h"
 #include "fs/path.h"
 
+#include <optional>
+#include <filesystem>
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -152,45 +154,41 @@ UTILITY_API size tell(const fptr& file, std::error_code& error) noexcept;
 
 /*!
  *  \brief 查询文件的大小
- *  \see std::filesystem::file_size()
+ *  \see  参考: std::filesystem::file_size()
  */
 UTILITY_API size file_size(const fptr& file);
 UTILITY_API size file_size(const fptr& file, std::error_code& error) noexcept;
 
 /*!
  *  \brief 文件时间
- * 
- *  \note  1. 使用 epoch 时间戳, 单位是秒, 即 UTC 1970-01-01 00:00:00 到现在的秒数.
- *         2. 由于在某些 Unix-Like 系统中没有文件创建时间, 取而代之的是文件状态改变时间, 
- *            故在此类系统上 create_time 无效, 无效时间将被设置为 -1.
  */
 struct ftime
 {
-    int64_t create_time;   //!< 创建时间, 在不支持创建时间的平台上为 -1.
-    int64_t access_time;   //!< 访问时间
-    int64_t modify_time;   //!< 修改时间
-    int64_t change_time;   //!< 改变时间, 仅 Unix-Like 平台有效, 否则为 -1.
+    std::optional<file_time_type> last_write;  // 最后修改时间
+    std::optional<file_time_type> last_access; // 最后访问时间
+    std::optional<file_time_type> creation;    // 创建时间(如果支持)
+    std::optional<file_time_type> status;      // 状态改变时间(如果支持)
 };
 
 /*!
- *  \brief 返回文件时间
- * 
- *  \see   file_time(const path& name).
+ *  \brief 返回指定文件的文件时间
+ *  \note  跟随符号链接
+ *  \see   std::filesystem::file_time_type
  */
-UTILITY_API ftime time(const fptr& file);
-UTILITY_API ftime time(const fptr& file, std::error_code& error) noexcept;
-UTILITY_API ftime time(const path& name);
-UTILITY_API ftime time(const path& name, std::error_code& error) noexcept;
+UTILITY_API ftime file_time(const fptr& file);
+UTILITY_API ftime file_time(const fptr& file, std::error_code& error) noexcept;
+UTILITY_API ftime file_time(const path& filename);
+UTILITY_API ftime file_time(const path& filename, std::error_code& error) noexcept;
 
 /*!
  *  \brief 设置文件时间
- * 
- *  \see   set_time(const path& name, const ftime& time).
+ *  \note  跟随符号链接
+ *  \see   std::filesystem::last_write_time
  */
-UTILITY_API void set_time(const fptr& file, const ftime& time);
-UTILITY_API void set_time(const fptr& file, const ftime& time, std::error_code& error) noexcept;
-UTILITY_API void set_time(const path& name, const ftime& time);
-UTILITY_API void set_time(const path& name, const ftime& time, std::error_code& error) noexcept;
+UTILITY_API void file_time(const fptr& file, const ftime& time);
+UTILITY_API void file_time(const fptr& file, const ftime& time, std::error_code& error) noexcept;
+UTILITY_API void file_time(const path& filename, const ftime& time);
+UTILITY_API void file_time(const path& filename, const ftime& time, std::error_code& error) noexcept;
 
 /*!
  *  \brief 返回当前进程对 name 指向的文件是否可写
