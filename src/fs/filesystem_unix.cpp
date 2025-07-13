@@ -37,6 +37,21 @@ auto retry_on_intr(F&& f, Args&&... args)
     }
 }
 
+template <typename F, typename P>
+inline struct stat stat_no_intr(F&& f, P&& p, std::error_code& error) noexcept 
+{
+    // 
+    // https://linux.die.net/man/2/fstat
+    struct stat statbuf = { 0 };
+    auto r = retry_on_intr(std::forward<F>(f), std::forward<P>(p), &statbuf);
+    if (r == -1) {
+        error = UTILITY_NAMESPACE::fs::MakeFSError(errno, "Unable to get the file state");
+        return {};
+    }
+
+    return statbuf;
+}
+
 namespace UTILITY_NAMESPACE {
 namespace fs {
 
@@ -66,7 +81,7 @@ fptr open(const path& name, int flag, int mode, std::error_code& error) noexcept
         //
         // https://linux.die.net/man/2/open
 
-        auto fid = retry_on_intr(::open, name.string().c_str(), flag, mode);
+        auto fid = retry_on_intr(::open, name.c_str(), flag, mode);
         if(fid == -1) // error
         {
             error = MakeSysError(errno);
@@ -270,75 +285,103 @@ size file_size(const fptr& file, std::error_code& error) noexcept
         return {};
     }
 
-    struct stat statbuf = { 0 };
-    auto r = retry_on_intr(::fstat, file->fid, &statbuf);
-    if (r == -1) {
-        error = MakeFSError(errno, "Unable to get the file size");
+    struct stat statbuf = fstat_no_intr(::fstat, file->fid, error);
+    if (error)
         return {};
-    }
-
     return statbuf.st_size;
 }
 
-ftime time(const fptr& file) 
+ftime file_time(const fptr& file) 
 {
     std::error_code ecode;
-    const auto& result = time(file, ecode);
+    const auto& result = file_time(file, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to get the file time");
     return result;
 }
 
-ftime time(const fptr& file, std::error_code& error) noexcept 
+inline file_time_type from_time_t(std::time_t t)
 {
-    error.clear();
-    
-    ftime ft = { -1, -1, -1, -1 };
-
-    if (file == nullptr) {
-        error = MakeSysError(EINVAL);
-        return ft;
-    }
-
-    // TODO
-    error = make_error(kNotSupported);
-
-    return ft;
+    return std::chrono::clock_cast<file_time_type::clock>(
+        std::chrono::system_clock::from_time_t(t));
 }
 
-ftime time(const path& name) 
+inline std::time_t to_time_t(const file_time_type& t)
+{
+    return std::chrono::clock_cast<std::chrono::system_clock>(t).to_time_t();
+}
+
+inline void to_timespec(const file_time_type& t, struct timespec& times)
+{
+    times.tv_nsec = UTIME_OMIT;
+    times.tv_sec = std::chrono::clock_cast<std::chrono::system_clock>(t).to_time_t();
+}
+
+ftime file_time(const fptr& file, std::error_code& error) noexcept 
+{
+    error.clear();
+    if (file == nullptr) {
+        error = MakeSysError(EINVAL);
+        return {};
+    }
+
+    struct stat statbuf = stat_no_intr(::fstat, file->fid, error);
+    if (error)
+        return {};
+
+    return ftime{
+        from_time_t(statbuf.st_mtime),
+        from_time_t(statbuf.st_atime),
+#ifdef HAVE_ST_BIRTHTIME
+        ft.create_time = statbuf.st_birthtime,
+#else
+        {},
+#endif
+        from_time_t(statbuf.st_ctime),
+    };
+}
+
+ftime file_time(const path& name) 
 {
     std::error_code ecode;
-    const auto& result = time(name, ecode);
+    const auto& result = file_time(name, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to get the file time", name);
     return result;
 }
 
-ftime time(const path& name, std::error_code& error) noexcept 
+ftime file_time(const path& name, std::error_code& error) noexcept 
 {
     error.clear();
-
     if (name.empty()) {
         error = MakeSysError(EINVAL);
-        return { -1, -1, -1, -1};
+        return {};
     }
 
-    // TODO
-    error = make_error(kNotSupported); // nothing
-    }
+    struct stat statbuf = stat_no_intr(::stat, name.c_str(), error);
+    if (error)
+        return {};
 
-    return ft;
+    return ftime{
+        from_time_t(statbuf.st_mtime),
+        from_time_t(statbuf.st_atime),
+#ifdef HAVE_ST_BIRTHTIME
+        from_time_t(statbuf.st_birthtime),
+#else
+        {},
+#endif
+        from_time_t(statbuf.st_ctime),
+    };
 }
 
-void set_time(const fptr& file, const ftime& time) {
+void file_time(const fptr& file, const ftime& time) {
     std::error_code ecode;
-    set_time(file, time, ecode);
+    file_time(file, time, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to set the file time");
 }
 
-void set_time(const fptr& file, const ftime& time, std::error_code& error) noexcept 
+void file_time(const fptr& file, const ftime& time, std::error_code& error) noexcept 
 {
     error.clear();
     if (file == nullptr) {
@@ -346,19 +389,29 @@ void set_time(const fptr& file, const ftime& time, std::error_code& error) noexc
         return;
     }
 
-    // TODO
-    error = make_error(kNotSupported);
+    struct timespec times[2] = { 0 };
+    if (t.last_access)
+        to_timespec(t.last_access, times[0]);
+    if (t.last_write)
+        to_timespec(t.last_write, times[1]);
+
+    // 
+    // https://linux.die.net/man/2/utimensat
+
+    if (::futimens(file->fid, times) == -1)  {
+        error = MakeFSError(errno, "Can't set file time, futimens() failed.");
+    }
 }
 
-void set_time(const path& name, const ftime& time) 
+void file_time(const path& name, const ftime& time) 
 {
     std::error_code ecode;
-    set_time(name, time, ecode);
+    file_time(name, time, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to set the file time", name);
 }
 
-void set_time(const path& name, const ftime& time, std::error_code& error) noexcept 
+void file_time(const path& name, const ftime& time, std::error_code& error) noexcept 
 {
     error.clear();
     if (name.empty()) {
@@ -366,8 +419,18 @@ void set_time(const path& name, const ftime& time, std::error_code& error) noexc
         return;
     }
 
-    // TODO
-    error = make_error(kNotSupported);
+    struct timespec times[2] = { 0 };
+    if (t.last_access)
+        to_timespec(t.last_access, times[0]);
+    if (t.last_write)
+        to_timespec(t.last_write, times[1]);
+
+    // 
+    // https://linux.die.net/man/2/utimensat
+
+    if (::utimensat(AT_FDCWD, name.c_str(), times, 0) != 0)  {
+        error = MakeFSError(errno, "Can't set file time, utimensat() failed.");
+    }
 }
 
 bool is_writable(const path& name) 
