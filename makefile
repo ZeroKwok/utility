@@ -1,10 +1,9 @@
 .PHONY: rebuild build clean test
 
 PROFILE ?= msvc-142-x86
+OPTIONS := --settings=build_type=$(if $(DEBUG),Debug,Release)
 
-ifdef DEBUG
-	OPTIONS := --settings=build_type=Debug
-endif
+OPTIONS_WITH_OPTIONS := --settings=build_type=Debug --options=utility/*:with_tests=True
 
 rebuild: clean
 	@echo "Rebuilding ${PROFILE} ..."
@@ -17,8 +16,8 @@ build:
 
 test: clean
 	@echo "Running tests..."
-	conan install . --output-folder=build --build=missing --profile=profiles/${PROFILE} $(OPTIONS) --options=utility/*:with_tests=True
-	conan build   . --output-folder=build --profile=profiles/${PROFILE} $(OPTIONS) --options=utility/*:with_tests=True
+	conan install . --output-folder=build --build=missing --profile=profiles/${PROFILE} $(OPTIONS_WITH_OPTIONS)
+	conan build   . --output-folder=build --profile=profiles/${PROFILE} $(OPTIONS_WITH_OPTIONS)
 
 install: clean
 	@echo "Installing..."
