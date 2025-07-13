@@ -55,41 +55,29 @@ TEST(ErrorTest, MakeErrorFromNativeBasic)
     // For example, on Windows you might test ERROR_FILE_NOT_FOUND mapping to kFileNotFound
 }
 
-#if 0
 TEST(ErrorTest, FilesystemErrorMapping)
 {
     namespace fs = std::filesystem;
 
     // Test filesystem error mapping (simulated)
     // Note: Actual implementation would need platform-specific error codes
-    auto ec1 = make_error_from_native(
-        /* some platform's ENOSPC equivalent */,
-        fs::path("/dummy"),
-        kFilesystemError);
+#if OS_WIN
+    int code = ERROR_DISK_FULL, code2 = ERROR_PATH_NOT_FOUND;
+#else
+    int code = ENOSPC, code2 = ENOENT;
+#endif
 
-    EXPECT_TRUE(ec1 == kFilesystemNoSpace || ec1 == kFilesystemError);
+    auto ec1 = make_error_from_native(code, 
+        path_from_module_dir(), kFilesystemError);
+    EXPECT_TRUE(ec1.value() == kFilesystemNoSpace || ec1.value() == kFilesystemNotSupportLargeFiles);
 
     auto ec2 = make_error_from_native(
-        /* some platform's EACCES equivalent */,
-        fs::path("/protected"),
+        code2,
+        {},
         kFilesystemError);
 
-    EXPECT_TRUE(ec2 == kFilesystemNotWritable ||
-                ec2 == kFilesystemNotAccessible ||
-                ec2 == kPermissionError);
+    EXPECT_TRUE(ec2.value() == kFileNotFound);
 }
-
-TEST(ErrorTest, NetworkErrorMapping)
-{
-    // Test network error mapping (simulated)
-    auto ec1 = make_error_from_native(
-        /* some platform's ETIMEDOUT equivalent */,
-        {},
-        kNetworkError);
-
-    EXPECT_TRUE(ec1 == kNetworkTimeout || ec1 == kNetworkError);
-}
-#endif
 
 TEST(ErrorTest, ErrorCodeUsageWithSTL)
 {

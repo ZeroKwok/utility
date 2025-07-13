@@ -1,4 +1,5 @@
 #include <fstream>
+#include <string_view>
 #include "gtest/gtest.h"
 #include "utility/string.h"
 #include "utility/filesystem.h"
@@ -34,7 +35,20 @@ TEST(PathFromQStringTest, ValidQString) {
 TEST(PathFromModuleTest, DefaultModule) {
     path result = path_from_module();
     EXPECT_FALSE(result.empty());
-    EXPECT_EQ(result.filename().string(), "utility_test.exe");
+
+    auto filename = result.filename().string();
+    std::vector<std::string_view> files = {
+#if OS_WIN
+        "utility_test.exe", "utility_testd.exe"
+#else
+        "utility_test", "utility_testd"
+#endif
+    };
+    auto matched = std::any_of(files.begin(), files.end(),
+        [&](const std::string_view& item) {
+            return item == filename;
+        });
+    EXPECT_TRUE(matched);
 }
 
 TEST(PathFromModuleTest, ModuleWithError) {
