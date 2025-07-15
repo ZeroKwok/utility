@@ -248,6 +248,11 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 // https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B
 // https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170
 // 
+
+                                   // _MSC_VER == 1943 (Visual Studio 2022 version 17.13.6   MSVC++ 14.43)
+#   define  __MSVC_144       1940  // _MSC_VER == 1940 (Visual Studio 2022 version 17.10.1   MSVC++ 14.40)
+
+                                   // _MSC_VER == 1939 (Visual Studio 2022 version 17.9.6    MSVC++ 14.39)
                                    // _MSC_VER == 1932 (Visual Studio 2022 version 17.2      MSVC++ 14.32)
                                    // _MSC_VER == 1931 (Visual Studio 2022 version 17.1      MSVC++ 14.31)
 #   define  __MSVC_143       1930  // _MSC_VER == 1930 (Visual Studio 2022 RTW (17.0)        MSVC++ 14.30)
@@ -255,20 +260,9 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
                                    // _MSC_VER == 1929 (Visual Studio 2019 Version 16.10/11  MSVC++ 14.29)
                                    // _MSC_VER == 1928 (Visual Studio 2019 Version 16.8/9    MSVC++ 14.28)
                                    // _MSC_VER == 1927 (Visual Studio 2019 Version 16.7      MSVC++ 14.27)
-                                   // 
-                                   // _MSC_VER == 1926 (Visual Studio 2019 Version 16.6 MSVC++ 14.26)
-                                   // _MSC_VER == 1925 (Visual Studio 2019 Version 16.5 MSVC++ 14.25)
-                                   // _MSC_VER == 1924 (Visual Studio 2019 Version 16.4 MSVC++ 14.24)
-                                   // _MSC_VER == 1923 (Visual Studio 2019 Version 16.3 MSVC++ 14.23)
-                                   // _MSC_VER == 1922 (Visual Studio 2019 Version 16.2 MSVC++ 14.22)
                                    // _MSC_VER == 1921 (Visual Studio 2019 Version 16.1 MSVC++ 14.21)
 
 #   define  __MSVC_142       1920  // _MSC_VER == 1920 (Visual Studio 2019 Version 16.0 MSVC++ 14.20)
-
-                                   // _MSC_VER == 1916 (Visual Studio 2017 version 15.9 MSVC++ 14.16)
-                                   // _MSC_VER == 1915 (Visual Studio 2017 version 15.8 MSVC++ 14.15)
-                                   // _MSC_VER == 1914 (Visual Studio 2017 version 15.7 MSVC++ 14.14)
-                                   // _MSC_VER == 1913 (Visual Studio 2017 version 15.6 MSVC++ 14.13)
                                    // _MSC_VER == 1912 (Visual Studio 2017 version 15.5 MSVC++ 14.12)
                                    // _MSC_VER == 1911 (Visual Studio 2017 version 15.3 MSVC++ 14.11)
 
