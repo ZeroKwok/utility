@@ -103,9 +103,18 @@ configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h.in" 
     "${CMAKE_BINARY_DIR}/config.h.tmp")
 
+find_package(Python3 COMPONENTS Interpreter)
+if(NOT Python3_FOUND)
+    if (WIN32)
+        set(Python3_EXECUTABLE python)
+    else()
+        set(Python3_EXECUTABLE python3)
+    endif()
+endif()
+
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h
-    COMMAND python ./scripts/git-build-gen.py "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h"
+    COMMAND ${Python3_EXECUTABLE} ./scripts/git-build-gen.py "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h"
     DEPENDS "${CMAKE_BINARY_DIR}/config.h.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/git-build-gen.py"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 list(APPEND SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/config.h)
@@ -117,7 +126,7 @@ if(MSVC AND UTILITY_BUILD_SHARED_LIB)
         "${CMAKE_BINARY_DIR}/resource.rc.tmp")
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc
-        COMMAND python ./scripts/git-build-gen.py "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc"
+        COMMAND ${Python3_EXECUTABLE} ./scripts/git-build-gen.py "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc"
         DEPENDS "${CMAKE_BINARY_DIR}/resource.rc.tmp" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/git-build-gen.py"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     list(APPEND SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/resource.rc)
