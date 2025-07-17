@@ -18,12 +18,20 @@
 #   error "Please define only one of UTILITY_BUILD_SHARED_LIB or UTILITY_USING_SHARED_LIB"
 #endif
 
-#if defined(UTILITY_BUILD_SHARED_LIB)
-#   define UTILITY_API __declspec(dllexport)          // build shared lib
-#elif defined(UTILITY_USING_STATIC_LIB) || defined(UTILITY_BUILD_STATIC_LIB)
-#   define UTILITY_API                                // build or using static lib
+#if COMPILER_MSVC
+#   if defined(UTILITY_BUILD_SHARED_LIB)
+#      define UTILITY_API __declspec(dllexport)          // build shared lib
+#   elif defined(UTILITY_USING_STATIC_LIB) || defined(UTILITY_BUILD_STATIC_LIB)
+#      define UTILITY_API                                // build or using static lib
+#   else
+#      define UTILITY_API __declspec(dllimport)          // using shared lib
+#   endif
 #else
-#   define UTILITY_API __declspec(dllimport)          // using shared lib
+#   if defined(UTILITY_BUILD_SHARED_LIB)
+#       define UTILITY_API __attribute__((visibility("default")))
+#   else
+#       define UTILITY_API
+#   endif
 #endif
 
 #ifndef UTILITY_NAMESPACE
