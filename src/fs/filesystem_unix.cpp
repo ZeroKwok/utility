@@ -9,9 +9,14 @@
 
 #ifdef OS_POSIX
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
+
+#include <chrono>
+#include <filesystem>
 
 /**
  * @brief 包装系统调用，在遇到 EINTR 时自动重试
@@ -38,18 +43,16 @@ auto retry_on_intr(F&& f, Args&&... args)
 }
 
 template <typename F, typename P>
-inline struct stat stat_no_intr(F&& f, P&& p, std::error_code& error) noexcept 
+inline struct stat stat_no_intr(F &&f, P &&p, std::error_code &error) noexcept
 {
-    // 
-    // https://linux.die.net/man/2/fstat
-    struct stat statbuf = { 0 };
+    struct stat statbuf = {};
     auto r = retry_on_intr(std::forward<F>(f), std::forward<P>(p), &statbuf);
-    if (r == -1) {
-        error = UTILITY_NAMESPACE::fs::MakeFSError(errno, "Unable to get the file state");
+    if (r == -1)
+    {
+        error = UTILITY_NAMESPACE::fs::MakeSysError(errno);
         return {};
     }
-
-    return statbuf;
+    return std::move(statbuf);
 }
 
 namespace UTILITY_NAMESPACE {
@@ -111,17 +114,17 @@ void close(const fptr& file, std::error_code& error) noexcept
     if (file == nullptr)
         return;
 
-    if (retry_on_intr(::fsync, file->fid) == -1)
+    if (retry_on_intr(::fsync, file->fd) == -1)
     {
-        error = MakeSysError(errno, kFilesystemError);
+        error = MakeSysError(errno);
         return;
     }
 
     // 
     // https://linux.die.net/man/2/close
-    if (retry_on_intr(::close, file->fid) == -1)
+    if (retry_on_intr(::close, file->fd) == -1)
     {
-        error = MakeSysError(errno, kFilesystemError);
+        error = MakeSysError(errno);
         return;
     }
 
@@ -154,7 +157,7 @@ size read(const fptr& file, char* data, int size, std::error_code& error) noexce
         size_t chunkSize = 0x20000000;
         if (chunkSize > wantedBytes)
         chunkSize = wantedBytes;
-        result = ::read(file->fid, data + readBytes, chunkSize);
+        result = ::read(file->fd, data + readBytes, chunkSize);
     } 
     while (result > 0 && (readBytes += result) < size);
     
@@ -190,14 +193,14 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
     }
 
     size_t result = 0;
-    size_t wantedBytes = 0;
+    size_t writtenBytes = 0;
     do
     {
         size_t wantedBytes = size - writtenBytes;
         size_t chunkSize = 0x20000000;
         if (chunkSize > wantedBytes)
             chunkSize = wantedBytes;
-        result = ::write(file->fid, data + writtenBytes, chunkSize);
+        result = ::write(file->fd, static_cast<const char*>(data) + writtenBytes, chunkSize);
     } while (result > 0 && (writtenBytes += result) < size);
 
     // https://linux.die.net/man/3/write
@@ -232,8 +235,8 @@ size seek(const fptr& file, size offset, int whence, std::error_code& error) noe
     // 
     // lseek() returns the new position of the file pointer, or -1 if an error occurred.
 
-    auto r = retry_on_intr(::lseek, file->fid, offset, whence);
-    if (pos == -1) {
+    auto r = retry_on_intr(::lseek, file->fd, offset, whence);
+    if (r == -1) {
         error = MakeSysError(errno);
         return -1;
     }
@@ -259,8 +262,8 @@ size tell(const fptr& file, std::error_code& error) noexcept
         return {};
     }
 
-    auto r = retry_on_intr(::lseek, file->fid, 0, SEEK_CUR);
-    if (pos == -1) {
+    auto r = retry_on_intr(::lseek, file->fd, 0, SEEK_CUR);
+    if (r == -1) {
         error = MakeSysError(errno);
         return -1;
     }
@@ -279,13 +282,12 @@ size file_size(const fptr& file) {
 size file_size(const fptr& file, std::error_code& error) noexcept 
 {
     error.clear();
-
     if (file == nullptr) {
         error = MakeSysError(EINVAL);
         return {};
     }
 
-    struct stat statbuf = fstat_no_intr(::fstat, file->fid, error);
+    auto statbuf = stat_no_intr(::fstat, file->fd, error);
     if (error)
         return {};
     return statbuf.st_size;
@@ -308,13 +310,14 @@ inline file_time_type from_time_t(std::time_t t)
 
 inline std::time_t to_time_t(const file_time_type& t)
 {
-    return std::chrono::clock_cast<std::chrono::system_clock>(t).to_time_t();
+    return std::chrono::system_clock::to_time_t(
+        std::chrono::clock_cast<std::chrono::system_clock>(t));
 }
 
 inline void to_timespec(const file_time_type& t, struct timespec& times)
 {
     times.tv_nsec = UTIME_OMIT;
-    times.tv_sec = std::chrono::clock_cast<std::chrono::system_clock>(t).to_time_t();
+    times.tv_sec = to_time_t(t);
 }
 
 ftime file_time(const fptr& file, std::error_code& error) noexcept 
@@ -325,7 +328,7 @@ ftime file_time(const fptr& file, std::error_code& error) noexcept
         return {};
     }
 
-    struct stat statbuf = stat_no_intr(::fstat, file->fid, error);
+    struct stat statbuf = stat_no_intr(::fstat, file->fd, error);
     if (error)
         return {};
 
@@ -390,16 +393,16 @@ void file_time(const fptr& file, const ftime& time, std::error_code& error) noex
     }
 
     struct timespec times[2] = { 0 };
-    if (t.last_access)
-        to_timespec(t.last_access, times[0]);
-    if (t.last_write)
-        to_timespec(t.last_write, times[1]);
+    if (time.last_access)
+        to_timespec(*time.last_access, times[0]);
+    if (time.last_write)
+        to_timespec(*time.last_write, times[1]);
 
     // 
     // https://linux.die.net/man/2/utimensat
 
-    if (::futimens(file->fid, times) == -1)  {
-        error = MakeFSError(errno, "Can't set file time, futimens() failed.");
+    if (::futimens(file->fd, times) == -1)  {
+        error = MakeSysError(errno);
     }
 }
 
@@ -420,16 +423,16 @@ void file_time(const path& name, const ftime& time, std::error_code& error) noex
     }
 
     struct timespec times[2] = { 0 };
-    if (t.last_access)
-        to_timespec(t.last_access, times[0]);
-    if (t.last_write)
-        to_timespec(t.last_write, times[1]);
+    if (time.last_access)
+        to_timespec(*time.last_access, times[0]);
+    if (time.last_write)
+        to_timespec(*time.last_write, times[1]);
 
     // 
     // https://linux.die.net/man/2/utimensat
 
     if (::utimensat(AT_FDCWD, name.c_str(), times, 0) != 0)  {
-        error = MakeFSError(errno, "Can't set file time, utimensat() failed.");
+        error = MakeSysError(errno);
     }
 }
 
