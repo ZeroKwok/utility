@@ -3,6 +3,7 @@
 out
 bin
 build/*
+discared
 installed
 include/utility/config.h
 src/resource.rc
