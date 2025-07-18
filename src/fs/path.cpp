@@ -9,7 +9,9 @@
 #if OS_POSIX
 #   include <errno.h>
 #   include <unistd.h>
+#   include <stdlib.h>
 #   include <sys/types.h>
+#   include <pwd.h>
 
 #   ifndef PATH_MAX
 #       define PATH_MAX 4080
@@ -62,8 +64,8 @@ path path_from_module(intptr_t module, std::error_code& error) noexcept
     char arg[30] = "/proc/self/exe";
     char buffer[PATH_MAX + 1] = { 0 };
 
-    if (instance != 0)
-        sprintf(arg, "/proc/%d/exe", pid_t(instance));
+    if (module != 0)
+        sprintf(arg, "/proc/%d/exe", pid_t(module));
 
     //
     // https://linux.die.net/man/2/readlink
@@ -162,7 +164,7 @@ path path_from_home(std::error_code& error) noexcept
 
 #else
     // 优先采用 HOME 环境变量, 再从/etc/passwd中读取
-    std::string buffer = environment_variable("HOME");
+    std::string buffer = ::getenv("HOME");
     if (!buffer.empty())
         return buffer;
 
