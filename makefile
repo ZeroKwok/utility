@@ -1,4 +1,4 @@
-OPTIONS_BASE := --output-folder=build --settings=compiler.cppstd=20
+OPTIONS_BASE := --output-folder=build --settings=compiler.cppstd=20 $(OPTIONS)
 OPTIONS_COMMON := $(OPTIONS_BASE) --settings=build_type=$(if $(DEBUG),Debug,Release)
 OPTIONS_WITH_OPTIONS := $(OPTIONS_BASE) --settings=build_type=Debug --options=utility/*:with_tests=True
 
