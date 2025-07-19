@@ -213,7 +213,7 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
     return writtenBytes;
 }
 
-size seek(const fptr& file, size offset, int whence)
+offset seek(const fptr& file, offset offset, int whence)
 {
     std::error_code ecode;
     auto r = seek(file, offset, whence, ecode);
@@ -222,7 +222,7 @@ size seek(const fptr& file, size offset, int whence)
     return r;
 }
 
-size seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept
+offset seek(const fptr& file, offset offset, int whence, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -244,7 +244,7 @@ size seek(const fptr& file, size offset, int whence, std::error_code& error) noe
     return r;
 }
 
-size tell(const fptr& file) 
+offset tell(const fptr& file) 
 {
     std::error_code ecode;
     const auto& result = tell(file, ecode);
@@ -253,7 +253,7 @@ size tell(const fptr& file)
     return result;
 }
 
-size tell(const fptr& file, std::error_code& error) noexcept 
+offset tell(const fptr& file, std::error_code& error) noexcept 
 {
     error.clear();
 

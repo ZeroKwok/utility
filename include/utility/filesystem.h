@@ -82,7 +82,8 @@ using std::filesystem::permissions;
  *  \brief 文件的不透明对象
  */
 typedef struct _file* fptr;
-typedef int64_t       size;
+typedef uint64_t      size;
+typedef int64_t       offset;
 
 /*!
  *  \brief 打开或创建指定的文件
@@ -143,14 +144,14 @@ UTILITY_API size write(const fptr& file, const void *data, int size, std::error_
  *                3. SEEK_END  = 2 文件的末尾
  *  \return 返回新的从文件开始的偏移位置（以字节为单位）, 若发生错误则返回 -1.
  */
-UTILITY_API size seek(const fptr& file, size offset, int whence = SEEK_SET);
-UTILITY_API size seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept;
+UTILITY_API offset seek(const fptr& file, offset offset, int whence = SEEK_SET);
+UTILITY_API offset seek(const fptr& file, offset offset, int whence, std::error_code& error) noexcept;
 
 /*!
  *  \brief 查询文件当前指针相对于文件开始位置的偏移量
  */
-UTILITY_API size tell(const fptr& file);
-UTILITY_API size tell(const fptr& file, std::error_code& error) noexcept;
+UTILITY_API offset tell(const fptr& file);
+UTILITY_API offset tell(const fptr& file, std::error_code& error) noexcept;
 
 /*!
  *  \brief 查询文件的大小

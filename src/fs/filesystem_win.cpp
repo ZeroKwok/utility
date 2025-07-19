@@ -128,7 +128,7 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
     return bytes;
 }
 
-size seek(const fptr& file, size offset, int whence)
+offset seek(const fptr& file, offset offset, int whence)
 {
     std::error_code ecode;
     auto r = seek(file, offset, whence, ecode);
@@ -137,7 +137,7 @@ size seek(const fptr& file, size offset, int whence)
     return r;
 }
 
-size seek(const fptr& file, size offset, int whence, std::error_code& error) noexcept
+offset seek(const fptr& file, offset _offset, int whence, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -146,8 +146,8 @@ size seek(const fptr& file, size offset, int whence, std::error_code& error) noe
         return -1;
     }
 
-    __int64 offset_output;
-    auto r = _lseeki64(file, offset, whence, offset_output);
+    offset offset_output;
+    auto r = _lseeki64(file, _offset, whence, offset_output);
     if (r != 0) {
         error = MakeSysError(r);
         return -1;
@@ -156,7 +156,7 @@ size seek(const fptr& file, size offset, int whence, std::error_code& error) noe
     return offset_output;
 }
 
-size tell(const fptr& file) 
+offset tell(const fptr& file) 
 {
     std::error_code ecode;
     const auto& result = tell(file, ecode);
@@ -165,7 +165,7 @@ size tell(const fptr& file)
     return result;
 }
 
-size tell(const fptr& file, std::error_code& error) noexcept 
+offset tell(const fptr& file, std::error_code& error) noexcept 
 {
     error.clear();
 
@@ -174,7 +174,7 @@ size tell(const fptr& file, std::error_code& error) noexcept
         return {};
     }
 
-    __int64 offset_output = 0;
+    offset offset_output = 0;
     auto r = _lseeki64(file, 0, FILE_CURRENT, offset_output);
     if (r != 0) 
         error = MakeSysError(r);
