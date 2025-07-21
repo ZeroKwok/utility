@@ -56,6 +56,11 @@ TEST(PathFromModuleTest, ModuleWithError) {
     path result = path_from_module(0, ec);
     EXPECT_FALSE(result.empty());
     EXPECT_FALSE(ec);
+
+    EXPECT_TRUE(result.has_parent_path());
+    EXPECT_TRUE(result.has_root_directory());
+    EXPECT_TRUE(result.has_filename());
+    EXPECT_TRUE(result.is_absolute());
 }
 
 // Tests for path_from_module_dir
@@ -67,12 +72,16 @@ TEST(PathFromModuleDirTest, DefaultModule) {
     EXPECT_FALSE(result.empty());
     EXPECT_EQ(result.filename().string(), "log");
 
+    // 返回的路径应该被正规化
     result = path_from_module_dir(0, "../../log");
     EXPECT_TRUE(result.string().find("..") == std::string::npos);
 
+    EXPECT_TRUE(result.has_parent_path());
+    EXPECT_TRUE(result.has_root_directory());
+    EXPECT_TRUE(result.is_absolute());
+
 #if OS_WIN
-    EXPECT_TRUE(result.string().find("/") == std::string::npos);
-#else
+    // Windows 中文件分隔符应该被替换为 '\'
     EXPECT_TRUE(result.string().find("/") == std::string::npos);
 #endif
 }
