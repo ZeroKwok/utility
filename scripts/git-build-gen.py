@@ -8,8 +8,19 @@ import shutil
 import datetime
 import subprocess
 
-def RunShell(cmd) -> str:
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
+def RunShell(cmd: str) -> str:
+    kwargs = {
+        'shell': True,
+        'stdout': subprocess.PIPE,
+    }
+    
+    # Python 3.7+ 用 `text`，否则用 `universal_newlines`
+    if sys.version_info >= (3, 7):
+        kwargs['text'] = True
+    else:
+        kwargs['universal_newlines'] = True
+    
+    result = subprocess.run(cmd, **kwargs)
     if result.returncode == 0:
         return result.stdout.strip()
     return None
