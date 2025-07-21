@@ -122,16 +122,16 @@ UTILITY_API void close(const fptr& file, std::error_code& error) noexcept;
  *  \note  1. 若文件实际内容小于要读取的内容不视为错误, 填充对应的缓冲区后返回实际读取的字节数.
  *         2. 对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
  */
-UTILITY_API size read(const fptr& file, char* data, int size);
-UTILITY_API size read(const fptr& file, char* data, int size, std::error_code& error) noexcept;
+UTILITY_API size read(const fptr& file, void* data, size len);
+UTILITY_API size read(const fptr& file, void* data, size len, std::error_code& error) noexcept;
 
 /*!
  *  \brief 写入文件, 无应用层缓冲的低级 I/O
  *  \return 返回实际写入的字节数.
  *  \note  对于 Unix-Like, 若系统调用因信号中断会继续尝试, 直到成功为止.
  */
-UTILITY_API size write(const fptr& file, const char *data, int size);
-UTILITY_API size write(const fptr& file, const void *data, int size, std::error_code& error) noexcept;
+UTILITY_API size write(const fptr& file, const void *data, size len);
+UTILITY_API size write(const fptr& file, const void *data, size len, std::error_code& error) noexcept;
 
 /*!
  *  \brief 设置文件指针

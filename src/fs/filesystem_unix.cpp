@@ -131,36 +131,37 @@ void close(const fptr& file, std::error_code& error) noexcept
     delete file;
 }
 
-size read(const fptr& file, char* data, int size) 
+size read(const fptr& file, void* data, size len) 
 {
     std::error_code ecode;
-    const auto& result = read(file, data, size, ecode);
+    const auto& result = read(file, data, len, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to read file");
     return result;
 }
 
-size read(const fptr& file, char* data, int size, std::error_code& error) noexcept 
+size read(const fptr& file, void* data, size len, std::error_code& error) noexcept 
 {
     error.clear();
-
     if (file == nullptr) {
         error = MakeSysError(EINVAL);
         return 0;
     }
 
-    size_t result = 0;
-    size_t readBytes = 0;
+    int64_t result = 0;
+    uint64_t readBytes = 0;
     do
     {
-        size_t wantedBytes = size - readBytes;
-        size_t chunkSize = 0x20000000;
+        uint64_t wantedBytes = len - readBytes;
+        uint64_t chunkSize = 0x20000000;
         if (chunkSize > wantedBytes)
-        chunkSize = wantedBytes;
-        result = ::read(file->fd, data + readBytes, chunkSize);
-    } 
-    while (result > 0 && (readBytes += result) < size);
-    
+            chunkSize = wantedBytes;
+        result = ::read(
+            file->fd,
+            static_cast<char *>(data) + readBytes,
+            static_cast<size_t>(chunkSize));
+    } while (result > 0 && (readBytes += result) < len);
+
     // https://linux.die.net/man/2/read
     //
     // 如果成功，则返回读取的字节数（0表示文件结束），发生错误时，返回-1，并设置errno
@@ -174,40 +175,45 @@ size read(const fptr& file, char* data, int size, std::error_code& error) noexce
     return readBytes;
 }
 
-size write(const fptr& file, const char *data, int size) 
+size write(const fptr& file, const void *data, size len) 
 {
     std::error_code ecode;
-    const auto& result = write(file, data, size, ecode);
+    const auto& result = write(file, data, len, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to write file");
     return result;
 }
 
-size write(const fptr& file, const void *data, int size, std::error_code& error) noexcept
+size write(const fptr& file, const void *data, size len, std::error_code& error) noexcept
 {
     error.clear();
-
     if (file == nullptr) {
         error = MakeSysError(EINVAL);
         return {};
     }
 
-    size_t result = 0;
-    size_t writtenBytes = 0;
+    if (len == 0)
+        return 0;
+
+    int64_t result = 0;
+    uint64_t writtenBytes = 0;
     do
     {
-        size_t wantedBytes = size - writtenBytes;
-        size_t chunkSize = 0x20000000;
+        uint64_t wantedBytes = len - writtenBytes;
+        uint64_t chunkSize = 0x20000000;
         if (chunkSize > wantedBytes)
             chunkSize = wantedBytes;
-        result = ::write(file->fd, static_cast<const char*>(data) + writtenBytes, chunkSize);
-    } while (result > 0 && (writtenBytes += result) < size);
+        result = ::write(
+            file->fd,
+            static_cast<const char *>(data) + writtenBytes,
+            static_cast<size_t>(chunkSize));
+    } while (result > 0 && (writtenBytes += result) < len);
 
     // https://linux.die.net/man/3/write
     //
     // write() returns the number of bytes written, or -1 if an error occurred.
 
-    if (result == -1 || (size && writtenBytes == 0))
+    if (result == -1 || writtenBytes == 0)
         error = MakeSysError(errno);
 
     return writtenBytes;

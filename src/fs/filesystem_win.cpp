@@ -74,16 +74,16 @@ void close(const fptr& file, std::error_code& error) noexcept
     delete file;
 }
 
-size read(const fptr& file, char* data, int size) 
+size read(const fptr& file, void* data, size len) 
 {
     std::error_code ecode;
-    const auto& result = read(file, data, size, ecode);
+    const auto& result = read(file, data, len, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to read file");
     return result;
 }
 
-size read(const fptr& file, char* data, int size, std::error_code& error) noexcept 
+size read(const fptr& file, void* data, size len, std::error_code& error) noexcept 
 {
     error.clear();
 
@@ -93,7 +93,7 @@ size read(const fptr& file, char* data, int size, std::error_code& error) noexce
     }
 
     unsigned bytes = 0; 
-    auto r = _read(file, data, size, bytes);
+    auto r = _read(file, static_cast<char*>(data), len, bytes);
 
     if (r != 0)
         error = MakeSysError(r);
@@ -101,16 +101,16 @@ size read(const fptr& file, char* data, int size, std::error_code& error) noexce
     return bytes;
 }
 
-size write(const fptr& file, const char *data, int size) 
+size write(const fptr& file, const void *data, size len) 
 {
     std::error_code ecode;
-    const auto& result = write(file, data, size, ecode);
+    const auto& result = write(file, data, len, ecode);
     if (ecode)
         throw MakeFSError(ecode, "Unable to write file");
     return result;
 }
 
-size write(const fptr& file, const void *data, int size, std::error_code& error) noexcept
+size write(const fptr& file, const void *data, size len, std::error_code& error) noexcept
 {
     error.clear();
 
@@ -120,7 +120,7 @@ size write(const fptr& file, const void *data, int size, std::error_code& error)
     }
 
     unsigned bytes = 0; 
-    auto r = _write(file, data, size, bytes);
+    auto r = _write(file, data, len, bytes);
 
     if (r != 0) 
         error = MakeSysError(r);
