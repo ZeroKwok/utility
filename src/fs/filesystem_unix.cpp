@@ -322,7 +322,7 @@ inline std::time_t to_time_t(const file_time_type& t)
 
 inline void to_timespec(const file_time_type& t, struct timespec& times)
 {
-    times.tv_nsec = UTIME_OMIT;
+    times.tv_nsec = 0;
     times.tv_sec = to_time_t(t);
 }
 
@@ -398,16 +398,21 @@ void file_time(const fptr& file, const ftime& time, std::error_code& error) noex
         return;
     }
 
-    struct timespec times[2] = { 0 };
+    struct timespec times[2] = {0};
     if (time.last_access)
         to_timespec(*time.last_access, times[0]);
+    else
+        times[0].tv_nsec = UTIME_OMIT;
+
     if (time.last_write)
         to_timespec(*time.last_write, times[1]);
+    else
+        times[1].tv_nsec = UTIME_OMIT;
 
     // 
     // https://linux.die.net/man/2/utimensat
 
-    if (::futimens(file->fd, times) == -1)  {
+    if (::futimens(file->fd, times) != 0)  {
         error = MakeSysError(errno);
     }
 }
