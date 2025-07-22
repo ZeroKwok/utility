@@ -23,7 +23,11 @@
 #   include <shellapi.h>
 #endif
 
+#include"string.h"
+
+#include <regex>
 #include <algorithm>
+#include <unordered_set>
 #include <boost/algorithm/string.hpp>
 
 namespace UTILITY_NAMESPACE {
@@ -267,6 +271,59 @@ bool path_is_writable(const path& path, std::error_code& error) noexcept
     return false;
 }
 
+// Windows 文件名非法字符（包括控制字符）
+// 控制字符: https://en.cppreference.com/w/cpp/string/byte/iscntrl
+inline bool is_invalid_char(char c) {
+    return c < 32 || std::string_view("<>:\"/\\|?*" "\x7f").find(c) != std::string::npos;
+}
+
+// POSIX 中对文件名的约束相对与 Windows 来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
+// 但考虑到文件的跨平台存储(短板效应), 这里采用同 windows 一样的限制.
+template<class _TChar>
+inline std::basic_string<_TChar> filename_trim(
+    const std::basic_string<_TChar>& filename,
+    const std::basic_string<_TChar>& placeholder) 
+{
+    if (filename.empty())
+        return {};
+
+    // 移除前后的空格
+    std::basic_string<_TChar> result;
+    for (const char& c : boost::algorithm::trim_copy(filename))
+    {
+        if (is_invalid_char(c))
+        result += placeholder;
+        else
+        result += c;
+    }
+    
+    // 去掉末尾的句点（Windows 禁止）
+    while (!result.empty() && result.back() == '.')
+        result.pop_back();
+
+    // 至少保留一个字符的文件名
+    if (result.empty())
+    return '_';
+
+    // 文件名小于5则检查是否为保留名称
+    if (result.size() < 5)
+    {
+        // Windows 保留文件名（不区分大小写）
+        static const std::unordered_set<std::string> kReservedNames = {
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+        };
+        auto upper = boost::algorithm::to_upper(result);
+        if (kReservedNames.count(upper)) {
+            return _TChar('(') + result + _TChar(')');
+        }
+    }
+
+    return result;
+}
+
+#if 0
 template<class _TChar>
 inline std::basic_string<_TChar> _filename_trim(
     const std::basic_string<_TChar>& filename,
@@ -369,7 +426,17 @@ inline std::basic_string<_TChar> _filename_trim(
 
     return boost::algorithm::trim_copy(result);
 }
+#endif
 
+path path_filename_trim(const path& filename, const std::string& placeholder) noexcept 
+{
+    const auto& parent  = filename.parent_path();
+    const auto& name    = filename.filename();
+    const auto& cleaned = filename_trim(name.wstring(), std::wstring());
+    return parent / cleaned;
+}
+
+#if 0
 #if defined(_MSC_VER)
 #   pragma warning (push)
 #   pragma warning (disable:4244)
@@ -489,27 +556,39 @@ inline std::basic_string<_TChar> _filename_increment(
 #if defined(_MSC_VER)
 #   pragma warning (pop)
 #endif // defined(_MSC_VER)
+#endif
+
+template<class _TChar>
+inline std::basic_string<_TChar> _filename_increment(
+    const std::basic_string_view<_TChar>& filename,
+    bool ignore_extension) 
+{
+    std::basic_string<_TChar> base, ext;
+            if (!ignore_extension) {
+            ext = filename.extension().string();
+            base = filename.stem().string();
+        } else {
+            base = name;
+        }
+
+                // 提取已有编号 (xxx(n))
+        std::regex suffix_pattern(R"((.*)\((\d+)\)$)");
+        std::smatch match;
+        int number = 1;
+
+        if (std::regex_match(base, match, suffix_pattern)) {
+            base = match[1].str();
+            number = std::stoi(match[2].str()) + 1;
+        }
+
+        auto index = std::to_string(number) ;
+        auto string = std::basic_string<_TChar>(string.begin(), string.end());
+        auto new_name = base + _TChar('(') + string + _TChar('(') + ext;
+        return parent / new_name;
+}
 
 path filename_increment(const path& path, bool ignore_extension) noexcept {
     return path.parent_path() / _filename_increment(path.filename().wstring(), ignore_extension);
-}
-
-std::string filename_trim(
-    const std::string& filename, 
-    const std::string& placeholder) noexcept
-{
-    return _filename_trim(filename, placeholder);
-}
-
-std::wstring filename_trim(
-    const std::wstring& filename, 
-    const std::wstring& placeholder) noexcept
-{
-    return _filename_trim(filename, placeholder);
-}
-
-path path_filename_trim(const path& path, const std::string& placeholder) noexcept {
-    return path.parent_path() / _filename_trim(path.filename().wstring(), wstr(placeholder));
 }
 
 #if OS_WIN

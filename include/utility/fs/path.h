@@ -102,40 +102,59 @@ UTILITY_API bool path_is_writable(const path& path);
 UTILITY_API bool path_is_writable(const path& path, std::error_code& error) noexcept;
 
 /*!
- *  \brief 文件名裁剪, 使文件名合法化
- *  \note  同字符串版类似，唯一区别, 在于仅将最后一个路径分隔符之后的内容视为文件名.
+ *  \brief 文件名合法化处理
+ *
+ *  该函数用于将路径中的文件名部分裁剪并合法化，确保其符合跨平台（特别是 Windows）对文件名的限制。
+ *  将保留路径中的目录结构，仅处理最后一级文件名中的非法字符。
+ *
+ *  常见示例：
+ *    "nul"            -> "(nul)"
+ *    "aux"            -> "(aux)"
+ *    "read/me.txt"    -> "readme.txt"
+ *    "readme.?txt"    -> "readme.txt"
+ *
+ *  若 placeholder 为 "."，则：
+ *    "read/me.txt"    -> "read.me.txt"
+ *    "readme.?txt"    -> "readme..txt"
+ *
+ *  \param filename        要合法化处理的完整路径，函数将保留其父目录，仅替换文件名中的非法字符。
+ *  \param placeholder     占位符，用于替换非法字符。传空字符串 "" 则表示直接删除非法字符。
+ *
+ *  \note
+ *    - 仅处理路径中最后一级文件名（即路径的 `filename()` 部分）
+ *    - 对于 Windows 特有的非法文件名（如 nul, aux, con, prn, lpt1 等）进行保护性括号包装
+ *    - 非法字符包括（但不限于）：`<>:"/\\|?*` 及控制字符 (ASCII < 32)
+ *    - 虽主要参考 Windows 限制，但建议跨平台应用中也使用此规范处理文件名
+ *
+ *  \return 一个路径对象，保留原始路径的目录部分，但文件名已合法化处理。
  */
-UTILITY_API path path_filename_trim(const path& path, const std::string& placeholder = "") noexcept;
+UTILITY_API path path_filename_trim(const path& filename, const std::string& placeholder = "") noexcept;
 
 /*!
- *  \brief 文件名裁剪, 使文件名合法化
- *         nul          -> (nul)
- *         aux          -> (aux)
- *         read/me.txt  -> readme.txt
- *         readme.?txt  -> readme.txt
- *      若 placeholder 为 ".", 则:
- *         nul          -> (nul)
- *         aux          -> (aux)
- *         read/me.txt  -> read.me.txt
- *         readme.?txt  -> readme..txt
- * 
- *  \param filename 文件名, 必须是文件名, 否则将路径分隔符作为文件名中的非法字符处理.
- *  \param placeholder 占位符, 用于替换非法字符, "" 空字符则表示删除非法字符.
- * 
- *  \note  主要针对 Windows 平台, Unix-Like 平台对文件名的限制比较宽松, 只要不包含目录分隔符 '/' 即可
- *         但为了便于文件跨平台存储, 保持与 Windows 相同的限制规则.
+ *  \brief 生成递增版本的文件名（自动编号）
+ *
+ *  该函数返回一个在原始文件名基础上添加递增编号的路径，常用于自动保存、避免覆盖等场景。
+ *  函数仅修改路径中的文件名部分，保留原始目录结构。
+ *
+ *  示例（ignore_extension = false）：
+ *      "log.txt"     -> "log(1).txt"
+ *      "log(1).txt"  -> "log(2).txt"
+ *
+ *  示例（ignore_extension = true）：
+ *      "log.txt"     -> "log.txt(1)"
+ *
+ *  \param filename           要处理的文件路径，仅最后一级文件名受影响。
+ *  \param ignore_extension   是否忽略扩展名，默认为 false。
+ *                            若为 true，则编号附加在完整文件名之后（包括扩展名）。
+ *
+ *  \note
+ *    - 该函数不检查生成的新文件名是否已存在，仅用于构造名称。
+ *    - 若原始文件名中已包含 "(n)" 格式，将自动递增。
+ *    - 文件名中多个 "(n)" 格式将仅识别最末尾合法部分。
+ *
+ *  \return 递增后的完整路径，目录结构不变，仅文件名发生变化。
  */
-UTILITY_API std::string  filename_trim(const std::string& filename, const std::string& placeholder = "") noexcept;
-UTILITY_API std::wstring filename_trim(const std::wstring& filename, const std::wstring& placeholder = L"") noexcept;
-
-/*!
- *  \brief 返回一个递增后的文件名
- *         etc. log.txt -> log(1).txt
- *                         log(1).txt -> log(2).txt
- *  \param ignore_extension 是否忽略扩展名: log.txt -> log.txt(1)
- *  \note 不检测递增后的文件名是否存在, 仅实现文件名的递增.
- */
-UTILITY_API path filename_increment(const path& path, bool ignore_extension = false) noexcept;
+UTILITY_API path path_filename_increment(const path& filename, bool ignore_extension = false) noexcept;
 
 //
 // windows 方面的扩展
