@@ -110,25 +110,27 @@ UTILITY_API bool path_is_writable(const path& path, std::error_code& error) noex
  *  常见示例：
  *    "nul"            -> "(nul)"
  *    "aux"            -> "(aux)"
- *    "read/me.txt"    -> "readme.txt"
+ *    "read/me.txt"    -> "read/me.txt" or "readme.txt" 
  *    "readme.?txt"    -> "readme.txt"
  *
  *  若 placeholder 为 "."，则：
- *    "read/me.txt"    -> "read.me.txt"
+ *    "read/me.txt"    -> "read/me.txt" or "read.me.txt"
+ *    "readme..txt"    -> "readme.txt"
  *    "readme.?txt"    -> "readme..txt"
  *
- *  \param filename        要合法化处理的完整路径，函数将保留其父目录，仅替换文件名中的非法字符。
- *  \param placeholder     占位符，用于替换非法字符。传空字符串 "" 则表示直接删除非法字符。
+ *  \param filename    要合法化处理的完整路径，函数将保留其父目录，仅替换文件名中的非法字符。
+ *  \param placeholder 占位符，用于替换非法字符。传空字符串 "" 则表示直接删除非法字符。
+ *  \param has_parent  表示输入的路径是否包含父目录，即是否将目录分隔符视为非法字符。
  *
  *  \note
- *    - 仅处理路径中最后一级文件名（即路径的 `filename()` 部分）
+ *    - 仅处理路径中最后一级文件名（即路径的 `filename()` 部分），除非 has_parent 参数为 false。
  *    - 对于 Windows 特有的非法文件名（如 nul, aux, con, prn, lpt1 等）进行保护性括号包装
  *    - 非法字符包括（但不限于）：`<>:"/\\|?*` 及控制字符 (ASCII < 32)
  *    - 虽主要参考 Windows 限制，但建议跨平台应用中也使用此规范处理文件名
  *
  *  \return 一个路径对象，保留原始路径的目录部分，但文件名已合法化处理。
  */
-UTILITY_API path path_filename_trim(const path& filename, const std::string& placeholder = "") noexcept;
+UTILITY_API path path_filename_trim(const path& filename, const path& placeholder = "", bool has_parent = true) noexcept;
 
 /*!
  *  \brief 生成递增版本的文件名（自动编号）

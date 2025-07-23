@@ -273,8 +273,17 @@ bool path_is_writable(const path& path, std::error_code& error) noexcept
 
 // Windows 文件名非法字符（包括控制字符）
 // 控制字符: https://en.cppreference.com/w/cpp/string/byte/iscntrl
-inline bool is_invalid_char(char c) {
-    return c < 32 || std::string_view("<>:\"/\\|?*" "\x7f").find(c) != std::string::npos;
+template<typename CharT>
+inline bool is_invalid_char(CharT c) {
+    if (c < 32 || c == 127) // Control characters and DEL
+        return true;
+    
+    constexpr CharT invalid_chars[] = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', 0};
+    for (const CharT* p = invalid_chars; *p; ++p) {
+        if (c == *p)
+            return true;
+    }
+    return false;
 }
 
 // POSIX 中对文件名的约束相对与 Windows 来说宽松的多, 除了不能包括分隔符 / 之外的字符都是合法的, 
@@ -289,12 +298,12 @@ inline std::basic_string<_TChar> filename_trim(
 
     // 移除前后的空格
     std::basic_string<_TChar> result;
-    for (const char& c : boost::algorithm::trim_copy(filename))
+    for (const _TChar& c : boost::algorithm::trim_copy(filename))
     {
         if (is_invalid_char(c))
-        result += placeholder;
+            result += placeholder;
         else
-        result += c;
+            result += c;
     }
     
     // 去掉末尾的句点（Windows 禁止）
@@ -303,20 +312,34 @@ inline std::basic_string<_TChar> filename_trim(
 
     // 至少保留一个字符的文件名
     if (result.empty())
-    return '_';
+        return std::basic_string<_TChar>(1, _TChar('_'));
 
     // 文件名小于5则检查是否为保留名称
     if (result.size() < 5)
     {
         // Windows 保留文件名（不区分大小写）
-        static const std::unordered_set<std::string> kReservedNames = {
-            "CON", "PRN", "AUX", "NUL",
-            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+        const char * illegal_name[] = {
+            "con", "prn", "aux", "nul",
+            "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9",
+            "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
+            0
         };
-        auto upper = boost::algorithm::to_upper(result);
-        if (kReservedNames.count(upper)) {
-            return _TChar('(') + result + _TChar(')');
+
+        auto target = boost::to_lower_copy(result); 
+        for (int i = 0; illegal_name[i] != 0; ++i)
+        {
+            auto start = target.begin();
+            auto end = target.end();
+            auto p = illegal_name[i];
+
+            for (; start != end && *p != 0; ++start, ++p)
+            {
+                if (*start != *p)
+                    break;
+            }
+
+            if (start == end && *p == 0)
+                return _TChar('(') + result + _TChar(')');
         }
     }
 
@@ -428,12 +451,17 @@ inline std::basic_string<_TChar> _filename_trim(
 }
 #endif
 
-path path_filename_trim(const path& filename, const std::string& placeholder) noexcept 
+path path_filename_trim(const path& filename, const path& placeholder, bool has_parent) noexcept 
 {
-    const auto& parent  = filename.parent_path();
-    const auto& name    = filename.filename();
-    const auto& cleaned = filename_trim(name.wstring(), std::wstring());
-    return parent / cleaned;
+    if (has_parent)
+    {
+        const auto& parent  = filename.parent_path();
+        const auto& name    = filename.filename();
+        const auto& cleaned = filename_trim(name.wstring(), placeholder.wstring());
+        return parent / cleaned;
+    }
+
+    return filename_trim(filename.wstring(), placeholder.wstring());
 }
 
 #if 0
@@ -558,37 +586,72 @@ inline std::basic_string<_TChar> _filename_increment(
 #endif // defined(_MSC_VER)
 #endif
 
-template<class _TChar>
+#if 0
+template <class _TChar>
 inline std::basic_string<_TChar> _filename_increment(
-    const std::basic_string_view<_TChar>& filename,
-    bool ignore_extension) 
+    const path& filename,
+    bool ignore_extension)
 {
     std::basic_string<_TChar> base, ext;
-            if (!ignore_extension) {
-            ext = filename.extension().string();
-            base = filename.stem().string();
-        } else {
-            base = name;
-        }
+    if (!ignore_extension)
+    {
+        ext = filename.extension().wstring();
+        base = filename.stem().wstring();
+    }
+    else
+    {
+        base = filename.wstring();
+    }
 
-                // 提取已有编号 (xxx(n))
-        std::regex suffix_pattern(R"((.*)\((\d+)\)$)");
-        std::smatch match;
-        int number = 1;
+    // 提取已有编号 (xxx(n))
+    std::regex suffix_pattern(R"((.*)\((\d+)\)$)");
+    std::smatch match;
+    int number = 1;
 
-        if (std::regex_match(base, match, suffix_pattern)) {
-            base = match[1].str();
-            number = std::stoi(match[2].str()) + 1;
-        }
+    if (std::regex_match(base, match, suffix_pattern))
+    {
+        base = match[1].str();
+        number = std::stoi(match[2].str()) + 1;
+    }
 
-        auto index = std::to_string(number) ;
-        auto string = std::basic_string<_TChar>(string.begin(), string.end());
-        auto new_name = base + _TChar('(') + string + _TChar('(') + ext;
-        return parent / new_name;
+    auto index = std::to_string(number);
+    auto string = std::basic_string<_TChar>(string.begin(), string.end());
+    return base + _TChar('(') + string + _TChar('(') + ext;
 }
 
-path filename_increment(const path& path, bool ignore_extension) noexcept {
-    return path.parent_path() / _filename_increment(path.filename().wstring(), ignore_extension);
+
+path path_filename_increment(const path& filename, bool ignore_extension) noexcept
+{
+    return filename.parent_path() / _filename_increment<wchar_t>(filename.filename().wstring(), ignore_extension);
+}
+#endif
+
+path path_filename_increment(const path& filename, bool ignore_extension) noexcept
+{
+    path parent = filename.parent_path();
+    path name = filename.filename();
+    
+    path base, ext;
+    if (!ignore_extension) {
+        ext = filename.extension();
+        base = filename.stem();
+    } else {
+        base = name;
+    }
+
+    // 提取已有编号 (xxx(n))
+    std::wregex pattern(LR"((.*)\((\d+)\)$)");
+    std::wsmatch match;
+    std::wstring target = base.wstring();
+
+    int number = 1;
+    if (std::regex_match(target, match, pattern)) {
+        base = match[1].str();
+        number = std::stoi(match[2].str()) + 1;
+    }
+
+    auto new_name = base.wstring() + L"(" + std::to_wstring(number) + L")" + ext.wstring();
+    return parent / new_name;
 }
 
 #if OS_WIN

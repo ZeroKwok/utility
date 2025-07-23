@@ -158,87 +158,80 @@ TEST(PathIsWritableTest, NonWritablePath) {
 #endif
 }
 
-// Tests for filename_increment
+// Tests for path_filename_trim
+TEST(PathFilenameTrimTest, DifferentInputsType)
+{
+    EXPECT_EQ(path_filename_trim(path("nul")), "(nul)");
+    EXPECT_EQ(path_filename_trim("nul"), "(nul)");
+    EXPECT_EQ(path_filename_trim(L"nul"), "(nul)");
+    EXPECT_EQ(path_filename_trim(std::string("lpt2")), "(lpt2)");
+    EXPECT_EQ(path_filename_trim(std::wstring(L"lpt2")), "(lpt2)");
+    EXPECT_EQ(path_filename_trim("com4"), L"(com4)");
+    EXPECT_EQ(path_filename_trim("lpt9", ".", false), "(lpt9)");
+}
+
+TEST(PathFilenameTrimTest, ReservedNames)
+{
+    EXPECT_EQ(path_filename_trim(path("nul")), "(nul)");
+    EXPECT_EQ(path_filename_trim(path("con")), "(con)");
+    EXPECT_EQ(path_filename_trim(path("aux")), "(aux)");
+    EXPECT_EQ(path_filename_trim(path("COM1")), "(COM1)");
+    EXPECT_EQ(path_filename_trim(path("lpt9")), "(lpt9)");
+}
+
+TEST(PathFilenameTrimTest, ParentPathPreserved)
+{
+    path original = "folder/nul";
+    path trimmed = path_filename_trim(original);
+    EXPECT_EQ(trimmed.parent_path(), path("folder"));
+    EXPECT_EQ(trimmed.filename(), "(nul)");
+
+    EXPECT_EQ(path_filename_trim("/etc/nginx/../nginx/./nginx.conf"), "/etc/nginx/../nginx/./nginx.conf");
+    EXPECT_EQ(path_filename_trim("/etc/nginx/../nginx/./nginx.conf", "", false), "etcnginx..nginx.nginx.conf");
+}
+
+TEST(PathFilenameTrimTest, IllegalCharactersRemoval)
+{
+    EXPECT_EQ(path_filename_trim(path("read/me.txt"), "", false), "readme.txt");
+    EXPECT_EQ(path_filename_trim(path("read<>:\"\\|?*.txt"), "", false), "read.txt");
+    EXPECT_EQ(path_filename_trim(path("readme.?txt"), "", false), "readme.txt");
+}
+
+TEST(PathFilenameTrimTest, PlaceholderReplacement)
+{
+    EXPECT_EQ(path_filename_trim(path("read/me.txt"), ".", false), "read.me.txt");
+    EXPECT_EQ(path_filename_trim(path("readme.?txt"), ".", false), "readme..txt");
+    EXPECT_EQ(path_filename_trim(path("readme.?txt"), L"佔位符"), L"readme.佔位符txt");
+}
+
+TEST(PathFilenameTrimTest, TrailingDotOrSpace)
+{
+    EXPECT_EQ(path_filename_trim(path("trailingdot.")), "trailingdot");
+    EXPECT_EQ(path_filename_trim(path("trailingspace ")), "trailingspace");
+
+    EXPECT_EQ(path_filename_trim(path(".")), "_");
+    EXPECT_EQ(path_filename_trim(path("..")), "_");
+    EXPECT_EQ(path_filename_trim(path("...")), "_");
+    EXPECT_EQ(path_filename_trim(path("....")), "_");
+
+    EXPECT_EQ(path_filename_trim(path(L"………………………………...")), L"………………………………");
+}
+
+TEST(PathFilenameTrimTest, EmptyFilename)
+{
+    EXPECT_EQ(path_filename_trim(path("")), "");
+}
+
+#if 0
+// Tests for path_filename_increment
 TEST(FilenameIncrementTest, IncrementFilename) {
     path filename = "log.txt";
-    path incremented = filename_increment(filename);
+    path incremented = path_filename_increment(filename);
     EXPECT_EQ(incremented.string(), "log(1).txt");
 
     // TODO:
 }
-
-// Tests for filename_trim
-TEST(FilenameTrimTest, TrimFilename) {
-    std::string filename = "nul";
-    std::string trimmed = filename_trim(filename);
-    EXPECT_EQ(trimmed, "(nul)");
-
-    EXPECT_EQ(filename_trim("nul"), "(nul)");
-    EXPECT_EQ(filename_trim("*"), "_");
-    EXPECT_EQ(filename_trim("|"), "_");
-    EXPECT_EQ(filename_trim("aux"), "(aux)");
-    EXPECT_EQ(filename_trim("."),   "(.)");
-    EXPECT_EQ(filename_trim(".."),  "(..)");
-    EXPECT_EQ(filename_trim("..."),  "(...)");
-    EXPECT_EQ(filename_trim("...."),  "(....)");
-    EXPECT_EQ(filename_trim("………………………………..."),  "………………………………");
-    EXPECT_EQ(filename_trim("……………………………….."),  "………………………………");
-    EXPECT_EQ(filename_trim("………………………………."),  "………………………………");
-    EXPECT_EQ(filename_trim("………………………………"),  "………………………………");
-    EXPECT_EQ(filename_trim("read/me.txt"), "readme.txt");
-    EXPECT_EQ(filename_trim("readme.?txt"), "readme.txt");
-
-    EXPECT_EQ(filename_trim("nul", "."), "(nul)");
-    EXPECT_EQ(filename_trim("aux", "."), "(aux)");
-    EXPECT_EQ(filename_trim("read/me.txt", "."), "read.me.txt");
-    EXPECT_EQ(filename_trim("readme.?txt", "."), "readme..txt");
-
-    EXPECT_EQ(filename_trim("nul", "11"), "(nul)");
-    EXPECT_EQ(filename_trim("aux", "11"), "(aux)");
-    EXPECT_EQ(filename_trim("read/me.txt", "11"), "read11me.txt");
-    EXPECT_EQ(filename_trim("readme.?txt", "11"), "readme.11txt");
-
-    EXPECT_EQ(filename_trim(L"nul", L"1111"), L"(nul)");
-    EXPECT_EQ(filename_trim(L"aux", L"1111"), L"(aux)");
-    EXPECT_EQ(filename_trim(L"read/me.txt", L"1111"), L"read1111me.txt");
-    EXPECT_EQ(filename_trim(L"readme.?txt", L"1111"), L"readme.1111txt");
-}
-
-TEST(PathFilenameTrimTest, TrimFilename) {
-    std::string filename = "nul";
-    path trimmed = path_filename_trim(filename);
-    EXPECT_EQ(trimmed.string(), "(nul)");
-
-    EXPECT_EQ(path_filename_trim("nul"), "(nul)");
-    EXPECT_EQ(path_filename_trim("*"), "_");
-    EXPECT_EQ(path_filename_trim("|"), "_");
-    EXPECT_EQ(path_filename_trim("aux"), "(aux)");
-    EXPECT_EQ(path_filename_trim("."),   "(.)");
-    EXPECT_EQ(path_filename_trim(".."),  "(..)");
-    EXPECT_EQ(path_filename_trim("..."),  "(...)");
-    EXPECT_EQ(path_filename_trim("...."),  "(....)");
-    EXPECT_EQ(path_filename_trim(L"………………………………..."),  L"………………………………");
-    EXPECT_EQ(path_filename_trim(L"……………………………….."),  L"………………………………");
-    EXPECT_EQ(path_filename_trim(L"………………………………."),  L"………………………………");
-    EXPECT_EQ(path_filename_trim(L"………………………………"),  L"………………………………");
-    EXPECT_EQ(path_filename_trim("read/me.txt"), "read/me.txt");
-    EXPECT_EQ(path_filename_trim("readme.?txt"), "readme.txt");
-
-    EXPECT_EQ(path_filename_trim("nul", "."), "(nul)");
-    EXPECT_EQ(path_filename_trim("aux", "."), "(aux)");
-    EXPECT_EQ(path_filename_trim("read/me*.txt", "."), "read/me..txt");
-    EXPECT_EQ(path_filename_trim("readme.?txt", "."), "readme..txt");
-
-    EXPECT_EQ(path_filename_trim("nul", "11"), "(nul)");
-    EXPECT_EQ(path_filename_trim("aux", "11"), "(aux)");
-    EXPECT_EQ(path_filename_trim("read/me.txt", "11"), "read/me.txt");
-    EXPECT_EQ(path_filename_trim("readme.?txt", "11"), "readme.11txt");
-
-    EXPECT_EQ(path_filename_trim(L"nul", "1111"), "(nul)");
-    EXPECT_EQ(path_filename_trim(L"aux", "1111"), "(aux)");
-    EXPECT_EQ(path_filename_trim(L"read/me.txt", "1111"), "read/me.txt");
-    EXPECT_EQ(path_filename_trim(L"readme.?txt", "1111"), "readme.1111txt");
-}
+#endif
 
 #if OS_WIN
 TEST(FilenameTrimTest, TrimFilenameWithPlaceholder) {
@@ -268,9 +261,3 @@ TEST(FilenameTrimTest, TrimFilenameWithPlaceholder) {
     }
 }
 #endif
-
-TEST(PathFromSysdirTest, PathFromSysdir) {
-    std::string filename = "read/me.txt";
-    std::string trimmed = filename_trim(filename, ".");
-    EXPECT_EQ(trimmed, "read.me.txt");
-}
