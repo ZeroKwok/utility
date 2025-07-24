@@ -256,6 +256,27 @@ TEST(PathFilenameIncrementTest, MultipleSuffixPattern)
     EXPECT_EQ(path_filename_increment("abc(100).txt"), "abc(101).txt");
 }
 
+TEST(PathFilenameIncrementTest, NestedParentheses)
+{
+    EXPECT_EQ(path_filename_increment("file((1)).txt"), "file((1))(1).txt");
+    EXPECT_EQ(path_filename_increment("image(name(1)).jpg"), "image(name(1))(1).jpg");
+}
+
+TEST(PathFilenameIncrementTest, IncompleteParentheses)
+{
+    EXPECT_EQ(path_filename_increment("file(.txt"), "file((1).txt");
+    EXPECT_EQ(path_filename_increment("file(1.txt"), "file(1(1).txt");
+    EXPECT_EQ(path_filename_increment("file).txt"), "file)(1).txt");
+}
+
+TEST(PathFilenameIncrementTest, UnicodeNames)
+{
+    // UTF-8 (or native wide path, depending on OS)
+    EXPECT_EQ(path_filename_increment("照片(3).png"), "照片(4).png");
+    EXPECT_EQ(path_filename_increment("文档.txt"), "文档(1).txt");
+    EXPECT_EQ(path_filename_increment("Пример(7).doc"), "Пример(8).doc");
+}
+
 #if OS_WIN
 TEST(FilenameTrimTest, TrimFilenameWithPlaceholder) {
     path path1, path2;
