@@ -222,16 +222,39 @@ TEST(PathFilenameTrimTest, EmptyFilename)
     EXPECT_EQ(path_filename_trim(path("")), "");
 }
 
-#if 0
 // Tests for path_filename_increment
-TEST(FilenameIncrementTest, IncrementFilename) {
-    path filename = "log.txt";
-    path incremented = path_filename_increment(filename);
-    EXPECT_EQ(incremented.string(), "log(1).txt");
-
-    // TODO:
+TEST(PathFilenameIncrementTest, SimpleIncrement)
+{
+    EXPECT_EQ(path_filename_increment("log.txt"), "log(1).txt");
+    EXPECT_EQ(path_filename_increment("log(1).txt"), "log(2).txt");
+    EXPECT_EQ(path_filename_increment("log(99).txt"), "log(100).txt");
 }
-#endif
+
+TEST(PathFilenameIncrementTest, IgnoreExtension)
+{
+    EXPECT_EQ(path_filename_increment("log.txt", true), "log.txt(1)");
+    EXPECT_EQ(path_filename_increment("log.txt(5)", true), "log.txt(6)");
+}
+
+TEST(PathFilenameIncrementTest, NoExtension)
+{
+    EXPECT_EQ(path_filename_increment("log"), "log(1)");
+    EXPECT_EQ(path_filename_increment("log(7)"), "log(8)");
+}
+
+TEST(PathFilenameIncrementTest, NestedDirectory)
+{
+    path original = "dir/subdir/file.txt";
+    path incremented = path_filename_increment(original);
+    EXPECT_EQ(incremented.parent_path(), path("dir/subdir"));
+    EXPECT_EQ(incremented.filename(), "file(1).txt");
+}
+
+TEST(PathFilenameIncrementTest, MultipleSuffixPattern)
+{
+    EXPECT_EQ(path_filename_increment("data(2)(3).log"), "data(2)(4).log");
+    EXPECT_EQ(path_filename_increment("abc(100).txt"), "abc(101).txt");
+}
 
 #if OS_WIN
 TEST(FilenameTrimTest, TrimFilenameWithPlaceholder) {
