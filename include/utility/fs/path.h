@@ -42,42 +42,40 @@ using std::filesystem::current_path;
 using std::filesystem::temp_directory_path;
 
 /*!
- *  \brief 从 UTF-8 编码的字符串构造文件路径
+ * \brief 从 UTF-8 编码的字符串构造文件路径
+ * \param str UTF-8 编码的字符串
+ * \return 构造出的路径对象
  */
 UTILITY_API path path_from_utf8(const std::string& str);
 
 #ifdef UTILITY_SUPPORT_QT
 /*!
- *  \brief 从 QString 字符串构造文件路径
+ * \brief 从 QString 构造路径对象
+ * \param str 输入的 QString 字符串
+ * \return 构造出的路径对象
  */
 UTILITY_API path path_from(const QString& str);
 #endif // UTILITY_SUPPORT_QT
 
 /*!
- *  \brief 返回模块目录的路径工厂函数
- * 
- *  \param module 模块实例id, 0代表当前模块.
- *  \param stems 可以是文件名, 也可以是目录名, 附加在结果路径之后.
- *  
- *  \note  在windows中 module 代表的是模块句柄(HMODULE),
- *         而linux  中 module 代表的是进程id(pid_t)
- *         在不支持 /proc 文件系统的平台, path_from_module(), path_from_module_dir() 返回程序的当前目录.
+ * \brief 获取指定模块对应的完整文件路径
+ * \param module 模块实例 ID；0 表示当前模块
+ * \param stems 附加的路径片段
+ * \return 指定模块对应的完整路径（含文件名）
+ *
+ * \note 在 Windows 上，module 是 HMODULE 类型；在 Linux 上为 pid_t。
+ *       若平台不支持 /proc 文件系统，则返回当前工作目录。
  */
 UTILITY_API path path_from_module(intptr_t module = 0);
 UTILITY_API path path_from_module(intptr_t module, std::error_code& error) noexcept;
 UTILITY_API path path_from_module_dir(intptr_t module = 0);
 UTILITY_API path path_from_module_dir(intptr_t module, std::error_code& error) noexcept;
-
-/*!
- *  \brief 返回模块目录的便捷API
- *  \note  相当于: path_append(path_from_module_dir(0, ferr), stems);
- */
 UTILITY_API path path_from_module_dir(intptr_t module, const path& stems);
 UTILITY_API path path_from_module_dir(intptr_t module, const path& stems, std::error_code& error) noexcept;
 
 /*!
- *  \brief  返回系统的临时目录
- *  \note   std::filesystem::temp_directory_path()
+ * \brief 获取系统的临时目录路径
+ * \return 临时目录路径，通常与 std::filesystem::temp_directory_path() 相同
  */
 UTILITY_API path path_from_temp();
 UTILITY_API path path_from_temp(std::error_code& error) noexcept;
@@ -85,8 +83,8 @@ UTILITY_API path path_from_temp(const path& stems);
 UTILITY_API path path_from_temp(const path& stems, std::error_code& error) noexcept;
 
 /*!
- *  \brief  返回进程所属用户的家目录
- *  \return 在 Windows 中相当于环境变量 "%USERPROFILE%", 而 Unix-Like 相当于 "~".
+ * \brief 获取当前用户的主目录路径
+ * \return 主目录路径（Windows 上等效于 %USERPROFILE%，Unix-Like 上等效于 ~）
  */
 UTILITY_API path path_from_home();
 UTILITY_API path path_from_home(std::error_code& error) noexcept;
@@ -166,40 +164,39 @@ UTILITY_API path path_filename_increment(const path& filename, bool ignore_exten
 namespace win {
 
 /*!
- *  \brief 获得系统路径, 弃用, 建议使用 KnownFolders 版本代替
- *  
- *  \param flag 定义在shlobj.h line 1204, 如:
- *              1. CSIDL_DESKTOP            表示系统桌面路径
- *              2. CSIDL_COMMON_APPDATA     表示%ProgramData%
- *              3. CSIDL_PROGRAM_FILES      表示C:\Program Files
- *              4. ...
- *  \see   https://docs.microsoft.com/en-us/windows/win32/shell/csidl
- *  \note  标记为virtual folder的CSIDL, 可能会失败.
- *         如: CSIDL_PERSONAL, 在某些环境下面将得到ERROR_ACCESS_DENIED,
- *         因此该方法总是应该判断错误，而不是忽略错误，否则抛出异常将导致致命错误。
+ * \brief 获取系统目录路径（不推荐使用，推荐用 KnownFolder 版本）
+ * \param flag CSIDL 枚举值（见 shlobj.h）例如:
+ *             CSIDL_DESKTOP            表示系统桌面路径
+ *             CSIDL_COMMON_APPDATA     表示%ProgramData%
+ *             CSIDL_PROGRAM_FILES      表示C:\Program Files
+ * \return 对应系统目录的路径
+ *
+ * \note 某些 CSIDL 值（如虚拟路径, virtual folder）可能失败，必须处理异常或错误码。
+ *       比如 CSIDL_PERSONAL, 在某些环境下面将得到ERROR_ACCESS_DENIED,
+ * \see  https://docs.microsoft.com/en-us/windows/win32/shell/csidl
  */
 UTILITY_API path __DEPRECATED path_from_sysdir(int flag = 0);
 UTILITY_API path __DEPRECATED path_from_sysdir(int flag, std::error_code& error) noexcept;
 
 #if _WIN32_WINNT >= _WIN32_WINNT_VISTA
 /*!
- *  \brief 获得系统路径(建议使用)
- *
- *  \param rfid 定义在KnownFolders.h, 如:
- *              1. FOLDERID_Desktop         表示系统桌面路径
- *              2. FOLDERID_ProgramData     表示%ProgramData%
- *              3. FOLDERID_ProgramFiles    表示C:\Program Files
- *              4. ...
- *  \see   https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid
+ * \brief 获取系统目录路径（推荐方式）
+ * \param rfid Known Folder ID，定义于 KnownFolders.h
+ *           FOLDERID_Desktop         表示系统桌面路径
+ *           FOLDERID_ProgramData     表示%ProgramData%
+ *           FOLDERID_ProgramFiles    表示C:\Program Files
+ * \return 对应系统目录的路径
+ * \see https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid
+ * \note FOLDERID_ProgramFilesX64 does not work on 32-bit versions of Windows.
  */
 UTILITY_API path path_from_sysdir(REFKNOWNFOLDERID rfid = FOLDERID_Desktop);
 UTILITY_API path path_from_sysdir(REFKNOWNFOLDERID rfid, std::error_code& error) noexcept;
 #endif
 
 /*!
- *  \brief 在explorer中打开文件夹并选择指定的文件
- *
- *  \note  目前仅windows平台
+ * \brief 在文件资源管理器中打开并选中指定文件
+ * \param path 要打开的路径
+ * \param select 是否选中指定文件（默认 true）
  */
 UTILITY_API void path_open_with_explorer(const path& path, bool select = true);
 UTILITY_API void path_open_with_explorer(const path& path, bool select, std::error_code& error) noexcept;
