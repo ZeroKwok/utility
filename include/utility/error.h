@@ -8,7 +8,6 @@
 #define error_h__
 
 #include "config.h"
-#include <format>
 #include <filesystem>
 #include <system_error>
 
@@ -55,12 +54,7 @@ public:
         return "Error"; 
     }
 
-    virtual std::string message(int ev) const
-    {
-        if (ev == kSucceed)
-            return "Succeed";
-        return std::format("Error: {:#010x}", ev);
-    }
+    virtual std::string message(int ev) const;
 };
 
 //! @brief 创建标准错误码对象.
