@@ -310,14 +310,27 @@ ftime file_time(const fptr& file)
 
 inline file_time_type from_time_t(std::time_t t)
 {
+#if COMPILER_GCC && GCC_VERSION >= 130000
     return std::chrono::clock_cast<file_time_type::clock>(
         std::chrono::system_clock::from_time_t(t));
+#else
+    auto sys_time = std::chrono::system_clock::from_time_t(t);
+    auto sys_dur = sys_time.time_since_epoch();
+    auto file_dur = std::chrono::duration_cast<file_time_type::duration>(sys_dur);
+    return file_time_type(file_dur);
+#endif
 }
 
 inline std::time_t to_time_t(const file_time_type& t)
 {
+#if COMPILER_GCC && GCC_VERSION >= 130000
     return std::chrono::system_clock::to_time_t(
         std::chrono::clock_cast<std::chrono::system_clock>(t));
+#else
+  auto d = t.time_since_epoch();
+  auto s = std::chrono::duration_cast<std::chrono::seconds>(d);
+  return s.count();
+#endif
 }
 
 inline void to_timespec(const file_time_type& t, struct timespec& times)
