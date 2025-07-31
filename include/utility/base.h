@@ -199,15 +199,9 @@
 #    define __DEPRECATED_X(text)
 #endif
 
-#if defined(COMPILER_MSVC)
-#   if _MSC_VER > 1600 // vs2010及以前的版本使用 msinttypes/inttypes.h
-#      include <inttypes.h>
-#   else 
-#      include "msinttypes/inttypes.h"
-#   endif
-#else
-#   include <stddef.h>
-#   include <inttypes.h>
+// https://en.cppreference.com/w/cpp/compiler_support.html
+#if __GCC_VERSION_AT_LEAST(9,0) || _MSC_VER >= 1922
+#   include <version>
 #endif
 
 #if COMPILER_MSVC

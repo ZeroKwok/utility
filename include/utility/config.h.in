@@ -52,9 +52,9 @@
 #   endif
 #endif
 
-// 检查是否支持C++ 17, 不支持则报错 
-#ifndef HAS_CPP17
-#   error "C++17 is required to compile this project"
+// 检查是否支持C++ 20, 不支持则报错 
+#ifndef HAS_CPP20
+#   error "C++20 is required to compile this project"
 #endif
 
 #endif // __config_h__
