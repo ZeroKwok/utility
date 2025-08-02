@@ -244,21 +244,6 @@
 #   define  __MSVC_90        1500  // _MSC_VER == 1500 (Visual Studio 2008 version 9.0  MSVC++ 9.0 )
 #   define  __MSVC_80        1400  // _MSC_VER == 1400 (Visual Studio 2005 version 8.0  MSVC++ 8.0 )
 
-// noexcept
-// https://zh.cppreference.com/w/cpp/compiler_support/11
-#   if _MSC_VER < __MSVC_140 
-#       define noexcept throw()
-#   endif
-
-// nullptr
-#   if _MSC_VER <= __MSVC_100 
-#      ifndef nullptr
-#          define nullptr NULL
-#      endif
-#      ifndef constexpr
-#          define constexpr
-#      endif
-#   endif
 
 // 去除Windows.h中携带的min, max宏定义, 且在后面禁止包含
 #   ifndef  NOMINMAX
