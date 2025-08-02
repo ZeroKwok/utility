@@ -200,7 +200,7 @@
 #endif
 
 // https://en.cppreference.com/w/cpp/compiler_support.html
-#if __GCC_VERSION_AT_LEAST(9,0) || _MSC_VER >= 1922
+#if __HAS_INCLUDE(<version>)
 #   include <version>
 #endif
 
