@@ -15,11 +15,19 @@ TEST(PathFromUtf8Test, ValidUtf8String) {
 
     utf8_str = (const char*)u8"我的文档\\中文目录";
     result = path_from_utf8(utf8_str);
+
+#if OS_WIN
     EXPECT_EQ(result.wstring(), L"我的文档\\中文目录");
+#else
+    EXPECT_EQ(result.string(), "我的文档\\中文目录");
+#endif
+
+    path name1 = "我的文档";
+    EXPECT_EQ(name1.string(), "我的文档");
 }
 
-#ifdef UTILITY_SUPPORT_QT
 // Tests for path_from with QString
+#ifdef UTILITY_SUPPORT_QT
 TEST(PathFromQStringTest, ValidQString) {
     QString str = "test_directory";
     path result = path_from(str);
@@ -27,7 +35,12 @@ TEST(PathFromQStringTest, ValidQString) {
 
     str = qstr(L"我的文档\\中文目录");
     result = path_from(str);
+
+#if OS_WIN
     EXPECT_EQ(result.wstring(), L"我的文档\\中文目录");
+#else
+    EXPECT_EQ(result.string(), "我的文档\\中文目录");
+#endif
 }
 #endif
 
@@ -201,7 +214,12 @@ TEST(PathFilenameTrimTest, PlaceholderReplacement)
 {
     EXPECT_EQ(path_filename_trim(path("read/me.txt"), ".", false), "read.me.txt");
     EXPECT_EQ(path_filename_trim(path("readme.?txt"), ".", false), "readme..txt");
+
+#if OS_WIN
     EXPECT_EQ(path_filename_trim(path("readme.?txt"), L"佔位符"), L"readme.佔位符txt");
+#else
+    EXPECT_EQ(path_filename_trim(path("readme.?txt"), "佔位符"), "readme.佔位符txt");
+#endif
 }
 
 TEST(PathFilenameTrimTest, TrailingDotOrSpace)
@@ -214,7 +232,11 @@ TEST(PathFilenameTrimTest, TrailingDotOrSpace)
     EXPECT_EQ(path_filename_trim(path("...")), "_");
     EXPECT_EQ(path_filename_trim(path("....")), "_");
 
+#if OS_WIN
     EXPECT_EQ(path_filename_trim(path(L"………………………………...")), L"………………………………");
+#else
+    EXPECT_EQ(path_filename_trim(path("………………………………...")), "………………………………");
+#endif
 }
 
 TEST(PathFilenameTrimTest, EmptyFilename)
@@ -278,7 +300,7 @@ TEST(PathFilenameIncrementTest, UnicodeNames)
 }
 
 #if OS_WIN
-TEST(FilenameTrimTest, TrimFilenameWithPlaceholder) {
+TEST(PathFromSysdir, Simple) {
     path path1, path2;
     std::error_code ecode;
     {

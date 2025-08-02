@@ -32,9 +32,34 @@
 
 namespace UTILITY_NAMESPACE {
 namespace fs {
+    
+inline path path_form_wstring(const std::wstring &p)
+{
+#if OS_WIN
+    return path(p);
+#else
+    return utf8(p);
+#endif
+}
+
+inline std::wstring path_to_wstring(const path &p)
+{
+#if OS_WIN
+    return p.wstring();
+#else
+    // 早期的 GCC (13-) 以及 Clang(17-) 对 path 与 wstring 的转换支持并不理想.
+    // 这里直接显示转换
+    return wstr(p.string());
+#endif
+}
 
 path path_from_utf8(const std::string& str) {
+#if OS_WIN
     return path(wstr_u8(str));
+#else
+    // Unix-Like native normal encoding is UTF-8.
+    return path(str);
+#endif
 }
 
 #ifdef UTILITY_SUPPORT_QT
@@ -275,6 +300,8 @@ bool path_is_writable(const path& path, std::error_code& error) noexcept
 // 控制字符: https://en.cppreference.com/w/cpp/string/byte/iscntrl
 template<typename CharT>
 inline bool is_invalid_char(CharT c) {
+    if (c < 0)
+        return false;       // ASCII 0 ~ 127, 属于其他编码
     if (c < 32 || c == 127) // Control characters and DEL
         return true;
     
@@ -305,7 +332,7 @@ inline std::basic_string<_TChar> filename_trim(
         else
             result += c;
     }
-    
+
     // 去掉末尾的句点（Windows 禁止）
     while (!result.empty() && result.back() == '.')
         result.pop_back();
@@ -346,45 +373,41 @@ inline std::basic_string<_TChar> filename_trim(
     return result;
 }
 
-path path_filename_trim(const path& filename, const path& placeholder, bool has_parent) noexcept 
+path path_filename_trim(const path &filename, const path &placeholder, bool has_parent) noexcept
 {
     if (has_parent)
     {
-        const auto& parent  = filename.parent_path();
-        const auto& name    = filename.filename();
-        const auto& cleaned = filename_trim(name.wstring(), placeholder.wstring());
-        return parent / cleaned;
+        const auto &cleaned = path_form_wstring(
+            filename_trim(path_to_wstring(filename.filename()), path_to_wstring(placeholder)));
+        return filename.parent_path() / cleaned;
     }
-
-    return filename_trim(filename.wstring(), placeholder.wstring());
+    return path_form_wstring(filename_trim(path_to_wstring(filename), path_to_wstring(placeholder)));
 }
 
 path path_filename_increment(const path& filename, bool ignore_extension) noexcept
 {
-    path parent = filename.parent_path();
-    path name = filename.filename();
-    
     path base, ext;
     if (!ignore_extension) {
         ext = filename.extension();
         base = filename.stem();
     } else {
-        base = name;
+        base = filename.filename();
     }
 
     // 提取已有编号 (xxx(n))
     std::wregex pattern(LR"((.*)\((\d+)\)$)");
     std::wsmatch match;
-    std::wstring target = base.wstring();
+    std::wstring stem = path_to_wstring(base);
 
     int number = 1;
-    if (std::regex_match(target, match, pattern)) {
-        base = match[1].str();
+    if (std::regex_match(stem, match, pattern)) {
+        stem = match[1].str();
         number = std::stoi(match[2].str()) + 1;
     }
 
-    auto new_name = base.wstring() + L"(" + std::to_wstring(number) + L")" + ext.wstring();
-    return parent / new_name;
+    const auto &index = L"(" + std::to_wstring(number) + L")";
+    const auto &incremented = stem + index + path_to_wstring(ext);
+    return filename.parent_path() / path_form_wstring(incremented);
 }
 
 #if OS_WIN
