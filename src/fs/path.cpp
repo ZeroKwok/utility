@@ -411,12 +411,14 @@ path path_filename_increment(const path& filename, bool ignore_extension) noexce
     // 提取已有编号 (xxx(n))
     std::wregex pattern(LR"((.*)\((\d+)\)$)");
     std::wsmatch match;
-    std::wstring stem = path_to_wstring(base);
+    std::wstring stem, target = path_to_wstring(base);
 
     int number = 1;
-    if (std::regex_match(stem, match, pattern)) {
+    if (std::regex_match(target, match, pattern)) {
         stem = match[1].str();
         number = std::stoi(match[2].str()) + 1;
+    } else {
+        stem = target;
     }
 
     const auto &index = L"(" + std::to_wstring(number) + L")";
