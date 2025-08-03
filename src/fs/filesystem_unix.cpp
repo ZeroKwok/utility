@@ -111,6 +111,7 @@ void close(const fptr& file)
 
 void close(const fptr& file, std::error_code& error) noexcept
 {
+    error.clear();
     if (file == nullptr)
         return;
 
