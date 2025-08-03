@@ -26,6 +26,7 @@
 #include"string.h"
 
 #include <regex>
+#include <thread>
 #include <algorithm>
 #include <unordered_set>
 #include <boost/algorithm/string.hpp>
@@ -253,47 +254,50 @@ bool path_is_writable(const path& path) {
     return result;
 }
 
-bool path_is_writable(const path& path, std::error_code& error) noexcept
+inline std::string get_thread_id_str() {
+    std::ostringstream oss;
+    oss << std::this_thread::get_id();
+    return oss.str();
+}
+
+bool path_is_writable(const path &path, std::error_code &error) noexcept
 {
     error.clear();
-    if (!exists(path.root_path(), error))
+
+    // 规范化路径并检查根路径是否存在
+    auto dir = path.lexically_normal();
+    if (!exists(dir.root_path(), error))
         return false;
 
-    auto dir = path;
+    // 找到存在的父目录
     while (!exists(dir, error))
+    {
+        if (dir == dir.parent_path())
+            return false; // 到达根目录仍未找到存在的路径
         dir = dir.parent_path();
+    }
 
+    // 确保是目录
     if (!is_directory(dir, error))
         return false;
 
-    auto file = dir / L".utility{2bcb023e-23f9-42f4-87f7-90d94005accb}";
-    do
-    {
-        close(open(file, O_WRONLY | O_CREAT, 0664, error));
-        if (error) 
-            break;
-        remove(file, error);
-        if (error) 
-            break;
-        return true;
-    }
-    while (0);
+    // 创建临时文件测试写入权限
+    auto pid = get_thread_id_str();
+    auto tick = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    auto temp = dir / (".tmp_write_check_" + pid + "_" + tick);
 
+    std::error_code ignore_ec;
+    close(open(temp, O_WRONLY | O_CREAT | O_EXCL, 0664, error), ignore_ec);
+    remove(temp, ignore_ec); // 清理临时文件
     if (error)
     {
-        switch (error.value())
-        {
-#if OS_POSIX
-        case EACCES:
-#else
-        case ERROR_ACCESS_DENIED:
-#endif
+        // 明确处理权限被拒绝的情况
+        if (error.default_error_condition() == std::errc::permission_denied)
             error.clear();
-            break;
-        }
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 // Windows 文件名非法字符（包括控制字符）
