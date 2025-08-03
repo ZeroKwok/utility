@@ -264,8 +264,18 @@ bool path_is_writable(const path &path, std::error_code &error) noexcept
 {
     error.clear();
 
+    if (path.empty())
+    {
+#if OS_POSIX
+        error = MakeSysError(EINVAL);
+#else
+        error = MakeSysError(ERROR_INVALID_PARAMETER);
+#endif
+        return false;
+    }
+
     // 规范化路径并检查根路径是否存在
-    auto dir = path.lexically_normal();
+    auto dir = (path.is_absolute() ? path: current_path() / path).lexically_normal();
     if (!exists(dir.root_path(), error))
         return false;
 
