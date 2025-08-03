@@ -7,6 +7,14 @@
 using namespace util;
 using namespace util::fs;
 
+inline bool isRoot() {
+#if OS_POSIX
+    return geteuid() == 0;
+#else
+    return false;
+#endif
+}
+
 // Tests for path_from_utf8
 TEST(PathFromUtf8Test, ValidUtf8String) {
     std::string utf8_str = "test_directory";
@@ -150,15 +158,32 @@ TEST(PathIsWritableTest, WritablePath) {
     auto exist = exists(temp_file);
     EXPECT_TRUE(exist);
 
-    auto result = path_is_writable(temp_file);
-    EXPECT_FALSE(result);
-    remove(temp_file);
+    // 文件不可写
+    EXPECT_FALSE(path_is_writable(temp_file));
+    remove_all(temp_file);
 
+    // 目录应可写
     EXPECT_TRUE(path_is_writable(path_from_temp("utility")));
 }
 
+TEST(PathIsWritableTest, ReadOnlyDirectory)
+{
+    std::error_code ec;
+    auto tmp = path_from_temp("test_readonly_dir");
+    create_directories(tmp, ec);
+    permissions(tmp, perms(0555)); // r-xr-xr-x
+
+    // 应不可写, root 可写
+    EXPECT_EQ(path_is_writable(tmp, ec), isRoot());
+    EXPECT_FALSE(ec); // 错误被清空
+
+    permissions(tmp, perms::all); // 恢复权限
+    EXPECT_TRUE(path_is_writable(tmp, ec));
+    remove_all(tmp);
+}
+
 TEST(PathIsWritableTest, NonWritablePath) {
-    // TODO
+    // 不存在的路径应找到父目录
 #if OS_WIN
     char szSysPath[MAX_PATH] = {};
     GetSystemDirectoryA(szSysPath, MAX_PATH);
@@ -166,9 +191,24 @@ TEST(PathIsWritableTest, NonWritablePath) {
     path non_writable_path = szSysPath;
     EXPECT_FALSE(path_is_writable(non_writable_path));
 #else
-    path non_writable_path = "/root/test_file.txt";  // Assumes running as non-root user
-    EXPECT_FALSE(path_is_writable(non_writable_path));
+    auto result = path_is_writable("/root/test_file.txt");
+    EXPECT_EQ(result, isRoot());
 #endif
+}
+
+TEST(PathIsWritableTest, RootDirectory)
+{
+    std::error_code ec;
+    EXPECT_EQ(path_is_writable("/", ec), isRoot()); 
+}
+
+TEST(PathIsWritableTest, SpecialName)
+{
+    std::error_code ec;
+    EXPECT_EQ(path_is_writable("NotExist", ec), true); 
+    EXPECT_EQ(path_is_writable(".", ec), true); 
+    EXPECT_EQ(path_is_writable("..", ec), true); 
+    EXPECT_EQ(path_is_writable("", ec), false); // 空路径应返回 false
 }
 
 // Tests for path_filename_trim
