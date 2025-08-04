@@ -166,6 +166,7 @@ TEST(PathIsWritableTest, WritablePath) {
     EXPECT_TRUE(path_is_writable(path_from_temp("utility")));
 }
 
+#if OS_POSIX
 TEST(PathIsWritableTest, ReadOnlyDirectory)
 {
     std::error_code ec;
@@ -182,6 +183,13 @@ TEST(PathIsWritableTest, ReadOnlyDirectory)
     remove_all(tmp);
 }
 
+TEST(PathIsWritableTest, RootDirectory)
+{
+    std::error_code ec;
+    EXPECT_EQ(path_is_writable("/", ec), isRoot()); 
+}
+#endif
+
 TEST(PathIsWritableTest, NonWritablePath) {
     // 不存在的路径应找到父目录
 #if OS_WIN
@@ -196,16 +204,11 @@ TEST(PathIsWritableTest, NonWritablePath) {
 #endif
 }
 
-TEST(PathIsWritableTest, RootDirectory)
-{
-    std::error_code ec;
-    EXPECT_EQ(path_is_writable("/", ec), isRoot()); 
-}
-
 TEST(PathIsWritableTest, SpecialName)
 {
     std::error_code ec;
     EXPECT_EQ(path_is_writable("NotExist", ec), true); 
+    EXPECT_EQ(path_is_writable("../NotExist/../NotExist", ec), true); 
     EXPECT_EQ(path_is_writable(".", ec), true); 
     EXPECT_EQ(path_is_writable("..", ec), true); 
     EXPECT_EQ(path_is_writable("", ec), false); // 空路径应返回 false
