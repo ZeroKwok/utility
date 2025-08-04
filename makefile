@@ -1,16 +1,16 @@
-OPTIONS_BASE := --output-folder=build --settings=compiler.cppstd=20 $(OPTIONS)
+OPTIONS_BASE := --settings=compiler.cppstd=20 $(OPTIONS)
 OPTIONS_COMMON := $(OPTIONS_BASE) --settings=build_type=$(if $(DEBUG),Debug,Release)
-OPTIONS_WITH_OPTIONS := $(OPTIONS_BASE) --settings=build_type=Debug --options=utility/*:with_tests=True
+OPTIONS_WITH_OPTIONS := $(OPTIONS_BASE) --output-folder=build --settings=build_type=Debug --options=utility/*:with_tests=True
 
 .PHONY: rebuild build clean test test-build
 rebuild: clean
 	@echo "Rebuilding ..."
-	conan install . --build=missing $(OPTIONS_COMMON)
-	conan build   . $(OPTIONS_COMMON)
+	conan install . --build=missing --output-folder=build $(OPTIONS_COMMON)
+	conan build   . --output-folder=build $(OPTIONS_COMMON)
 
 build:
 	@echo "Building ..."
-	conan build   . $(OPTIONS_COMMON)
+	conan build   . --output-folder=build $(OPTIONS_COMMON)
 
 test: clean
 	@echo "Running tests..."
