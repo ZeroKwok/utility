@@ -1,13 +1,26 @@
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
 
 class UtilityRecipe(ConanFile):
     name = "utility"
     version = "0.3"
+    description = "A utility library for C++ 20"
+
+    license = "MIT"
+    url = "https://github.com/ZeroKwok/utility"
+    homepage = "https://github.com/ZeroKwok/utility"
+    author = "Zero <zero.kwok@foxmail.com>"
+    topics = ("utility library")
+
+    # package_type should usually be "library", "shared-library" or "static-library"
+    package_type = "library"
     settings = "os", "compiler", "build_type", "arch"
 
     # Define options for the recipe
@@ -64,15 +77,20 @@ class UtilityRecipe(ConanFile):
             f"{self.settings.build_type.value.lower()}")
         self.folders.generators = self.folders.build
 
+    def validate(self):
+        # validate the minimum cpp standard supported. For C++ projects only.
+        check_min_cppstd(self, 20)
+
     def generate(self):
-        deps = CMakeDeps(self)
-        deps.generate()
         tc = CMakeToolchain(self)
         tc.variables["UTILITY_BUILD_SHARED_LIB"] = 'ON' if self.options.shared else 'OFF'
         tc.variables["UTILITY_SUPPORT_QT"] = 'ON' if self.options.with_qt else 'OFF'
         tc.variables["UTILITY_SUPPORT_BOOST"] = 'ON' if self.options.with_boost else 'OFF'
         tc.variables["UTILITY_BUILD_TEST"] = 'ON' if self.options.with_tests else 'OFF'
         tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -82,5 +100,9 @@ class UtilityRecipe(ConanFile):
             cmake.test()
 
     def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+
+    def package_info(self):
+        self.cpp_info.libs = ["utility"]
