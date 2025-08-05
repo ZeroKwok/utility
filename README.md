@@ -15,13 +15,13 @@ Provides features that are commonly used in daily development but not in the C++
 ```bash
 git clone https://github.com/ZeroKwok/utility.git
 cd utility
-make rebuild && make test
+make rebuild
 make install
 ```
 
 Configuration and compile types can be specified at build time, for example:
 
-`make rebuild PROFILE=msvc-142-x86-mt DEBUG=1`
+`make rebuild OPTIONS=--profile=profiles/msvc-142-x86-mt DEBUG=1`
 
 ## How to use
 
