@@ -9,5 +9,6 @@
 
 #include "config.h"
 #include "str/strconv.h"
+#include "str/tstring_view.hpp"
 
 #endif // string_h__
