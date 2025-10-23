@@ -19,6 +19,13 @@ namespace UTILITY_NAMESPACE {
 template <typename CharT>
 using tstring_view = std::basic_string_view<CharT>;
 
+/*
+ * 根据传入类型生成合适的 basic_string_view
+ * 支持：
+ * - char / wchar_t / char8_t（如果可用）
+ * - const char* / const wchar_t*
+ * - string/string_view/wstring/wstring_view
+ */
 template <typename T>
 auto make_tstring_view(T&& str) {
     using CharT = std::remove_cv_t<std::remove_pointer_t<std::decay_t<T>>>;
@@ -42,20 +49,42 @@ auto make_tstring_view(T&& str) {
         static_assert(sizeof(T) == 0, "Unsupported string type");
 }
 
-template <typename StringView>
-std::wstring to_wstring(StringView str) {
-    using CharT = typename StringView::value_type;
+/*
+ * 将各种字符串类型统一转换为 std::wstring
+ * 支持：
+ * - std::wstring / std::wstring_view / const wchar_t*
+ * - std::string / std::string_view / const char*
+ * - std::u8string / std::u8string_view / char8_t* (若支持)
+ */
+template <typename T>
+std::wstring to_wstring(const T& str) {
+    using U = std::decay_t<T>;
 
-    if constexpr (std::is_same_v<CharT, wchar_t>)
+    if constexpr (std::is_same_v<U, std::wstring>)
+        return str;
+    else if constexpr (std::is_same_v<U, std::wstring_view>)
         return std::wstring(str);
-    else if constexpr (std::is_same_v<CharT, char>)
-        return wstr(std::string(str.begin(), str.end()));
+    else if constexpr (std::is_same_v<U, wchar_t*>)
+        return std::wstring(str);
+    else if constexpr (std::is_same_v<U, const wchar_t*>)
+        return std::wstring(str);
+
+    else if constexpr (std::is_same_v<U, std::string>)
+        return wstr(str);
+    else if constexpr (std::is_same_v<U, std::string_view>)
+        return wstr(std::string(str));
+    else if constexpr (std::is_same_v<U, char*> || std::is_same_v<U, const char*>)
+        return wstr(std::string(str));
+
 #if __cpp_char8_t
-    else if constexpr (std::is_same_v<CharT, char8_t>)
-        return wstr_u8(std::string(reinterpret_cast<const char*>(str.data()), str.size()));
+    else if constexpr (std::is_same_v<U, std::u8string> ||      //
+                       std::is_same_v<U, std::u8string_view> || //
+                       std::is_same_v<U, char8_t*> ||           //
+                       std::is_same_v<U, const char8_t*>)
+        return wstr_u8(std::string(reinterpret_cast<const char*>(std::data(str))));
 #endif
     else
-        static_assert(sizeof(CharT) == 0, "Unsupported character type");
+        static_assert(sizeof(U) == 0, "Unsupported string type for as_wstring()");
 }
 
 } // namespace UTILITY_NAMESPACE

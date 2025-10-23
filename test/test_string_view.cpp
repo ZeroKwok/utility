@@ -50,9 +50,9 @@ TEST(ToWStringTest, UsingTStringViewAlias) {
 template <typename PathT, typename NameT, typename ValueT>
 std::tuple<std::wstring, std::wstring, std::wstring>
 test_registry_set_string(PathT path, NameT name, ValueT value) {
-    std::wstring wpath = to_wstring(make_tstring_view(path));
-    std::wstring wname = to_wstring(make_tstring_view(name));
-    std::wstring wvalue = to_wstring(make_tstring_view(value));
+    std::wstring wpath = to_wstring(path);
+    std::wstring wname = to_wstring(name);
+    std::wstring wvalue = to_wstring(value);
     return { wpath, wname, wvalue };
 }
 
