@@ -12,6 +12,8 @@
 #define string_conv_h__
 
 #include "utility/config.h"
+#include <string>
+#include <string_view>
 #include <filesystem>
 #ifdef UTILITY_SUPPORT_QT
 #   include <QString>
@@ -26,7 +28,7 @@ namespace UTILITY_NAMESPACE {
  * @return Reference to the converted std::wstring.
  */
 UTILITY_API std::wstring& string_to_wstring(
-    const std::string& input, std::wstring& output);
+    const std::string_view& input, std::wstring& output);
 
 /**
  * @brief Convert std::wstring to local 8-bit string or std::string.
@@ -35,7 +37,7 @@ UTILITY_API std::wstring& string_to_wstring(
  * @return Reference to the converted string.
  */
 UTILITY_API std::string& wstring_to_string(
-    const std::wstring& input, std::string& output);
+    const std::wstring_view& input, std::string& output);
 
 /**
  * @brief Convert UTF-8 string to std::wstring.
@@ -44,7 +46,7 @@ UTILITY_API std::string& wstring_to_string(
  * @return Reference to the converted std::wstring.
  */
 UTILITY_API std::wstring& utf8_to_wstring(
-    const std::string& input, std::wstring& output);
+    const std::string_view& input, std::wstring& output);
 
 /**
  * @brief Convert std::wstring to UTF-8 string.
@@ -53,7 +55,7 @@ UTILITY_API std::wstring& utf8_to_wstring(
  * @return Reference to the converted UTF-8 string.
  */
 UTILITY_API std::string& wstring_to_utf8(
-    const std::wstring& input, std::string& output);
+    const std::wstring_view& input, std::string& output);
 
 /**
  * @brief Convert UTF-8 string to local 8-bit string or std::string.
@@ -63,7 +65,7 @@ UTILITY_API std::string& wstring_to_utf8(
  * @return Reference to the converted string.
  */
 UTILITY_API std::string& utf8_to_string(
-    const std::string& input, std::string& output);
+    const std::string_view& input, std::string& output);
 
 /**
  * @brief Convert local 8-bit string or std::string to UTF-8 string.
@@ -73,29 +75,39 @@ UTILITY_API std::string& utf8_to_string(
  * @return Reference to the converted UTF-8 string.
  */
 UTILITY_API std::string& string_to_utf8(
-    const std::string& input, std::string& output);
+    const std::string_view& input, std::string& output);
 
 //
 // Convenience APIs
 //////////////////////////////////////////////////////////////////////////
 
 //! @brief Convert std::wstring to std::string.
-UTILITY_API std::string  str(const std::wstring& string); 
+UTILITY_API std::string  str(const std::wstring_view& string); 
+
+#if __cpp_char8_t
+//! @brief Convert std::u8string to std::string.
+UTILITY_API std::string  str(const std::u8string_view& string); 
+#endif
 
 //! @brief Convert UTF-8 string to std::string.
-UTILITY_API std::string  str_u8(const std::string& string); 
+UTILITY_API std::string  str_u8(const std::string_view& string); 
 
 //! @brief Convert std::wstring to UTF-8 string.
-UTILITY_API std::string  utf8(const std::wstring& string); 
+UTILITY_API std::string  utf8(const std::wstring_view& string); 
 
 //! @brief Convert string to UTF-8 string.
-UTILITY_API std::string  utf8(const std::string& string); 
+UTILITY_API std::string  utf8(const std::string_view& string); 
 
 //! @brief Convert std::string to std::wstring.
-UTILITY_API std::wstring wstr(const std::string& string); 
+UTILITY_API std::wstring wstr(const std::string_view& string); 
+
+#if __cpp_char8_t
+//! @brief Convert std::u8string to std::wstring.
+UTILITY_API std::wstring wstr(const std::u8string_view& string); 
+#endif
 
 //! @brief Convert UTF-8 string to std::wstring.
-UTILITY_API std::wstring wstr_u8(const std::string& string); 
+UTILITY_API std::wstring wstr_u8(const std::string_view& string); 
 
 #ifdef UTILITY_SUPPORT_QT
 
@@ -109,13 +121,13 @@ UTILITY_API std::string  utf8(const QString& string);
 UTILITY_API std::wstring wstr(const QString& string); 
 
 //! @brief Convert std::string to QString.
-UTILITY_API QString qstr(const std::string& string); 
+UTILITY_API QString qstr(const std::string_view& string); 
 
 //! @brief Convert std::wstring to QString.
-UTILITY_API QString qstr(const std::wstring& string); 
+UTILITY_API QString qstr(const std::wstring_view& string); 
 
 //! @brief Convert UTF-8 string to QString.
-UTILITY_API QString qstr_u8(const std::string& string); 
+UTILITY_API QString qstr_u8(const std::string_view& string); 
 
 #endif // UTILITY_SUPPORT_QT
 

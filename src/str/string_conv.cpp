@@ -46,6 +46,18 @@ std::string str(const std::filesystem::path& path) {
     return path.string();
 }
 
+#if __cpp_char8_t
+std::string str(const std::u8string_view& string) {
+    std::string result;
+    return utf8_to_string(reinterpret_cast<const char*>(string.data()), result);
+}
+
+std::wstring wstr(const std::u8string_view& string) {
+    std::wstring result;
+    return utf8_to_wstring(reinterpret_cast<const char*>(string.data()), result);
+}
+#endif
+
 #ifdef UTILITY_SUPPORT_QT
 
 std::string str (const QString& string) {
