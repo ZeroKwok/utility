@@ -22,9 +22,9 @@ using tstring_view = std::basic_string_view<CharT>;
 /*
  * 根据传入类型生成合适的 basic_string_view
  * 支持：
- * - char / wchar_t / char8_t（如果可用）
- * - const char* / const wchar_t*
- * - string/string_view/wstring/wstring_view
+ * - std::string / const char*
+ * - std::wstring / const wchar_t*
+ * - std::u8string / char8_t* (若支持)
  */
 template <typename T>
 auto make_tstring_view(T&& str) {
@@ -52,8 +52,8 @@ auto make_tstring_view(T&& str) {
 /*
  * 将各种字符串类型统一转换为 std::wstring
  * 支持：
- * - std::wstring / std::wstring_view / const wchar_t*
  * - std::string / std::string_view / const char*
+ * - std::wstring / std::wstring_view / const wchar_t*
  * - std::u8string / std::u8string_view / char8_t* (若支持)
  */
 template <typename T>
@@ -72,19 +72,19 @@ std::wstring to_wstring(const T& str) {
     else if constexpr (std::is_same_v<U, std::string>)
         return wstr(str);
     else if constexpr (std::is_same_v<U, std::string_view>)
-        return wstr(std::string(str));
+        return wstr(str);
     else if constexpr (std::is_same_v<U, char*> || std::is_same_v<U, const char*>)
-        return wstr(std::string(str));
+        return wstr(str);
 
 #if __cpp_char8_t
     else if constexpr (std::is_same_v<U, std::u8string> ||      //
                        std::is_same_v<U, std::u8string_view> || //
                        std::is_same_v<U, char8_t*> ||           //
                        std::is_same_v<U, const char8_t*>)
-        return wstr_u8(std::string(reinterpret_cast<const char*>(std::data(str))));
+        return wstr_u8(reinterpret_cast<const char*>(std::data(str)));
 #endif
     else
-        static_assert(sizeof(U) == 0, "Unsupported string type for as_wstring()");
+        static_assert(sizeof(U) == 0, "Unsupported string type for to_wstring()");
 }
 
 } // namespace UTILITY_NAMESPACE
