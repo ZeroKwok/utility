@@ -12,32 +12,32 @@
 
 namespace UTILITY_NAMESPACE {
 
-std::string str(const std::wstring& string) {
+std::string str(const std::wstring_view& string) {
     std::string result;
     return wstring_to_string(string, result);
 }
 
-std::string str_u8(const std::string& string) {
+std::string str_u8(const std::string_view& string) {
     std::string result;
     return utf8_to_string(string, result);
 }
 
-std::string  utf8(const std::wstring& string) {
+std::string  utf8(const std::wstring_view& string) {
     std::string result;
     return wstring_to_utf8(string, result);
 }
 
-std::string  utf8(const std::string& string) {
+std::string  utf8(const std::string_view& string) {
     std::string result;
     return string_to_utf8(string, result);
 }
 
-std::wstring wstr(const std::string& string) {
+std::wstring wstr(const std::string_view& string) {
     std::wstring result;
     return string_to_wstring(string, result);
 }
 
-std::wstring wstr_u8(const std::string& string) {
+std::wstring wstr_u8(const std::string_view& string) {
     std::wstring result;
     return utf8_to_wstring(string, result);
 }
@@ -66,7 +66,7 @@ std::wstring wstr(const QString& string)
 #endif
 }
 
-QString qstr(const std::string& string)
+QString qstr(const std::string_view& string)
 {
     // 在 Qt 5.15 中 QString::fromStdString() 的实现如下,
     // 将多字节字符串当成 UTF-8 处理, 当多字节为本地8位编码时将导致乱码.
@@ -83,7 +83,7 @@ QString qstr(const std::string& string)
 #endif
 }
 
-QString qstr(const std::wstring& string)
+QString qstr(const std::wstring_view& string)
 {
 #if OS_WIN
     // 在 Qt lib 中未将 wchar_t 视为内置类型, 反而作为 unsigned short
@@ -104,7 +104,7 @@ QString qstr(const std::wstring& string)
 #endif
 }
 
-QString qstr_u8(const std::string& string) {
+QString qstr_u8(const std::string_view& string) {
     return QString::fromUtf8(string.c_str(), string.size());
 }
 
